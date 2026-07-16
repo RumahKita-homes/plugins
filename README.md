@@ -6,7 +6,7 @@ Welcome to the specific Source Code Repository for **RumahKita Server**. This re
 
 All plugin code is separated by category. You can open each plugin's folder to view the source code (`src/main/java`) and read the `README.md` file inside to understand the specific function of that plugin.
 
-*   `src-plugins/phy0n/` - Collection of core server plugins (Admin, EconomyV2, Warps, Trade, etc).
+*   `src-plugins/phy0n/` - Phy0n Plugins Repository.
 *   `src-plugins/RumahKitaGuilds_src/` - Guild & Faction System.
 *   `src-plugins/RumahKitaAntiXray_src/` - Anti X-Ray Security System.
 *   `src-plugins/RumahKitaDiscordVerify_src/` - Discord Bot Synchronization.

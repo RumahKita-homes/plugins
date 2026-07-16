@@ -33,12 +33,12 @@ public enum GuildRole {
     }
 
     public String displayName(RumahKitaGuildsPlugin plugin) {
-        return switch (this.ordinal()) {
-            default -> throw new MatchException(null, null);
-            case 0 -> plugin.getConfig().getString("placeholder.role-leader", "Leader");
-            case 1 -> plugin.getConfig().getString("placeholder.role-admin", "Admin");
-            case 2 -> plugin.getConfig().getString("placeholder.role-member", "Member");
-        };
+        switch (this.ordinal()) {
+            case 0: return plugin.getConfig().getString("placeholder.role-leader", "Leader");
+            case 1: return plugin.getConfig().getString("placeholder.role-admin", "Admin");
+            case 2: return plugin.getConfig().getString("placeholder.role-member", "Member");
+            default: return "Member";
+        }
     }
 }
 

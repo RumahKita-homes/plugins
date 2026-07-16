@@ -53,13 +53,13 @@ extends PlaceholderExpansion {
         if (guild == null) {
             return this.plugin.getConfig().getString("placeholder.no-guild", "");
         }
-        return switch (params.toLowerCase()) {
-            case "tag" -> Text.color(this.plugin.getConfig().getString("placeholder.tag-format", "&8[&b%tag%&8]").replace("%tag%", guild.getTag()));
-            case "tag_raw" -> guild.getTag();
-            case "name" -> guild.getName();
-            case "role" -> guild.getRole(player.getUniqueId()).displayName(this.plugin);
-            default -> "";
-        };
+        switch (params.toLowerCase()) {
+            case "tag": return Text.color(this.plugin.getConfig().getString("placeholder.tag-format", "&8[&b%tag%&8]").replace("%tag%", guild.getTag()));
+            case "tag_raw": return guild.getTag();
+            case "name": return guild.getName();
+            case "role": return guild.getRole(player.getUniqueId()).displayName(this.plugin);
+            default: return "";
+        }
     }
 }
 

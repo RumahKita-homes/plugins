@@ -42,7 +42,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import net.kyori.adventure.text.Component;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -105,7 +105,8 @@ implements Listener {
             this.help(player);
             return;
         }
-        switch (sub = args[1].toLowerCase(Locale.ROOT)) {
+        sub = args[1].toLowerCase(Locale.ROOT);
+        switch (sub) {
             case "accept": {
                 this.accept(player, args);
                 break;
@@ -169,7 +170,7 @@ implements Listener {
                 Text.msg((CommandSender)player, "&cEmerald wallet guild tidak cukup.");
                 return;
             }
-            HashMap left = player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.EMERALD, amount)});
+            HashMap<Integer, ItemStack> left = player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.EMERALD, amount)});
             for (ItemStack item : left.values()) {
                 player.getWorld().dropItemNaturally(player.getLocation(), item);
             }
@@ -288,7 +289,8 @@ implements Listener {
         for (Player p : side2) {
             this.preparePlayer(p, loc2, g2.getTag());
         }
-        this.activeWar.countdownLeft = countdown = this.plugin.getConfig().getInt("guild-war.countdown-seconds", 10);
+        countdown = this.plugin.getConfig().getInt("guild-war.countdown-seconds", 10);
+        this.activeWar.countdownLeft = countdown;
         this.activeWar.running = false;
         Bukkit.broadcastMessage((String)Text.color(this.pref() + "&dGuild War &f" + g1.getTag() + " &7vs &f" + g2.getTag() + " &edimulai dalam &c" + countdown + " detik&e!"));
         this.ticker = Bukkit.getScheduler().runTaskTimer((Plugin)this.plugin, this::tickWar, 20L, 20L);
@@ -333,7 +335,7 @@ implements Listener {
         if (this.plugin.getConfig().getBoolean("guild-war.actionbar", true)) {
             String bar = Text.color("&dGuild War &8| &f" + this.activeWar.guild1 + " &e" + this.activeWar.score(this.activeWar.guild1) + " &7vs &f" + this.activeWar.guild2 + " &e" + this.activeWar.score(this.activeWar.guild2) + " &8| &7" + left + "s");
             for (Player p : this.activePlayers()) {
-                p.sendActionBar((Component)Component.text((String)bar));
+                p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, new net.md_5.bungee.api.chat.TextComponent(bar));
             }
         }
         if (left <= 0L) {
@@ -344,7 +346,8 @@ implements Listener {
     private void endByScore() {
         int s2;
         int s1 = this.activeWar.score(this.activeWar.guild1);
-        if (s1 > (s2 = this.activeWar.score(this.activeWar.guild2))) {
+        s2 = this.activeWar.score(this.activeWar.guild2);
+        if (s1 > s2) {
             this.endWar("Score " + s1 + " - " + s2, this.activeWar.guild1);
         } else if (s2 > s1) {
             this.endWar("Score " + s1 + " - " + s2, this.activeWar.guild2);
@@ -519,7 +522,7 @@ implements Listener {
             return true;
         }
         if (this.plugin.getConfig().getBoolean("guild-war.command-blocker.block-all", true)) {
-            List allowed = this.plugin.getConfig().getStringList("guild-war.command-blocker.allowed-commands");
+            List<String> allowed = this.plugin.getConfig().getStringList("guild-war.command-blocker.allowed-commands");
             for (String allow : allowed) {
                 String clean = allow.toLowerCase(Locale.ROOT).replace("/", "").trim();
                 if (!command.equals(clean)) continue;
@@ -527,7 +530,7 @@ implements Listener {
             }
             return false;
         }
-        List blocked = this.plugin.getConfig().getStringList("guild-war.command-blocker.blocked-commands");
+        List<String> blocked = this.plugin.getConfig().getStringList("guild-war.command-blocker.blocked-commands");
         for (String block : blocked) {
             String clean = block.toLowerCase(Locale.ROOT).replace("/", "").trim();
             if (!command.equals(clean)) continue;
@@ -555,10 +558,10 @@ implements Listener {
     private void stop(Player player) {
         boolean allowed;
         Guild guild = this.guildManager.getGuild(player);
-        boolean bl = allowed = player.hasPermission("rumahkitaguilds.war.admin") || player.hasPermission("rumahkitaguilds.admin");
+        allowed = player.hasPermission("rumahkitaguilds.war.admin") || player.hasPermission("rumahkitaguilds.admin");
         if (!allowed && this.activeWar != null && guild != null && this.canManageWar(guild, player.getUniqueId())) {
             String tag = guild.getTag();
-            boolean bl2 = allowed = tag.equalsIgnoreCase(this.activeWar.guild1) || tag.equalsIgnoreCase(this.activeWar.guild2);
+            allowed = tag.equalsIgnoreCase(this.activeWar.guild1) || tag.equalsIgnoreCase(this.activeWar.guild2);
         }
         if (!allowed) {
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission"));
@@ -589,7 +592,7 @@ implements Listener {
 
     private List<Player> activePlayers() {
         if (this.activeWar == null) {
-            return List.of();
+            return java.util.Collections.emptyList();
         }
         return this.activeWar.participants.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).filter(OfflinePlayer::isOnline).collect(Collectors.toList());
     }

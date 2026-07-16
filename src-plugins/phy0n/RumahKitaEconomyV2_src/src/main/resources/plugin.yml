@@ -35,6 +35,10 @@ commands:
   rke:
     description: Admin Economy RumahKita
     usage: /rke
+  trade:
+    description: "Pertukaran item aman antar pemain"
+    aliases: [barter, tukar]
+    usage: "/trade <nama_player> | /trade accept | /trade deny"
 permissions:
   market.use:
     default: true

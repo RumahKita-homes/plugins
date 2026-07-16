@@ -59,6 +59,7 @@ extends JavaPlugin {
         } else {
             this.getLogger().warning("PlaceholderAPI not found. Guild placeholders will not work until PlaceholderAPI is installed.");
         }
+        new GuildAdminCommand(this);
         this.getLogger().info("RumahKitaGuilds v2.3.3 GuildWar enabled.");
     }
 

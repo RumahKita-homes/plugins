@@ -130,6 +130,7 @@ TabExecutor {
     private NamespacedKey keyVoucherId;
     private NamespacedKey keyVoucherPercent;
     private NamespacedKey keyRefundId;
+    private id.rumahkita.trade.TradeManager tradeManager;
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static RumahKitaEconomyRupiahPlugin instance;
@@ -163,6 +164,13 @@ TabExecutor {
             Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.runRefundMigration((CommandSender)Bukkit.getConsoleSender(), false), 60L);
         }
         this.setupVault();
+        this.tradeManager = new id.rumahkita.trade.TradeManager(this);
+        id.rumahkita.trade.TradeCommand tradeCmd = new id.rumahkita.trade.TradeCommand(this.tradeManager);
+        if (this.getCommand("trade") != null) {
+            this.getCommand("trade").setExecutor((CommandExecutor)tradeCmd);
+            this.getCommand("trade").setTabCompleter((TabCompleter)tradeCmd);
+        }
+        Bukkit.getPluginManager().registerEvents(this.tradeManager, this);
         this.getLogger().info("RumahKitaEconomyRupiah v2.1.1 BalanceMigrationFix enabled.");
     }
 
@@ -176,6 +184,9 @@ TabExecutor {
     }
 
     public void onDisable() {
+        if (this.tradeManager != null) {
+            this.tradeManager.cancelAllActiveTrades();
+        }
         this.saveData();
     }
 
@@ -804,7 +815,10 @@ TabExecutor {
             return true;
         }
         if (sub.equals("save")) {
-            this.saveData();
+            if (this.tradeManager != null) {
+            this.tradeManager.cancelAllActiveTrades();
+        }
+        this.saveData();
             this.msg(sender, "&aData tersimpan.");
             return true;
         }
@@ -1496,7 +1510,10 @@ TabExecutor {
             this.migrationCfg.set("old-player-shop-refund.done", true);
             this.migrationCfg.set("old-player-shop-refund.last_run", System.currentTimeMillis());
             this.migrationCfg.set("old-player-shop-refund.last_created", created);
-            this.saveData();
+            if (this.tradeManager != null) {
+            this.tradeManager.cancelAllActiveTrades();
+        }
+        this.saveData();
             this.msg(sender, "&aRefund migration selesai. Pending baru: &f" + created);
         }
         catch (Exception e) {

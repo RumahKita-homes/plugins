@@ -313,7 +313,7 @@ extends JavaPlugin {
         if (monster == null || !monster.isValid() || monster.isDead()) {
             return false;
         }
-        if (this.ignoreNamedMobs && monster.customName() != null) {
+        if (this.ignoreNamedMobs && monster.getCustomName() != null) {
             return false;
         }
         String mobType = monster.getType().name().toUpperCase(Locale.ROOT);

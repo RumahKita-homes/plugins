@@ -1,4 +1,4 @@
-# RumahKita Plugins Repository 🏰
+# RumahKita Plugins Repository
 
 Welcome to the specific Source Code Repository for **RumahKita Server**. This repository contains a collection of legacy plugins (extracted/decompiled) as well as new custom-developed plugins for internal server needs.
 

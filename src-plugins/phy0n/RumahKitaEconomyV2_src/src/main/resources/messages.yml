@@ -1,0 +1,46 @@
+buy-success: '&aSuccessfully bought &f%amount%x %item% &afor &eRp%price%&a.'
+claim-full: '&cYour inventory is full.
+
+  &7Please clear some slots and try again.'
+claim-success: '&aClaimed items successfully.'
+daily-limit: '&cDaily buy/sell limit for this item has been reached.
+
+  &7Try again tomorrow.'
+invalid-number: '&cInvalid number.'
+item-not-sellable: '&cThis item cannot be sold.
+
+  &7To maintain server economy, only &aMob Drops &7and &aFarming &7can be sold to the server.
+
+  &7Important items like ores, diamonds, emeralds, and netherite are only controlled via the &6Server Market&7.'
+no-permission: '&cYou do not have permission.'
+not-enough-item: '&cYou do not have enough items to sell.'
+not-enough-money: '&cInsufficient balance. You need &eRp%price%&c.'
+not-enough-playtime: '&cNot enough playtime.
+
+  &7You need at least &e%hours% hours &7of playtime to sell items to the market.
+
+  &7This is to prevent the use of alt accounts.'
+player-only: '&cThis command is for players only.'
+prefix: ""
+price-updated: '&6Market price updated.
+
+  &7%item% is now: &eRp%price%
+
+  &8Changes based on market demand.'
+refund-login: '&aItems from Player Shop have been refunded.
+
+  &7Because the server economy system was updated, the items you previously sold in the Player Shop have been refunded to keep the economy stable.
+
+  &7Successfully refunded: &f%amount% items
+
+  &7If your inventory is full, some items have been sent to the claim menu.
+
+  &eUse &f/market claim &eto claim the remaining items.'
+reloaded: '&aEconomy reloaded successfully.'
+sell-success: '&aSuccessfully sold &f%amount%x %item% &afor a total of &eRp%price%&a.'
+stock-empty: '&cThis item is currently out of stock.
+
+  &7Wait for the next restock or check back later.'
+voucher-cleared: '&aActive voucher cancelled.'
+voucher-given: '&aDiscount voucher successfully given.'
+voucher-selected: '&aVoucher &f%diskon%%% &aselected successfully.'

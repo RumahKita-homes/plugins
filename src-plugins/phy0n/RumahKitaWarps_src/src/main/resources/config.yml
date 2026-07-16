@@ -1,0 +1,10 @@
+# RumahKitaWarps Configuration
+cost:
+  create: 50000
+messages:
+  prefix: "&8[&b&lPWarp&8] "
+
+# RumahKitaRTP Configuration
+rtp:
+  radius: 3000
+  cost: 1000

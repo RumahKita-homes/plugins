@@ -319,8 +319,6 @@ public class RumahKitaAdminPlugin extends JavaPlugin implements CommandExecutor,
         sender.sendMessage(ChatColor.DARK_GRAY + "=======================================");
     }
 
-    // --- NEW MODERATION COMMANDS ---
-
     private boolean handleReload(CommandSender sender) {
         reloadConfig();
         loadJailData();
@@ -690,8 +688,6 @@ public class RumahKitaAdminPlugin extends JavaPlugin implements CommandExecutor,
             event.setCancelled(true);
         }
     }
-
-    // --- OLD COMMAND IMPLEMENTATIONS WITH NEW TROLLS ---
 
     private boolean handleMute(CommandSender sender, String[] args) {
         if (args.length < 2) {

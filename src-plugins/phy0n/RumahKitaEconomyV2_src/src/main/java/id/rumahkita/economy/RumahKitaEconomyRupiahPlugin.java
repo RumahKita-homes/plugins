@@ -1746,18 +1746,18 @@ TabExecutor {
     public String getBalanceShort(OfflinePlayer p) {
         long v = this.getBalance(p.getUniqueId());
         if (v >= 1000000000000L) {
-            return "Rp " + (v / 1000000000000L) + "T";
+            return (v / 1000000000000L) + "T";
         }
         if (v >= 1000000000L) {
-            return "Rp " + (v / 1000000000L) + "B";
+            return (v / 1000000000L) + "B";
         }
         if (v >= 1000000L) {
-            return "Rp " + (v / 1000000L) + "M";
+            return (v / 1000000L) + "M";
         }
         if (v >= 1000L) {
-            return "Rp " + (v / 1000L) + "K";
+            return (v / 1000L) + "K";
         }
-        return this.formatRp(v);
+        return this.formatNumber(v);
     }
 
     public String getVoucherPlaceholder(OfflinePlayer p) {

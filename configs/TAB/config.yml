@@ -89,10 +89,8 @@ scoreboard:
     rumahkita:
       title: "&d&lRUMAHKITA &fS2"
       lines:
-        - "&8&m                      "
-        - "&f%player%%essentials_afk% &b%rumahkitaguilds_tag_raw%"
-        - "&a%rke_balance%"
-        - "&8&m                      "
+        - "%luckperms_prefix%%player%"
+        - "&a$ &f%rke_balance_short%"
 
 layout:
   enabled: false
@@ -162,6 +160,8 @@ placeholder-output-replacements:
   "%essentials_afk%":
     "yes": " &8[&cAFK&8]"
     "no": ""
+  "%rke_balance_short%":
+    "Rp ": ""
 
 conditions:
   ping_color:
@@ -179,6 +179,21 @@ conditions:
       - "%player%=%essentials_nickname%"
     true: "%player%"
     false: "~%essentials_nickname%"
+  sb_time:
+    conditions:
+      - "permission:sb.hide.time=true"
+    true: ""
+    false: "&e⌚ &f%statistic_hours_played%h"
+  sb_kills:
+    conditions:
+      - "permission:sb.hide.kills=true"
+    true: ""
+    false: "&c🗡 &f%statistic_player_kills%"
+  sb_deaths:
+    conditions:
+      - "permission:sb.hide.deaths=true"
+    true: ""
+    false: "&6☠ &f%statistic_deaths%"
 
 placeholder-refresh-intervals:
   default-refresh-interval: 500

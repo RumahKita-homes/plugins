@@ -62,7 +62,7 @@ TabExecutor {
             return;
         }
         int delay = Math.max(1, this.plugin.getConfig().getInt("sleep.delay-after-bed-enter-ticks", 20));
-        Bukkit.getScheduler().runTaskLater((Plugin)this.plugin, () -> this.checkWorld(event.getPlayer().getWorld(), event.getPlayer()), (long)delay);
+        Bukkit.getScheduler().runTaskLater(this.plugin.getPlugin(), () -> this.checkWorld(event.getPlayer().getWorld(), event.getPlayer()), (long)delay);
     }
 
     @EventHandler
@@ -70,7 +70,7 @@ TabExecutor {
         if (!this.plugin.getConfig().getBoolean("sleep.enabled", true)) {
             return;
         }
-        Bukkit.getScheduler().runTaskLater((Plugin)this.plugin, () -> this.checkWorld(event.getPlayer().getWorld(), null), 5L);
+        Bukkit.getScheduler().runTaskLater(this.plugin.getPlugin(), () -> this.checkWorld(event.getPlayer().getWorld(), null), 5L);
     }
 
     @EventHandler
@@ -78,7 +78,7 @@ TabExecutor {
         if (!this.plugin.getConfig().getBoolean("sleep.enabled", true)) {
             return;
         }
-        Bukkit.getScheduler().runTaskLater((Plugin)this.plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin.getPlugin(), () -> {
             World world = event.getPlayer().getWorld();
             if (world != null) {
                 this.checkWorld(world, null);

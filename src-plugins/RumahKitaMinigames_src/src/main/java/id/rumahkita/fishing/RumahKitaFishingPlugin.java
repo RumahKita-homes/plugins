@@ -37,6 +37,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class RumahKitaFishingPlugin
 {
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
+
+    
+    private final org.bukkit.plugin.java.JavaPlugin plugin;
+    public RumahKitaFishingPlugin(org.bukkit.plugin.java.JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     private ConfigFile fishesConfig;
     private ConfigFile messagesConfig;
     private ConfigFile guiConfig;
@@ -86,9 +102,9 @@ public final class RumahKitaFishingPlugin
     }
 
     private void setupFiles() {
-        this.fishesConfig = new ConfigFile(this, "fishes.yml");
-        this.messagesConfig = new ConfigFile(this, "messages.yml");
-        this.guiConfig = new ConfigFile(this, "gui.yml");
+        this.fishesConfig = new ConfigFile(this.plugin, "fishes.yml");
+        this.messagesConfig = new ConfigFile(this.plugin, "messages.yml");
+        this.guiConfig = new ConfigFile(this.plugin, "gui.yml");
         this.fishesConfig.setup();
         this.messagesConfig.setup();
         this.guiConfig.setup();
@@ -124,14 +140,14 @@ public final class RumahKitaFishingPlugin
     }
 
     private void setupListeners() {
-        Bukkit.getPluginManager().registerEvents((Listener)new FishingListener(this), (Plugin)this);
-        Bukkit.getPluginManager().registerEvents((Listener)new GuiListener(this), (Plugin)this);
-        Bukkit.getPluginManager().registerEvents((Listener)new PlayerListener(this), (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)new FishingListener(this), this.plugin);
+        Bukkit.getPluginManager().registerEvents((Listener)new GuiListener(this), this.plugin);
+        Bukkit.getPluginManager().registerEvents((Listener)new PlayerListener(this), this.plugin);
     }
 
     private void startAutoSaveTask() {
         long minutes = Math.max(1L, plugin.getConfig().getLong("settings.auto-save-interval-minutes", 10L));
-        this.autoSaveTaskId = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.autoSaveTaskId = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             this.playerDataManager.saveAll();
             this.dailyLimitManager.save();
         }, minutes * 60L * 20L, minutes * 60L * 20L).getTaskId();

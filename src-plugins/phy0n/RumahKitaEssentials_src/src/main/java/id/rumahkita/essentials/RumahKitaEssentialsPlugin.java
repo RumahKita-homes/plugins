@@ -12,7 +12,6 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
     private RumahKitaUtilitiesPlugin utilitiesModule;
     private RumahKitaWarpsPlugin warpsModule;
 
-    @Override
     public void onEnable() {
         // Save default config from all modules if needed, or handle in modules
         this.saveDefaultConfig();
@@ -32,7 +31,6 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
         getLogger().info("RumahKita Essentials v1.0.0 Enabled.");
     }
 
-    @Override
     public void onDisable() {
         if (adminModule != null) {
             adminModule.onDisable();

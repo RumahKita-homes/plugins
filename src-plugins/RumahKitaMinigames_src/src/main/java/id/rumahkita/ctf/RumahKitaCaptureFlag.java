@@ -180,7 +180,7 @@ TabCompleter {
     public void onEnable() {
         plugin.saveDefaultConfig();
         this.loadSettings();
-        plugin.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        plugin.getServer().getPluginManager().registerEvents((Listener)this, this.plugin);
         if (plugin.getCommand("rkctf") != null) {
             plugin.getCommand("rkctf").setExecutor((CommandExecutor)this);
             plugin.getCommand("rkctf").setTabCompleter((TabCompleter)this);
@@ -290,7 +290,7 @@ TabCompleter {
         if (this.scoreboardTask != null) {
             this.scoreboardTask.cancel();
         }
-        this.scoreboardTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.scoreboardTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (!this.enabled || !this.forceScoreboardEnabled) {
                 return;
             }
@@ -305,7 +305,7 @@ TabCompleter {
         if (this.particleTask != null) {
             this.particleTask.cancel();
         }
-        this.particleTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.particleTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (!(this.enabled && this.particlesEnabled && this.showCaptureRing)) {
                 return;
             }
@@ -365,7 +365,7 @@ TabCompleter {
         if (!this.captureRotationEnabled || this.capturePoints.size() <= 1) {
             return;
         }
-        this.captureRotationTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.captureRotationTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (this.state != GameState.RUNNING) {
                 return;
             }
@@ -747,7 +747,7 @@ TabCompleter {
         this.teleportAllToTeams();
         this.updateAllScoreboards();
         this.broadcast("&eCapture Flag akan dimulai. Player dikunci di sisi masing-masing dulu.");
-        this.countdownTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.countdownTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (this.countdownLeft <= 0) {
                 if (this.countdownTask != null) {
                     this.countdownTask.cancel();
@@ -786,7 +786,7 @@ TabCompleter {
             player.sendTitle(this.color("&a&lMULAI!"), this.color("&fRebut area tengah dan kumpulkan point!"), 10, 40, 10);
             this.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.7f, 1.0f);
         }
-        this.gameTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> {
+        this.gameTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (this.state != GameState.RUNNING) {
                 return;
             }
@@ -885,7 +885,7 @@ TabCompleter {
             this.playSound(player, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1.0f);
             player.sendTitle(this.color("&d&lCTF SELESAI"), this.color("&fCek pemenang di chat!"), 10, 60, 10);
         }
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.restoreAllPlayers(this.teleportToExitAfterEvent);
             this.giveRewardsAfterRestore(winners);
             this.participants.clear();
@@ -980,7 +980,7 @@ TabCompleter {
         if (target != null) {
             event.setRespawnLocation(target);
         }
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             Player player = event.getPlayer();
             Participant participant = this.participants.get(player.getUniqueId());
             if (participant != null && this.state == GameState.RUNNING) {
@@ -1047,7 +1047,7 @@ TabCompleter {
             return;
         }
         if (this.restoreBackupOnJoin && this.hasBackup(player.getUniqueId())) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 if (!this.participants.containsKey(player.getUniqueId()) && this.hasBackup(player.getUniqueId())) {
                     this.restoreInventoryBackup(player, true, false);
                     player.sendMessage(this.prefix + this.color("&aBackup item dari event CTF sebelumnya berhasil direstore otomatis."));

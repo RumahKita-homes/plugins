@@ -8,12 +8,21 @@ public class RumahKitaGamesPlugin {
         this.plugin = plugin;
     }
 
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+
+
     
     private static RumahKitaGamesPlugin instance;
     private CoinflipManager coinflipManager;
     private RpsManager rpsManager;
 
-    @Override
     public void onEnable() {
         instance = this;
         
@@ -24,13 +33,13 @@ public class RumahKitaGamesPlugin {
         saveConfig();
         
         coinflipManager = new CoinflipManager(this);
-        getServer().getPluginManager().registerEvents(coinflipManager, this);
+        getServer().getPluginManager().registerEvents(coinflipManager, this.plugin);
         CoinflipCommand cfCmd = new CoinflipCommand(this);
         getCommand("coinflip").setExecutor(cfCmd);
         getCommand("coinflip").setTabCompleter(cfCmd);
         
         rpsManager = new RpsManager(this);
-        getServer().getPluginManager().registerEvents(rpsManager, this);
+        getServer().getPluginManager().registerEvents(rpsManager, this.plugin);
         RpsCommand rpsCmd = new RpsCommand(this);
         getCommand("rps").setExecutor(rpsCmd);
         getCommand("rps").setTabCompleter(rpsCmd);
@@ -42,7 +51,6 @@ public class RumahKitaGamesPlugin {
         getLogger().info("RumahKitaGames successfully hooked to RumahKitaEconomyV2!");
     }
 
-    @Override
     public void onDisable() {
         getLogger().info("RumahKitaGames disabled.");
     }

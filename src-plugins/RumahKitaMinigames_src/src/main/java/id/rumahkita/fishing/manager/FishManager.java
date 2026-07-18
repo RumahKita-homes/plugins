@@ -179,10 +179,10 @@ public final class FishManager {
         ItemStack main = player.getInventory().getItemInMainHand();
         ItemStack off = player.getInventory().getItemInOffHand();
         if (main.getType() == Material.FISHING_ROD) {
-            luckLevel = Math.max(luckLevel, main.getEnchantmentLevel(Enchantment.LUCK_OF_THE_SEA));
+            luckLevel = Math.max(luckLevel, main.getEnchantmentLevel(Enchantment.LUCK));
         }
         if (off.getType() == Material.FISHING_ROD) {
-            luckLevel = Math.max(luckLevel, off.getEnchantmentLevel(Enchantment.LUCK_OF_THE_SEA));
+            luckLevel = Math.max(luckLevel, off.getEnchantmentLevel(Enchantment.LUCK));
         }
         return (double)luckLevel * this.plugin.getConfig().getDouble("custom-catch.luck-of-the-sea-bonus-percent-per-level", 4.0);
     }

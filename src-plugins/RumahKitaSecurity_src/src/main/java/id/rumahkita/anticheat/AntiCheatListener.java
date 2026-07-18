@@ -70,7 +70,7 @@ implements Listener {
     }
 
     public void startAuditTask() {
-        Bukkit.getScheduler().runTaskTimer((Plugin)this.plugin, () -> {
+        Bukkit.getScheduler().runTaskTimer(this.plugin.getPlugin(), () -> {
             if (!this.plugin.isEnabledInConfig()) {
                 return;
             }

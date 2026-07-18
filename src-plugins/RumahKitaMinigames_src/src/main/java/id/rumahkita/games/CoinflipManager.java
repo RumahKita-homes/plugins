@@ -221,7 +221,7 @@ public class CoinflipManager implements Listener {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 2L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 2L);
     }
 
     public void inviteGame(Player p, Player target, long amount, String side) {

@@ -227,7 +227,7 @@ public class ServerWarpManager implements Listener {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
     }
 
     public static class ServerWarp {

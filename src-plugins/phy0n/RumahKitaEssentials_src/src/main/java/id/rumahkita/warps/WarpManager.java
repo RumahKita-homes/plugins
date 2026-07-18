@@ -1,6 +1,7 @@
 package id.rumahkita.warps;
 
-import id.rumahkita.economy.RumahKitaEconomyRupiahPlugin;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -112,18 +113,23 @@ public class WarpManager implements Listener {
         }
 
         long cost = plugin.getConfig().getLong("cost.create", 50000);
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
+        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            p.sendMessage(getPrefix() + ChatColor.RED + "Economy is not setup!");
+            return false;
+        }
+        Economy economy = rsp.getProvider();
         
-        if (economy.getBalance(p.getUniqueId()) < cost) {
-            p.sendMessage(getPrefix() + ChatColor.RED + "Not enough money! Cost to create pwarp is " + economy.formatRp(cost));
+        if (economy.getBalance(p) < cost) {
+            p.sendMessage(getPrefix() + ChatColor.RED + "Not enough money! Cost to create pwarp is " + economy.format(cost));
             return false;
         }
 
-        economy.takeBalance(p.getUniqueId(), cost);
+        economy.withdrawPlayer(p, cost);
         warps.put(key, new PlayerWarp(name, p.getUniqueId(), p.getLocation()));
         saveWarps();
 
-        p.sendMessage(getPrefix() + ChatColor.GREEN + "Successfully created warp " + ChatColor.YELLOW + name + ChatColor.GREEN + " for a cost of " + economy.formatRp(cost) + "!");
+        p.sendMessage(getPrefix() + ChatColor.GREEN + "Successfully created warp " + ChatColor.YELLOW + name + ChatColor.GREEN + " for a cost of " + economy.format(cost) + "!");
         return true;
     }
 
@@ -332,7 +338,7 @@ public class WarpManager implements Listener {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
     }
 
     public String getPrefix() {

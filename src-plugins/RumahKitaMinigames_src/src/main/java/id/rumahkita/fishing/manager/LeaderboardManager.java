@@ -36,10 +36,10 @@ public final class LeaderboardManager {
         Text.send(sender, this.plugin.messagesConfig().get(), "leaderboard-loading", Map.of());
         Runnable task = () -> {
             List<Row> rows = this.loadRows(type);
-            Bukkit.getScheduler().runTask((Plugin)this.plugin, () -> this.render(sender, type, rows));
+            Bukkit.getScheduler().runTask(this.plugin.getPlugin(), () -> this.render(sender, type, rows));
         };
         if (this.plugin.getConfig().getBoolean("leaderboard.async-load", true)) {
-            Bukkit.getScheduler().runTaskAsynchronously((Plugin)this.plugin, task);
+            Bukkit.getScheduler().runTaskAsynchronously(this.plugin.getPlugin(), task);
         } else {
             task.run();
         }

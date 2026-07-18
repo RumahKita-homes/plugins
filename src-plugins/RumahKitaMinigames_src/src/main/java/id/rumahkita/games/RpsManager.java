@@ -278,7 +278,7 @@ public class RpsManager implements Listener {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
     }
     
     private void sendResult(Player p1, Player p2, String title, String sub) {

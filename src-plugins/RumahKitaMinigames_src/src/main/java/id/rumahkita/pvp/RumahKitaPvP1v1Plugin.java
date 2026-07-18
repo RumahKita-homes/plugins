@@ -80,6 +80,11 @@ import org.bukkit.projectiles.ProjectileSource;
 public final class RumahKitaPvP1v1Plugin
 implements Listener,
 TabExecutor {
+    private final org.bukkit.plugin.java.JavaPlugin plugin;
+    public RumahKitaPvP1v1Plugin(org.bukkit.plugin.java.JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
     private final Map<UUID, Duel> activeDuels = new HashMap<UUID, Duel>();
     private final Map<UUID, Invite> invitesByTarget = new HashMap<UUID, Invite>();
     private final Queue<UUID> quickQueue = new ArrayDeque<UUID>();
@@ -87,12 +92,12 @@ TabExecutor {
 
     public void onEnable() {
         plugin.saveDefaultConfig();
-        Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
         if (plugin.getCommand("pvp") != null) {
             plugin.getCommand("pvp").setExecutor((CommandExecutor)this);
             plugin.getCommand("pvp").setTabCompleter((TabCompleter)this);
         }
-        this.cleanupTask = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)this, this::cleanup, 20L, 20L);
+        this.cleanupTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::cleanup, 20L, 20L);
         plugin.getLogger().info("RumahKitaPvP1v1 v1.0.1 enabled.");
     }
 
@@ -249,7 +254,7 @@ TabExecutor {
         this.msg((CommandSender)p2, this.pref() + this.replace(plugin.getConfig().getString("messages.match-starting"), "%seconds%", String.valueOf(countdown)));
         p1.sendTitle(this.cc("&cPvP 1v1"), this.cc("&eLawan: &f" + p2.getName()), 5, 35, 10);
         p2.sendTitle(this.cc("&cPvP 1v1"), this.cc("&eLawan: &f" + p1.getName()), 5, 35, 10);
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             if (!duel.ending && this.activeDuels.get(p1.getUniqueId()) == duel && this.activeDuels.get(p2.getUniqueId()) == duel) {
                 duel.canDamage = true;
                 this.msg((CommandSender)p1, this.pref() + this.replace(plugin.getConfig().getString("messages.match-started"), "%opponent%", p2.getName()));
@@ -295,7 +300,7 @@ TabExecutor {
             this.removeNearbyProjectiles();
         }
         long delay = Math.max(0L, plugin.getConfig().getLong("arena.end-delay-ticks", 40L));
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.restorePlayer(p1, duel.p1Return);
             this.restorePlayer(p2, duel.p2Return);
         }, delay);
@@ -517,7 +522,7 @@ TabExecutor {
         if ((root = raw.split(" ")[0]).equals("pvp") || root.equals("duel") || root.equals("rkduel") || root.equals("rkpvp")) {
             return;
         }
-        List blocked = plugin.getConfig().getStringList("commands.blocked-during-duel");
+        List<String> blocked = (java.util.List<String>) plugin.getConfig().getStringList("commands.blocked-during-duel");
         for (String b : blocked) {
             if (!root.equalsIgnoreCase(b)) continue;
             event.setCancelled(true);

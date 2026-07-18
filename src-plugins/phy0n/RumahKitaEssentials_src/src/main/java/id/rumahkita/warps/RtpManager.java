@@ -1,6 +1,5 @@
 package id.rumahkita.warps;
 
-import id.rumahkita.economy.RumahKitaEconomyRupiahPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -9,6 +8,9 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.Bukkit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -49,9 +51,15 @@ public class RtpManager {
 
         long rtpCost = plugin.getConfig().getLong("rtp.cost", 1000);
 
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < rtpCost) {
-            p.sendMessage(getPrefix() + ChatColor.RED + "Not enough money! RTP cost is " + economy.formatRp(rtpCost));
+        RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            p.sendMessage(getPrefix() + ChatColor.RED + "Economy is not setup!");
+            return;
+        }
+        Economy economy = rsp.getProvider();
+        
+        if (economy.getBalance(p) < rtpCost) {
+            p.sendMessage(getPrefix() + ChatColor.RED + "Not enough money! RTP cost is " + economy.format(rtpCost));
             return;
         }
 
@@ -68,12 +76,12 @@ public class RtpManager {
                     
                     if (!p.isOnline()) return;
                     
-                    if (economy.getBalance(p.getUniqueId()) < rtpCost) {
+                    if (economy.getBalance(p) < rtpCost) {
                         p.sendMessage(getPrefix() + ChatColor.RED + "Not enough money to pay for RTP.");
                         return;
                     }
                     
-                    economy.takeBalance(p.getUniqueId(), rtpCost);
+                    economy.withdrawPlayer(p, rtpCost);
                     rtpCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
                     teleportWithCountdown(p, loc, rtpCost);
                     
@@ -85,7 +93,7 @@ public class RtpManager {
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0L, 2L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 2L);
     }
     
     private Location findSafeLocation(World world) {
@@ -144,8 +152,12 @@ public class RtpManager {
                 if (startLoc.distanceSquared(p.getLocation()) > 1.0) {
                     p.sendMessage(getPrefix() + ChatColor.RED + "RTP cancelled because you moved.");
                     this.cancel();
-                    RumahKitaEconomyRupiahPlugin.getInstance().addBalance(p.getUniqueId(), rtpCost);
-                    p.sendMessage(getPrefix() + ChatColor.GRAY + "Your money " + RumahKitaEconomyRupiahPlugin.getInstance().formatRp(rtpCost) + " was refunded.");
+                    RegisteredServiceProvider<Economy> rsp = Bukkit.getServer().getServicesManager().getRegistration(Economy.class);
+                    if (rsp != null) {
+                        Economy economy = rsp.getProvider();
+                        economy.depositPlayer(p, rtpCost);
+                        p.sendMessage(getPrefix() + ChatColor.GRAY + "Your money " + economy.format(rtpCost) + " was refunded.");
+                    }
                     return;
                 }
 
@@ -161,6 +173,6 @@ public class RtpManager {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(plugin, 0L, 20L);
+        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
     }
 }

@@ -130,7 +130,7 @@ TabExecutor {
         UUID carried = event.getEntity().getUniqueId();
         UUID carrier = this.carriedToCarrier.get(carried);
         if (carrier != null) {
-            Bukkit.getScheduler().runTask((Plugin)this.plugin, () -> this.dropByCarrier(carrier, false));
+            Bukkit.getScheduler().runTask(this.plugin.getPlugin(), () -> this.dropByCarrier(carrier, false));
         }
     }
 

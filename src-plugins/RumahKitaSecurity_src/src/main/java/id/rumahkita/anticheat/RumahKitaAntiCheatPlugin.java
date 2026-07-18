@@ -37,6 +37,16 @@ public final class RumahKitaAntiCheatPlugin
         this.plugin = plugin;
     }
 
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
+
     private ExemptManager exemptManager;
     private ViolationTracker violationTracker;
     private LogManager logManager;
@@ -47,12 +57,12 @@ public final class RumahKitaAntiCheatPlugin
         this.violationTracker = new ViolationTracker();
         this.logManager = new LogManager(this);
         AntiCheatListener listener = new AntiCheatListener(this, this.exemptManager, this.violationTracker);
-        Bukkit.getPluginManager().registerEvents((Listener)listener, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)listener, this.plugin);
         listener.startAuditTask();
         AntiCheatCommand command = new AntiCheatCommand(this, this.exemptManager, this.violationTracker);
         plugin.getCommand("rkac").setExecutor((CommandExecutor)command);
         plugin.getCommand("rkac").setTabCompleter((TabCompleter)command);
-        Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> this.exemptManager.cleanup(), 600L, 600L);
+        Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.exemptManager.cleanup(), 600L, 600L);
         plugin.getLogger().info("RumahKitaAntiCheat v1.2.0 enabled.");
     }
 

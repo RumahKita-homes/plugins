@@ -39,6 +39,16 @@ implements TabExecutor {
         this.plugin = plugin;
     }
 
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
+
     private RamGuardService ramGuardService;
     private BukkitTask monitorTask;
 
@@ -67,7 +77,7 @@ implements TabExecutor {
         }
         long intervalSeconds = Math.max(5L, plugin.getConfig().getLong("settings.check-interval-seconds", 30L));
         long intervalTicks = intervalSeconds * 20L;
-        this.monitorTask = Bukkit.getScheduler().runTaskTimer((Plugin)this, () -> this.ramGuardService.checkMemory(), 100L, intervalTicks);
+        this.monitorTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.ramGuardService.checkMemory(), 100L, intervalTicks);
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

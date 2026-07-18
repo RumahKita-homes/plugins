@@ -53,16 +53,16 @@ public final class FishItemFactory {
 
     public FishItemFactory(RumahKitaFishingPlugin plugin) {
         this.plugin = plugin;
-        this.uniqueIdKey = new NamespacedKey((Plugin)plugin, "fish_unique_id");
-        this.fishIdKey = new NamespacedKey((Plugin)plugin, "fish_id");
-        this.rarityKey = new NamespacedKey((Plugin)plugin, "rarity");
-        this.weightKey = new NamespacedKey((Plugin)plugin, "weight");
-        this.priceKey = new NamespacedKey((Plugin)plugin, "price");
-        this.caughtByUuidKey = new NamespacedKey((Plugin)plugin, "caught_by_uuid");
-        this.caughtByNameKey = new NamespacedKey((Plugin)plugin, "caught_by_name");
-        this.caughtAtKey = new NamespacedKey((Plugin)plugin, "caught_at");
-        this.biomeKey = new NamespacedKey((Plugin)plugin, "biome");
-        this.worldKey = new NamespacedKey((Plugin)plugin, "world");
+        this.uniqueIdKey = new NamespacedKey(plugin.getPlugin(), "fish_unique_id");
+        this.fishIdKey = new NamespacedKey(plugin.getPlugin(), "fish_id");
+        this.rarityKey = new NamespacedKey(plugin.getPlugin(), "rarity");
+        this.weightKey = new NamespacedKey(plugin.getPlugin(), "weight");
+        this.priceKey = new NamespacedKey(plugin.getPlugin(), "price");
+        this.caughtByUuidKey = new NamespacedKey(plugin.getPlugin(), "caught_by_uuid");
+        this.caughtByNameKey = new NamespacedKey(plugin.getPlugin(), "caught_by_name");
+        this.caughtAtKey = new NamespacedKey(plugin.getPlugin(), "caught_at");
+        this.biomeKey = new NamespacedKey(plugin.getPlugin(), "biome");
+        this.worldKey = new NamespacedKey(plugin.getPlugin(), "world");
     }
 
     public ItemStack create(Player player, FishDefinition definition, double weight, String biome, String world) {
@@ -86,16 +86,16 @@ public final class FishItemFactory {
         meta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS});
         meta.setLore(this.buildLore(caughtFish));
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(this.uniqueIdKey, PersistentDataType.STRING, (Object)caughtFish.uniqueId().toString());
-        container.set(this.fishIdKey, PersistentDataType.STRING, (Object)definition.id());
-        container.set(this.rarityKey, PersistentDataType.STRING, (Object)definition.rarity().name());
-        container.set(this.weightKey, PersistentDataType.DOUBLE, (Object)caughtFish.weight());
-        container.set(this.priceKey, PersistentDataType.INTEGER, (Object)caughtFish.price());
-        container.set(this.caughtByUuidKey, PersistentDataType.STRING, (Object)caughtFish.caughtByUuid().toString());
-        container.set(this.caughtByNameKey, PersistentDataType.STRING, (Object)caughtFish.caughtByName());
-        container.set(this.caughtAtKey, PersistentDataType.LONG, (Object)caughtFish.caughtAt());
-        container.set(this.biomeKey, PersistentDataType.STRING, (Object)caughtFish.biome());
-        container.set(this.worldKey, PersistentDataType.STRING, (Object)caughtFish.world());
+        container.set(this.uniqueIdKey, PersistentDataType.STRING, (String)caughtFish.uniqueId().toString());
+        container.set(this.fishIdKey, PersistentDataType.STRING, (String)definition.id());
+        container.set(this.rarityKey, PersistentDataType.STRING, (String)definition.rarity().name());
+        container.set(this.weightKey, PersistentDataType.DOUBLE, (Double)caughtFish.weight());
+        container.set(this.priceKey, PersistentDataType.INTEGER, (Integer)caughtFish.price());
+        container.set(this.caughtByUuidKey, PersistentDataType.STRING, (String)caughtFish.caughtByUuid().toString());
+        container.set(this.caughtByNameKey, PersistentDataType.STRING, (String)caughtFish.caughtByName());
+        container.set(this.caughtAtKey, PersistentDataType.LONG, (Long)caughtFish.caughtAt());
+        container.set(this.biomeKey, PersistentDataType.STRING, (String)caughtFish.biome());
+        container.set(this.worldKey, PersistentDataType.STRING, (String)caughtFish.world());
         item.setItemMeta(meta);
         return item;
     }

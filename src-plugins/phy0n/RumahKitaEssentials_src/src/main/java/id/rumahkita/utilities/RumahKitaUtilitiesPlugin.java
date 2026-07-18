@@ -25,6 +25,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class RumahKitaUtilitiesPlugin
 {
+    private final id.rumahkita.essentials.RumahKitaEssentialsPlugin plugin;
+
+    public RumahKitaUtilitiesPlugin(id.rumahkita.essentials.RumahKitaEssentialsPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
     private SleepManager sleepManager;
     private CarryManager carryManager;
     private BansosManager bansosManager;
@@ -37,9 +52,9 @@ public final class RumahKitaUtilitiesPlugin
         this.carryManager = new CarryManager(this);
         this.bansosManager = new BansosManager(this);
         this.vanishManager = new VanishManager(this);
-        Bukkit.getPluginManager().registerEvents((Listener)this.sleepManager, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents((Listener)this.carryManager, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents((Listener)this.vanishManager, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this.sleepManager, plugin);
+        Bukkit.getPluginManager().registerEvents((Listener)this.carryManager, plugin);
+        Bukkit.getPluginManager().registerEvents((Listener)this.vanishManager, plugin);
         plugin.getCommand("rksleep").setExecutor((CommandExecutor)this.sleepManager);
         plugin.getCommand("rksleep").setTabCompleter((TabCompleter)this.sleepManager);
         plugin.getCommand("carry").setExecutor((CommandExecutor)this.carryManager);

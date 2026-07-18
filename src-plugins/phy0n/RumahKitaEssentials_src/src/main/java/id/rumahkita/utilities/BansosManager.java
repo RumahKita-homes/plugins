@@ -72,7 +72,7 @@ implements TabExecutor {
         if (this.taskId != -1) {
             Bukkit.getScheduler().cancelTask(this.taskId);
         }
-        this.taskId = Bukkit.getScheduler().runTaskTimer((Plugin)this.plugin, this::checkSchedule, 100L, 1200L).getTaskId();
+        this.taskId = Bukkit.getScheduler().runTaskTimer(this.plugin.getPlugin(), this::checkSchedule, 100L, 1200L).getTaskId();
     }
 
     private void checkSchedule() {
@@ -112,7 +112,7 @@ implements TabExecutor {
         int count = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
             for (Reward reward : rewards) {
-                HashMap leftover = player.getInventory().addItem(new ItemStack[]{new ItemStack(reward.material, reward.amount)});
+                HashMap<Integer, ItemStack> leftover = player.getInventory().addItem(new ItemStack[]{new ItemStack(reward.material, reward.amount)});
                 for (ItemStack item : leftover.values()) {
                     player.getWorld().dropItemNaturally(player.getLocation(), item);
                 }
@@ -141,10 +141,10 @@ implements TabExecutor {
 
     private List<Reward> loadRewards() {
         ArrayList<Reward> list = new ArrayList<Reward>();
-        List raw = this.plugin.getConfig().getMapList("bansos.rewards");
-        for (Map map : raw) {
-            String materialRaw = map.containsKey("material") ? map.get("material") : "DIAMOND";
-            String amountRaw = map.containsKey("amount") ? map.get("amount") : "1";
+        List<Map<?, ?>> raw = this.plugin.getConfig().getMapList("bansos.rewards");
+        for (Map<?, ?> map : raw) {
+            String materialRaw = map.containsKey("material") ? String.valueOf(map.get("material")) : "DIAMOND";
+            String amountRaw = map.containsKey("amount") ? String.valueOf(map.get("amount")) : "1";
             String materialName = String.valueOf(materialRaw).toUpperCase(Locale.ROOT);
             int amount = Integer.parseInt(String.valueOf(amountRaw));
             Material material = Material.matchMaterial((String)materialName);

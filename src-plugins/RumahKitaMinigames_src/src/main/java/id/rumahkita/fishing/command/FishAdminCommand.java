@@ -129,7 +129,7 @@ implements TabExecutor {
         int price = this.plugin.fishManager().calculatePrice(definition, weight, level);
         CaughtFish caughtFish = new CaughtFish(UUID.randomUUID(), definition, weight, price, target.getUniqueId(), target.getName(), System.currentTimeMillis(), target.getLocation().getBlock().getBiome().name(), target.getWorld().getName());
         ItemStack item = this.plugin.fishItemFactory().create(caughtFish);
-        HashMap leftover = target.getInventory().addItem(new ItemStack[]{item});
+        HashMap<Integer, ItemStack> leftover = target.getInventory().addItem(new ItemStack[]{item});
         for (ItemStack stack : leftover.values()) {
             target.getWorld().dropItemNaturally(target.getLocation(), stack);
         }

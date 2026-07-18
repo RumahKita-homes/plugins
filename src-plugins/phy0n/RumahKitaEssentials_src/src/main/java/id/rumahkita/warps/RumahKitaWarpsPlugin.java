@@ -7,13 +7,23 @@ public class RumahKitaWarpsPlugin  {
     public RumahKitaWarpsPlugin(id.rumahkita.essentials.RumahKitaEssentialsPlugin plugin) {
         this.plugin = plugin;
     }
+
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
+
     
     private static RumahKitaWarpsPlugin instance;
     private WarpManager warpManager;
     private RtpManager rtpManager;
     private ServerWarpManager serverWarpManager;
 
-    @Override
     public void onEnable() {
         instance = this;
         
@@ -24,7 +34,7 @@ public class RumahKitaWarpsPlugin  {
         warpManager = new WarpManager(this);
         warpManager.loadWarps();
         
-        getServer().getPluginManager().registerEvents(warpManager, this);
+        getServer().getPluginManager().registerEvents(warpManager, this.getPlugin());
         WarpCommand warpCmd = new WarpCommand(this);
         getCommand("pwarp").setExecutor(warpCmd);
         getCommand("pwarp").setTabCompleter(warpCmd);
@@ -34,7 +44,7 @@ public class RumahKitaWarpsPlugin  {
         getCommand("rtp").setExecutor(rtpCmd);
         
         serverWarpManager = new ServerWarpManager(this);
-        getServer().getPluginManager().registerEvents(serverWarpManager, this);
+        getServer().getPluginManager().registerEvents(serverWarpManager, this.getPlugin());
         ServerWarpCommand swCmd = new ServerWarpCommand(serverWarpManager);
         getCommand("warp").setExecutor(swCmd);
         getCommand("warp").setTabCompleter(swCmd);
@@ -48,8 +58,8 @@ public class RumahKitaWarpsPlugin  {
         getCommand("rkw").setExecutor(rkwCmd);
         getCommand("rkw").setTabCompleter(rkwCmd);
         
-        BackManager backManager = new BackManager(this);
-        getServer().getPluginManager().registerEvents(backManager, this);
+        BackManager backManager = new BackManager(this.getPlugin());
+        getServer().getPluginManager().registerEvents(backManager, this.getPlugin());
         if (getCommand("back") != null) {
             getCommand("back").setExecutor(new BackCommand(backManager));
         }
@@ -57,7 +67,6 @@ public class RumahKitaWarpsPlugin  {
         getLogger().info("RumahKitaWarps successfully enabled!");
     }
 
-    @Override
     public void onDisable() {
         if (warpManager != null) {
             warpManager.saveWarps();

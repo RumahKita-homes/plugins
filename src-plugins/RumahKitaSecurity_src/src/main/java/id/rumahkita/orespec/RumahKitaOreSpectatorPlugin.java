@@ -84,7 +84,7 @@ TabExecutor {
 
     public void onEnable() {
         plugin.saveDefaultConfig();
-        Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
         if (plugin.getCommand("spec2") != null) {
             plugin.getCommand("spec2").setExecutor((CommandExecutor)this);
             plugin.getCommand("spec2").setTabCompleter((TabCompleter)this);
@@ -109,7 +109,7 @@ TabExecutor {
             Bukkit.getScheduler().cancelTask(this.taskId);
         }
         long interval = Math.max(20L, plugin.getConfig().getLong("general.update-interval-ticks", 60L));
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask((Plugin)this, this::tickSessions, interval, interval);
+        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::tickSessions, interval, interval);
     }
 
     private void tickSessions() {
@@ -358,12 +358,12 @@ TabExecutor {
         String seePerm = plugin.getConfig().getString("stealth.see-permission", "rumahkita.orespec.see");
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             if (viewer.equals((Object)owner)) {
-                viewer.showEntity((Plugin)this, marker);
+                viewer.showEntity(this.plugin, marker);
                 continue;
             }
             boolean staffCanSeeMarkers = viewer.hasPermission(seePerm) && plugin.getConfig().getBoolean("markers.staff-can-see-other-markers", false);
             if (staffCanSeeMarkers) continue;
-            viewer.hideEntity((Plugin)this, marker);
+            viewer.hideEntity(this.plugin, marker);
         }
     }
 
@@ -387,17 +387,17 @@ TabExecutor {
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             if (viewer.equals((Object)hidden)) continue;
             if (viewer.hasPermission(seePerm)) {
-                viewer.showPlayer((Plugin)this, hidden);
+                viewer.showPlayer(this.plugin, hidden);
                 continue;
             }
-            viewer.hidePlayer((Plugin)this, hidden);
+            viewer.hidePlayer(this.plugin, hidden);
         }
     }
 
     private void revealToAll(Player player) {
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             if (viewer.equals((Object)player)) continue;
-            viewer.showPlayer((Plugin)this, player);
+            viewer.showPlayer(this.plugin, player);
         }
     }
 
@@ -434,7 +434,7 @@ TabExecutor {
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             String seePerm;
             Player joiner = event.getPlayer();
             if (joiner.hasPermission(seePerm = plugin.getConfig().getString("stealth.see-permission", "rumahkita.orespec.see"))) {
@@ -443,7 +443,7 @@ TabExecutor {
             for (UUID uuid : this.sessions.keySet()) {
                 Player hidden = Bukkit.getPlayer((UUID)uuid);
                 if (hidden == null || !hidden.isOnline() || hidden.equals((Object)joiner)) continue;
-                joiner.hidePlayer((Plugin)this, hidden);
+                joiner.hidePlayer(this.plugin, hidden);
             }
         }, 5L);
     }
@@ -463,7 +463,7 @@ TabExecutor {
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onWorldChange(PlayerChangedWorldEvent event) {
         if (this.sessions.containsKey(event.getPlayer().getUniqueId())) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 this.applyStealthToAll(event.getPlayer());
                 this.refreshMarkers(event.getPlayer(), true);
             }, 10L);
@@ -473,7 +473,7 @@ TabExecutor {
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         if (this.sessions.containsKey(event.getPlayer().getUniqueId()) && event.getNewGameMode() != GameMode.SPECTATOR) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 Player player = event.getPlayer();
                 if (player.isOnline() && player.getGameMode() != GameMode.SPECTATOR) {
                     this.disableSession(player.getUniqueId(), player, false, true);
@@ -536,7 +536,7 @@ TabExecutor {
 
     private Set<Material> getMaterialsForFilter(String filter) {
         HashSet<Material> result = new HashSet<Material>();
-        List names = plugin.getConfig().getStringList("filters." + filter.toLowerCase(Locale.ROOT));
+        List<String> names = plugin.getConfig().getStringList("filters." + filter.toLowerCase(Locale.ROOT));
         for (String name : names) {
             try {
                 result.add(Material.valueOf((String)name.toUpperCase(Locale.ROOT)));

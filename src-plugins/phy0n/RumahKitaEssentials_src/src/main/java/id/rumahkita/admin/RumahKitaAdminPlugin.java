@@ -59,6 +59,16 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         this.plugin = plugin;
     }
 
+    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
+    public void saveConfig() { plugin.saveConfig(); }
+    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
+    public void reloadConfig() { plugin.reloadConfig(); }
+    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
+    public org.bukkit.Server getServer() { return plugin.getServer(); }
+    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
+    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
+    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
+
     private final Set<UUID> frozenPlayers = new HashSet<>();
     private final Set<UUID> vanishedPlayers = new HashSet<>();
     private final Set<UUID> staffChatToggled = new HashSet<>();
@@ -85,7 +95,6 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
     private int secondsUntilRestart = -1;
     private org.bukkit.scheduler.BukkitRunnable restartTask;
 
-    @Override
     public void onEnable() {
         if (getCommand("rka") != null) {
             getCommand("rka").setExecutor(this);
@@ -94,7 +103,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         if (getCommand("sc") != null) {
             getCommand("sc").setExecutor(this);
         }
-        getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(this, this.getPlugin());
         createDataConfig();
         loadJailData();
         
@@ -108,12 +117,11 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                 tickRestart();
             }
         };
-        restartTask.runTaskTimer(this, 20L, 20L);
+        restartTask.runTaskTimer(this.getPlugin(), 20L, 20L);
 
         getLogger().info("RumahKitaAdmin successfully enabled!");
     }
 
-    @Override
     public void onDisable() {
         saveJailData();
         frozenPlayers.clear();
@@ -662,7 +670,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             if (json.contains("\"proxy\":true") || json.contains("\"hosting\":true")) {
                 event.disallow(org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMsg);
                 getLogger().warning("Anti-VPN memblokir login dari: " + event.getName() + " (" + ip + ")");
-                Bukkit.getScheduler().runTask(this, () -> {
+                Bukkit.getScheduler().runTask(this.getPlugin(), () -> {
                     logModeration("ANTI-VPN: Blocked " + event.getName() + " (" + ip + ")");
                     List<String> bads = dataConfig.getStringList("vpn_cache.proxy_ips");
                     if (!bads.contains(ip)) {
@@ -672,7 +680,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                     }
                 });
             } else {
-                Bukkit.getScheduler().runTask(this, () -> {
+                Bukkit.getScheduler().runTask(this.getPlugin(), () -> {
                     List<String> ips = dataConfig.getStringList("vpn_cache.clean_ips");
                     if (!ips.contains(ip)) {
                         ips.add(ip);
@@ -835,7 +843,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                     this.cancel();
                 }
             }
-        }.runTaskTimer(this, 0L, 20L);
+        }.runTaskTimer(this.getPlugin(), 0L, 20L);
         
         sender.sendMessage(ChatColor.GREEN + "Maintenance Mode ON. Normal players will be kicked in " + finalCountdown + "s.");
         return true;
@@ -1277,8 +1285,8 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         UUID uuid = target.getUniqueId();
         if (vanishedPlayers.contains(uuid)) {
             vanishedPlayers.remove(uuid);
-            for (Player p : Bukkit.getOnlinePlayers()) p.showPlayer(this, target);
-            if (target.hasMetadata("vanished")) target.removeMetadata("vanished", this);
+            for (Player p : Bukkit.getOnlinePlayers()) p.showPlayer(this.getPlugin(), target);
+            if (target.hasMetadata("vanished")) target.removeMetadata("vanished", this.getPlugin());
             if (vanishPerms.containsKey(uuid)) {
                 target.removeAttachment(vanishPerms.get(uuid));
                 vanishPerms.remove(uuid);
@@ -1288,10 +1296,10 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         } else {
             vanishedPlayers.add(uuid);
             for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.hasPermission("rumahkita.admin")) p.hidePlayer(this, target);
+                if (!p.hasPermission("rumahkita.admin")) p.hidePlayer(this.getPlugin(), target);
             }
-            target.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this, true));
-            org.bukkit.permissions.PermissionAttachment attachment = target.addAttachment(this);
+            target.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this.getPlugin(), true));
+            org.bukkit.permissions.PermissionAttachment attachment = target.addAttachment(this.getPlugin());
             attachment.setPermission("essentials.afk.auto", false);
             vanishPerms.put(uuid, attachment);
             Bukkit.broadcastMessage(ChatColor.YELLOW + target.getName() + " left the game");
@@ -1526,13 +1534,13 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
 
         if (vanishedPlayers.contains(p.getUniqueId())) {
             event.setJoinMessage(null);
-            p.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this, true));
+            p.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this.getPlugin(), true));
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.hasPermission("rumahkita.admin")) {
-                    online.hidePlayer(this, p);
+                    online.hidePlayer(this.getPlugin(), p);
                 }
             }
-            org.bukkit.permissions.PermissionAttachment attachment = p.addAttachment(this);
+            org.bukkit.permissions.PermissionAttachment attachment = p.addAttachment(this.getPlugin());
             attachment.setPermission("essentials.afk.auto", false);
             vanishPerms.put(p.getUniqueId(), attachment);
             p.sendMessage(ChatColor.YELLOW + "[!] " + ChatColor.GREEN + "You logged in while in VANISH mode.");
@@ -1541,7 +1549,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         if (!p.hasPermission("rumahkita.admin")) {
             for (UUID uuid : vanishedPlayers) {
                 Player vanished = Bukkit.getPlayer(uuid);
-                if (vanished != null) p.hidePlayer(this, vanished);
+                if (vanished != null) p.hidePlayer(this.getPlugin(), vanished);
             }
         }
     }

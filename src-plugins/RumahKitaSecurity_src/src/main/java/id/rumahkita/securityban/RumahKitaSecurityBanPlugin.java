@@ -74,7 +74,7 @@ TabExecutor {
         this.dataFile = new File(plugin.getDataFolder(), "data.yml");
         this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
         this.loadBans();
-        Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
         plugin.getCommand("rksec").setExecutor((CommandExecutor)this);
         plugin.getCommand("rksec").setTabCompleter((TabCompleter)this);
         plugin.getCommand("rkban").setExecutor((CommandExecutor)this);
@@ -357,8 +357,8 @@ TabExecutor {
         this.show(sender, "Direct SUBNET", this.subnetBans.get(this.looksLikeIp(q) && !q.contains("/") ? this.subnetOf(q).toLowerCase(Locale.ROOT) : q.toLowerCase(Locale.ROOT)));
         String uuid = this.resolveUuid(q);
         if (!uuid.isBlank()) {
-            List ips;
-            List names;
+            List<String> ips;
+            List<String> names;
             this.Text(sender, "&7Resolved UUID: &f" + uuid);
             this.show(sender, "Linked UUID", this.uuidBans.get(uuid.toLowerCase(Locale.ROOT)));
             String path = "history.players." + this.enc(uuid.toLowerCase(Locale.ROOT));
@@ -540,7 +540,7 @@ TabExecutor {
     }
 
     private String denyMessage(String type, String reason) {
-        List lines = plugin.getConfig().getStringList("messages.deny-message");
+        List<String> lines = plugin.getConfig().getStringList("messages.deny-message");
         ArrayList<String> out = new ArrayList<String>();
         for (String line : lines) {
             out.add(this.color(line.replace("%reason%", reason).replace("%type%", type)));

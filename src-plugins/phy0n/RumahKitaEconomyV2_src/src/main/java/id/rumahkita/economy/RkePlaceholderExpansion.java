@@ -1,12 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  id.rumahkita.economy.RkePlaceholderExpansion
- *  id.rumahkita.economy.RumahKitaEconomyRupiahPlugin
- *  me.clip.placeholderapi.expansion.PlaceholderExpansion
- *  org.bukkit.OfflinePlayer
- */
+
 package id.rumahkita.economy;
 
 import id.rumahkita.economy.RumahKitaEconomyRupiahPlugin;

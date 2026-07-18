@@ -94,13 +94,13 @@ TabExecutor {
         this.dataFile = new File(plugin.getDataFolder(), "data.yml");
         this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
         this.loadData();
-        Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
         plugin.getCommand("rkxray").setExecutor((CommandExecutor)this);
         plugin.getCommand("rkxray").setTabCompleter((TabCompleter)this);
         long decayTicks = Math.max(1L, plugin.getConfig().getLong("risk.decay-every-minutes", 10L)) * 60L * 20L;
-        Bukkit.getScheduler().runTaskTimer((Plugin)this, this::decayScores, decayTicks, decayTicks);
+        Bukkit.getScheduler().runTaskTimer(this.plugin, this::decayScores, decayTicks, decayTicks);
         long saveTicks = Math.max(1L, plugin.getConfig().getLong("logs.save-data-every-minutes", 5L)) * 60L * 20L;
-        Bukkit.getScheduler().runTaskTimer((Plugin)this, this::saveData, saveTicks, saveTicks);
+        Bukkit.getScheduler().runTaskTimer(this.plugin, this::saveData, saveTicks, saveTicks);
         plugin.getLogger().info("RumahKitaAntiXray v1.0.6 enabled.");
     }
 
@@ -258,7 +258,7 @@ TabExecutor {
         this.discordCooldown.put(player.getUniqueId(), now);
         String desc = "**Player:** " + this.esc(player.getName()) + "\\n**Score:** " + score + "\\n**World:** " + this.esc(loc.getWorld().getName()) + "\\n**Location:** " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ() + "\\n**Reason:** " + this.esc(reason);
         String json = "{\"embeds\":[{\"title\":\"" + this.esc(plugin.getConfig().getString("discord.title", "RumahKita AntiXray Alert")) + "\",\"description\":\"" + desc + "\",\"color\":" + plugin.getConfig().getInt("discord.color", 16753920) + "}]}";
-        Bukkit.getScheduler().runTaskAsynchronously((Plugin)this, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             try {
                 HttpRequest req = HttpRequest.newBuilder().uri(URI.create(webhook)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8)).build();
                 this.http.send(req, HttpResponse.BodyHandlers.discarding());
@@ -583,7 +583,7 @@ TabExecutor {
                 this.msg(sender, "&8&m-----------------------------");
                 this.msg(sender, "&bTop Suspicious AntiXray");
                 ArrayList<RiskData> list = new ArrayList<RiskData>(this.risks.values());
-                list.sort(Comparator.comparingInt(r -> r.score).reversed());
+                list.sort(Comparator.comparingInt((RiskData r) -> r.score).reversed());
                 for (int i = 0; i < Math.min(10, list.size()); ++i) {
                     RiskData r3 = (RiskData)list.get(i);
                     this.msg(sender, "&e#" + (i + 1) + " &f" + r3.name + " &7score &c" + r3.score + " &7flags &f" + r3.flags);

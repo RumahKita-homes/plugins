@@ -118,7 +118,7 @@ TabExecutor {
             for (UUID id : this.vanished) {
                 Player target = Bukkit.getPlayer((UUID)id);
                 if (target == null) continue;
-                viewer.showPlayer((Plugin)this.plugin, target);
+                viewer.showPlayer(this.plugin.getPlugin(), target);
             }
         }
     }
@@ -158,7 +158,7 @@ TabExecutor {
     private void applyUnvanishState(Player target, boolean sendMessage) {
         target.setCollidable(true);
         for (Player viewer : Bukkit.getOnlinePlayers()) {
-            viewer.showPlayer((Plugin)this.plugin, target);
+            viewer.showPlayer(this.plugin.getPlugin(), target);
         }
         if (sendMessage) {
             this.msg(target, "disabled");
@@ -177,24 +177,24 @@ TabExecutor {
 
     private void updateVisibility(Player viewer, Player target) {
         if (viewer.getUniqueId().equals(target.getUniqueId())) {
-            viewer.showPlayer((Plugin)this.plugin, target);
+            viewer.showPlayer(this.plugin.getPlugin(), target);
             return;
         }
         if (!this.isVanished(target.getUniqueId())) {
-            viewer.showPlayer((Plugin)this.plugin, target);
+            viewer.showPlayer(this.plugin.getPlugin(), target);
             return;
         }
         if (viewer.hasPermission(this.getSeePermission())) {
-            viewer.showPlayer((Plugin)this.plugin, target);
+            viewer.showPlayer(this.plugin.getPlugin(), target);
         } else {
-            viewer.hidePlayer((Plugin)this.plugin, target);
+            viewer.hidePlayer(this.plugin.getPlugin(), target);
         }
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player joined = event.getPlayer();
-        Bukkit.getScheduler().runTaskLater((Plugin)this.plugin, () -> {
+        Bukkit.getScheduler().runTaskLater(this.plugin.getPlugin(), () -> {
             if (this.isVanished(joined.getUniqueId())) {
                 this.applyVanishState(joined, false);
                 if (this.plugin.getConfig().getBoolean("vanish.hide-join-quit-message", true)) {

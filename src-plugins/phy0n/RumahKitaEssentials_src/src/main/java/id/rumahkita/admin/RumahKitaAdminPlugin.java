@@ -379,22 +379,29 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             return true;
         }
         
-        String reason = args.length > 2 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length)) : "Melanggar peraturan";
+        String reason = args.length > 2 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length)) : "";
         
         jailedPlayers.add(target.getUniqueId());
         saveJailData();
         target.teleport(jailLocation);
         target.sendMessage(getMsg("messages.jail.jailed", "&cYou have been jailed by an Admin!"));
-        target.sendTitle(ChatColor.DARK_RED + "DI PENJARA!", ChatColor.YELLOW + "Alasan: " + reason, 10, 100, 20);
-        Bukkit.broadcastMessage(ChatColor.RED + "[RUMAHKITA] " + ChatColor.YELLOW + target.getName() + ChatColor.WHITE + " telah dipenjara karena: " + ChatColor.RED + reason);
-        sender.sendMessage(ChatColor.GREEN + target.getName() + " has been jailed. Reason: " + reason);
+        target.sendTitle(ChatColor.DARK_RED + "JAILED!", reason.isEmpty() ? "" : ChatColor.YELLOW + "Reason: " + reason, 10, 100, 20);
+        Bukkit.broadcastMessage("");
+        if (reason.isEmpty()) {
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&c&lJAIL &8/ &f" + target.getName() + " has been jailed."));
+            sender.sendMessage(ChatColor.GREEN + target.getName() + " has been jailed.");
+        } else {
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&c&lJAIL &8/ &f" + target.getName() + " has been jailed. Reason: &c" + reason));
+            sender.sendMessage(ChatColor.GREEN + target.getName() + " has been jailed. Reason: " + reason);
+        }
+        Bukkit.broadcastMessage("");
         logModeration("JAIL: " + sender.getName() + " jailed " + target.getName() + " for: " + reason);
         return true;
     }
 
     private boolean handleUnjail(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka unjail <player>");
+            sender.sendMessage(ChatColor.RED + "Usage: /rka unjail <player> [reason]");
             return true;
         }
         Player target = Bukkit.getPlayerExact(args[1]);
@@ -418,14 +425,24 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             return true;
         }
 
+        String reason = args.length > 2 ? String.join(" ", Arrays.copyOfRange(args, 2, args.length)) : "";
+        
         jailedPlayers.remove(targetUuid);
         saveJailData();
         if (target != null) {
             target.performCommand("spawn");
             target.sendMessage(getMsg("messages.jail.unjailed", "&aYou have been unjailed. Don't break the rules again!"));
         }
-        sender.sendMessage(ChatColor.GREEN + targetName + " has been unjailed.");
-        logModeration("UNJAIL: " + sender.getName() + " unjailed " + targetName);
+        Bukkit.broadcastMessage("");
+        if (reason.isEmpty()) {
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&a&lUNJAIL &8/ &f" + targetName + " has been unjailed."));
+            sender.sendMessage(ChatColor.GREEN + targetName + " has been unjailed.");
+        } else {
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&a&lUNJAIL &8/ &f" + targetName + " has been unjailed. Reason: &a" + reason));
+            sender.sendMessage(ChatColor.GREEN + targetName + " has been unjailed. Reason: " + reason);
+        }
+        Bukkit.broadcastMessage("");
+        logModeration("UNJAIL: " + sender.getName() + " unjailed " + targetName + " for: " + reason);
         return true;
     }
 
@@ -1094,7 +1111,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         
         Player p = Bukkit.getPlayerExact(altAcc);
         if (p != null) {
-            p.kickPlayer(ChatColor.translateAlternateColorCodes('&', "&cGagal Masuk!\n\n&fAkun ini terdeteksi sebagai akun ke-3 atau lebih.\n&7Batas maksimal adalah 2 Akun."));
+            p.kickPlayer(ChatColor.translateAlternateColorCodes('&', "&cLogin Failed!\n\n&fThis account is detected as your 3rd or more account.\n&7Maximum allowed is 2 accounts."));
         }
         
         return true;

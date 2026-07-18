@@ -26,7 +26,7 @@ public final class Guild {
     private long createdAt;
     private Location home;
     private int emeraldWallet;
-
+    
     public Guild(String tag, String name, UUID leader, String leaderName, long createdAt) {
         this.tag = tag;
         this.name = name;

@@ -370,11 +370,11 @@ TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         boolean adminCmd = label.equalsIgnoreCase("rkcarry");
         if (adminCmd && !sender.hasPermission("rumahkita.carry.admin") && !sender.hasPermission("rumahkita.utilities.admin")) {
-            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.no-permission", "&cKamu tidak punya permission."));
+            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.no-permission", "&cYou don't have permission."));
             return true;
         }
         if (!adminCmd && !sender.hasPermission("rumahkita.carry.use")) {
-            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.no-permission", "&cKamu tidak punya permission."));
+            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.no-permission", "&cYou don't have permission."));
             return true;
         }
         if (args.length == 0) {
@@ -384,7 +384,7 @@ TabExecutor {
         }
         if (args[0].equalsIgnoreCase("drop")) {
             if (!(sender instanceof Player)) {
-                Text.msg(sender, this.plugin.getConfig().getString("carry.messages.only-player", "&cCommand ini hanya bisa dipakai player."));
+                Text.msg(sender, this.plugin.getConfig().getString("carry.messages.only-player", "&cThis command can only be used by players."));
                 return true;
             }
             Player p = (Player)sender;
@@ -397,7 +397,7 @@ TabExecutor {
         }
         if (adminCmd && args[0].equalsIgnoreCase("reload")) {
             this.plugin.reloadAll();
-            Text.msg(sender, this.plugin.getConfig().getString("messages.prefix", "") + this.plugin.getConfig().getString("messages.reloaded", "&aConfig berhasil direload."));
+            Text.msg(sender, this.plugin.getConfig().getString("messages.prefix", "") + this.plugin.getConfig().getString("messages.reloaded", "&aConfig successfully reloaded."));
             return true;
         }
         if (adminCmd && args[0].equalsIgnoreCase("toggle")) {
@@ -408,7 +408,7 @@ TabExecutor {
             return true;
         }
         if (!(sender instanceof Player)) {
-            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.only-player", "&cCommand ini hanya bisa dipakai player."));
+            Text.msg(sender, this.plugin.getConfig().getString("carry.messages.only-player", "&cThis command can only be used by players."));
             return true;
         }
         Player player = (Player)sender;

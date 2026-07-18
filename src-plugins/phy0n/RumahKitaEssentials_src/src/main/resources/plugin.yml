@@ -77,6 +77,13 @@ commands:
   tps:
     description: Cek TPS server
     usage: /tps
+  online:
+    description: Cek player online
+    usage: /online
+    aliases:
+    - player
+    - playerlist
+    - list
 permissions:
   rumahkita.utilities.admin:
     description: Admin access to all RumahKitaUtilities commands.

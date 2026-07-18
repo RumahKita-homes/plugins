@@ -29,7 +29,7 @@
  *  org.bukkit.inventory.Inventory
  *  org.bukkit.inventory.InventoryHolder
  *  org.bukkit.inventory.ItemStack
- *  org.bukkit.inventory.meta.ItemMeta
+ *  org.bukkit.inventory.meta.ItemMeta  
  *  org.bukkit.persistence.PersistentDataType
  *  org.bukkit.plugin.Plugin
  *  org.bukkit.plugin.java.JavaPlugin

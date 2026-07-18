@@ -110,7 +110,7 @@ implements TabExecutor {
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            Text.msg(sender, "&cPlayer tidak ditemukan.");
+            Text.msg(sender, "&cPlayer not found.");
             return;
         }
         String bypassPerm = this.plugin.getConfig().getString("settings.bypass-permission", "rumahkita.anticheat.bypass");
@@ -126,7 +126,7 @@ implements TabExecutor {
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            Text.msg(sender, "&cPlayer tidak ditemukan.");
+            Text.msg(sender, "&cPlayer not found.");
             return;
         }
         try {
@@ -149,13 +149,13 @@ implements TabExecutor {
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            Text.msg(sender, "&cPlayer tidak ditemukan.");
+            Text.msg(sender, "&cPlayer not found.");
             return;
         }
         if (this.exemptManager.remove(target.getUniqueId())) {
             Text.msg(sender, this.pref() + Text.replace(this.plugin.getConfig().getString("messages.exempt-removed"), "%player%", target.getName()));
         } else {
-            Text.msg(sender, "&cPlayer tidak sedang exempt.");
+            Text.msg(sender, "&cPlayer is not exempt.");
         }
     }
 
@@ -166,7 +166,7 @@ implements TabExecutor {
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            Text.msg(sender, "&cPlayer tidak ditemukan.");
+            Text.msg(sender, "&cPlayer not found.");
             return;
         }
         Text.msg(sender, this.pref() + "&7VL &f" + target.getName() + "&7: &e" + this.violationTracker.summary(target.getUniqueId()));
@@ -179,7 +179,7 @@ implements TabExecutor {
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            Text.msg(sender, "&cPlayer tidak ditemukan.");
+            Text.msg(sender, "&cPlayer not found.");
             return;
         }
         this.violationTracker.clear(target.getUniqueId());

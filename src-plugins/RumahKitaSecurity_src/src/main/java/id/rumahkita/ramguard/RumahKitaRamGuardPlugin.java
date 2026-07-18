@@ -82,7 +82,7 @@ implements TabExecutor {
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("rumahkitaramguard.admin")) {
-            sender.sendMessage(Text.color("&cKamu tidak punya permission untuk command ini."));
+            sender.sendMessage(Text.color("&cYou don't have permission for this command."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
@@ -111,7 +111,7 @@ implements TabExecutor {
         if (args[0].equalsIgnoreCase("reload")) {
             plugin.reloadConfig();
             this.startMonitorTask();
-            sender.sendMessage(Text.color("&aConfig RumahKitaRamGuard berhasil direload."));
+            sender.sendMessage(Text.color("&aRumahKitaRamGuard config successfully reloaded."));
             return true;
         }
         sender.sendMessage(Text.color("&eGunakan: &f/ramguard status&7, &f/ramguard cleanup&7, &f/ramguard emergency&7, &f/ramguard restore&7, &f/ramguard reload"));

@@ -73,7 +73,7 @@ TabExecutor {
                 this.file.createNewFile();
             }
             catch (Exception e) {
-                this.plugin.getLogger().warning("Gagal membuat vanish.yml: " + e.getMessage());
+                this.plugin.getLogger().warning("Failed to create vanish.yml: " + e.getMessage());
             }
         }
         this.data = YamlConfiguration.loadConfiguration((File)this.file);
@@ -93,7 +93,7 @@ TabExecutor {
             this.data.save(this.file);
         }
         catch (Exception e) {
-            this.plugin.getLogger().warning("Gagal save vanish.yml: " + e.getMessage());
+            this.plugin.getLogger().warning("Failed to save vanish.yml: " + e.getMessage());
         }
     }
 
@@ -250,30 +250,30 @@ TabExecutor {
             return;
         }
         event.setCancelled(true);
-        Text.msg((CommandSender)player, this.plugin.getConfig().getString("vanish.messages.chat-blocked", "&cKamu sedang vanish. Chat diblok agar tidak ketahuan."));
+        Text.msg((CommandSender)player, this.plugin.getConfig().getString("vanish.messages.chat-blocked", "&cYou are vanished. Chat is blocked to stay hidden."));
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!this.plugin.getConfig().getBoolean("vanish.enabled", true)) {
-            Text.msg(sender, this.plugin.getConfig().getString("vanish.messages.feature-disabled", "&cRKVanish sedang dimatikan."));
+            Text.msg(sender, this.plugin.getConfig().getString("vanish.messages.feature-disabled", "&cRKVanish is currently disabled."));
             return true;
         }
         if (args.length > 0) {
             String sub = args[0].toLowerCase(Locale.ROOT);
             if (sub.equals("reload")) {
                 if (!sender.hasPermission("rumahkita.vanish.admin") && !sender.hasPermission("rumahkita.utilities.admin")) {
-                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cYou don't have permission."));
                     return true;
                 }
                 this.plugin.reloadAll();
                 this.reloadData();
                 this.reapplyAll();
-                Text.msg(sender, this.plugin.getConfig().getString("messages.prefix", "") + this.plugin.getConfig().getString("messages.reloaded", "&aConfig berhasil direload."));
+                Text.msg(sender, this.plugin.getConfig().getString("messages.prefix", "") + this.plugin.getConfig().getString("messages.reloaded", "&aConfig successfully reloaded."));
                 return true;
             }
             if (sub.equals("list")) {
                 if (!sender.hasPermission("rumahkita.vanish.see") && !sender.hasPermission("rumahkita.vanish.admin")) {
-                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cYou don't have permission."));
                     return true;
                 }
                 ArrayList<String> names = new ArrayList<String>();
@@ -290,7 +290,7 @@ TabExecutor {
             }
             if (target != null) {
                 if (!sender.hasPermission("rumahkita.vanish.others") && !sender.hasPermission("rumahkita.utilities.admin")) {
-                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+                    Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cYou don't have permission."));
                     return true;
                 }
                 boolean next = !this.isVanished(target.getUniqueId());
@@ -303,12 +303,12 @@ TabExecutor {
             }
         }
         if (!(sender instanceof Player)) {
-            Text.msg(sender, "&cConsole gunakan: /rkvanish <player>");
+            Text.msg(sender, "&cConsole usage: /rkvanish <player>");
             return true;
         }
         Player player = (Player)sender;
         if (!player.hasPermission("rumahkita.vanish.use") && !player.hasPermission("rumahkita.utilities.admin")) {
-            Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            Text.msg(sender, this.plugin.getConfig().getString("messages.no-permission", "&cYou don't have permission."));
             return true;
         }
         boolean next = !this.isVanished(player.getUniqueId());

@@ -64,7 +64,7 @@ implements TabExecutor {
             this.data.save(this.dataFile);
         }
         catch (Exception e) {
-            this.plugin.getLogger().warning("Gagal save data.yml: " + e.getMessage());
+            this.plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
         }
     }
 
@@ -136,7 +136,7 @@ implements TabExecutor {
         if (this.plugin.getConfig().getBoolean("bansos.discord.enabled", true)) {
             this.sendWebhook(count, rewards, reason);
         }
-        this.plugin.getLogger().info("Bansos dijalankan. Player online: " + count);
+        this.plugin.getLogger().info("Bansos executed. Players online: " + count);
     }
 
     private List<Reward> loadRewards() {
@@ -149,7 +149,7 @@ implements TabExecutor {
             int amount = Integer.parseInt(String.valueOf(amountRaw));
             Material material = Material.matchMaterial((String)materialName);
             if (material == null || material.isAir()) {
-                this.plugin.getLogger().warning("Material bansos invalid: " + materialName);
+                this.plugin.getLogger().warning("Invalid bansos material: " + materialName);
                 continue;
             }
             list.add(new Reward(material, Math.max(1, amount)));
@@ -165,7 +165,7 @@ implements TabExecutor {
     private void sendWebhook(int online, List<Reward> rewards, String reason) {
         String url = this.plugin.getConfig().getString("bansos.discord.webhook-url", "");
         if (url == null || url.isBlank() || url.contains("PASTE_WEBHOOK")) {
-            this.plugin.getLogger().warning("Webhook bansos belum diisi di config.yml.");
+            this.plugin.getLogger().warning("Bansos webhook URL is not configured in config.yml.");
             return;
         }
         String content = this.plugin.getConfig().getString("bansos.discord.content", "Bansos sudah dibagikan!");
@@ -186,12 +186,12 @@ implements TabExecutor {
         try {
             HttpClient.newHttpClient().sendAsync(HttpRequest.newBuilder().uri(URI.create(url)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(json)).build(), HttpResponse.BodyHandlers.ofString()).thenAccept(res -> {
                 if (res.statusCode() < 200 || res.statusCode() >= 300) {
-                    this.plugin.getLogger().warning("Webhook bansos gagal. HTTP " + res.statusCode() + " " + (String)res.body());
+                    this.plugin.getLogger().warning("Bansos webhook failed. HTTP " + res.statusCode() + " " + (String)res.body());
                 }
             });
         }
         catch (Exception e) {
-            this.plugin.getLogger().warning("Gagal kirim webhook bansos: " + e.getMessage());
+            this.plugin.getLogger().warning("Failed to send bansos webhook: " + e.getMessage());
         }
     }
 
@@ -208,7 +208,7 @@ implements TabExecutor {
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("rumahkita.bansos.admin") && !sender.hasPermission("rumahkita.utilities.admin")) {
-            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.no-permission", "&cYou don't have permission."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
@@ -220,12 +220,12 @@ implements TabExecutor {
         }
         if (args[0].equalsIgnoreCase("now")) {
             this.runBansos("manual");
-            Text.msg(sender, this.pref() + "&aBansos manual dijalankan.");
+            Text.msg(sender, this.pref() + "&aManual bansos executed.");
             return true;
         }
         if (args[0].equalsIgnoreCase("reload")) {
             this.plugin.reloadAll();
-            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.reloaded", "&aConfig berhasil direload."));
+            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.reloaded", "&aConfig successfully reloaded."));
             return true;
         }
         Text.msg(sender, "&e/rkbansos <status|now|reload>");

@@ -18,7 +18,7 @@ categories:
     - '&7Buy Only.'
     slot: 19
   nature:
-    display-name: '&aNature & Flora'
+    display-name: '&aNature'
     material: OAK_LEAVES
     lore:
     - '&7Saplings, Leaves, Flowers, and other plants.'
@@ -10898,34 +10898,6 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  acacia_leaves:
-    material: ACACIA_LEAVES
-    display-name: '&fAcacia Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   acacia_sapling:
     material: ACACIA_SAPLING
     display-name: '&fAcacia Sapling'
@@ -10954,9 +10926,205 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  allium:
-    material: ALLIUM
-    display-name: '&fAllium'
+  birch_sapling:
+    material: BIRCH_SAPLING
+    display-name: '&fBirch Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  cherry_sapling:
+    material: CHERRY_SAPLING
+    display-name: '&fCherry Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  dark_oak_sapling:
+    material: DARK_OAK_SAPLING
+    display-name: '&fDark Oak Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  jungle_sapling:
+    material: JUNGLE_SAPLING
+    display-name: '&fJungle Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  mangrove_propagule:
+    material: MANGROVE_PROPAGULE
+    display-name: '&fMangrove Propagule'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  oak_sapling:
+    material: OAK_SAPLING
+    display-name: '&fOak Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  spruce_sapling:
+    material: SPRUCE_SAPLING
+    display-name: '&fSpruce Sapling'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  acacia_leaves:
+    material: ACACIA_LEAVES
+    display-name: '&fAcacia Leaves'
     trade-amount: 1
     category: nature
     buy:
@@ -11038,121 +11206,9 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  azure_bluet:
-    material: AZURE_BLUET
-    display-name: '&fAzure Bluet'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  big_dripleaf:
-    material: BIG_DRIPLEAF
-    display-name: '&fBig Dripleaf'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   birch_leaves:
     material: BIRCH_LEAVES
     display-name: '&fBirch Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  birch_sapling:
-    material: BIRCH_SAPLING
-    display-name: '&fBirch Sapling'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  blue_orchid:
-    material: BLUE_ORCHID
-    display-name: '&fBlue Orchid'
     trade-amount: 1
     category: nature
     buy:
@@ -11206,261 +11262,9 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  cherry_sapling:
-    material: CHERRY_SAPLING
-    display-name: '&fCherry Sapling'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  chorus_flower:
-    material: CHORUS_FLOWER
-    display-name: '&fChorus Flower'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 15
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 5
-      max-buy-price: 30
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  cornflower:
-    material: CORNFLOWER
-    display-name: '&fCornflower'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  crimson_fungus:
-    material: CRIMSON_FUNGUS
-    display-name: '&fCrimson Fungus'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  crimson_roots:
-    material: CRIMSON_ROOTS
-    display-name: '&fCrimson Roots'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  dandelion:
-    material: DANDELION
-    display-name: '&fDandelion'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   dark_oak_leaves:
     material: DARK_OAK_LEAVES
     display-name: '&fDark Oak Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  dark_oak_sapling:
-    material: DARK_OAK_SAPLING
-    display-name: '&fDark Oak Sapling'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  dead_bush:
-    material: DEAD_BUSH
-    display-name: '&fDead Bush'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  fern:
-    material: FERN
-    display-name: '&fFern'
     trade-amount: 1
     category: nature
     buy:
@@ -11542,62 +11346,6 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  glow_lichen:
-    material: GLOW_LICHEN
-    display-name: '&fGlow Lichen'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  hanging_roots:
-    material: HANGING_ROOTS
-    display-name: '&fHanging Roots'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   jungle_leaves:
     material: JUNGLE_LEAVES
     display-name: '&fJungle Leaves'
@@ -11626,9 +11374,9 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  jungle_sapling:
-    material: JUNGLE_SAPLING
-    display-name: '&fJungle Sapling'
+  mangrove_leaves:
+    material: MANGROVE_LEAVES
+    display-name: '&fMangrove Leaves'
     trade-amount: 1
     category: nature
     buy:
@@ -11654,9 +11402,177 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  large_fern:
-    material: LARGE_FERN
-    display-name: '&fLarge Fern'
+  oak_leaves:
+    material: OAK_LEAVES
+    display-name: '&fOak Leaves'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  spruce_leaves:
+    material: SPRUCE_LEAVES
+    display-name: '&fSpruce Leaves'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  allium:
+    material: ALLIUM
+    display-name: '&fAllium'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  azure_bluet:
+    material: AZURE_BLUET
+    display-name: '&fAzure Bluet'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  blue_orchid:
+    material: BLUE_ORCHID
+    display-name: '&fBlue Orchid'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  chorus_flower:
+    material: CHORUS_FLOWER
+    display-name: '&fChorus Flower'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 15
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 5
+      max-buy-price: 30
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  cornflower:
+    material: CORNFLOWER
+    display-name: '&fCornflower'
     trade-amount: 1
     category: nature
     buy:
@@ -11741,146 +11657,6 @@ items:
   lily_pad:
     material: LILY_PAD
     display-name: '&fLily Pad'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  mangrove_leaves:
-    material: MANGROVE_LEAVES
-    display-name: '&fMangrove Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  mangrove_propagule:
-    material: MANGROVE_PROPAGULE
-    display-name: '&fMangrove Propagule'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  nether_sprouts:
-    material: NETHER_SPROUTS
-    display-name: '&fNether Sprouts'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  oak_leaves:
-    material: OAK_LEAVES
-    display-name: '&fOak Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  oak_sapling:
-    material: OAK_SAPLING
-    display-name: '&fOak Sapling'
     trade-amount: 1
     category: nature
     buy:
@@ -12018,62 +11794,6 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  pitcher_plant:
-    material: PITCHER_PLANT
-    display-name: '&fPitcher Plant'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  poppy:
-    material: POPPY
-    display-name: '&fPoppy'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   red_tulip:
     material: RED_TULIP
     display-name: '&fRed Tulip'
@@ -12130,177 +11850,9 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  short_grass:
-    material: SHORT_GRASS
-    display-name: '&fShort Grass'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  small_dripleaf:
-    material: SMALL_DRIPLEAF
-    display-name: '&fSmall Dripleaf'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  spore_blossom:
-    material: SPORE_BLOSSOM
-    display-name: '&fSpore Blossom'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  spruce_leaves:
-    material: SPRUCE_LEAVES
-    display-name: '&fSpruce Leaves'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  spruce_sapling:
-    material: SPRUCE_SAPLING
-    display-name: '&fSpruce Sapling'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
   sunflower:
     material: SUNFLOWER
     display-name: '&fSunflower'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  tall_grass:
-    material: TALL_GRASS
-    display-name: '&fTall Grass'
     trade-amount: 1
     category: nature
     buy:
@@ -12354,65 +11906,289 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
+  white_tulip:
+    material: WHITE_TULIP
+    display-name: '&fWhite Tulip'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  spore_blossom:
+    material: SPORE_BLOSSOM
+    display-name: '&fSpore Blossom'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  crimson_roots:
+    material: CRIMSON_ROOTS
+    display-name: '&fCrimson Roots'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  fern:
+    material: FERN
+    display-name: '&fFern'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  glow_lichen:
+    material: GLOW_LICHEN
+    display-name: '&fGlow Lichen'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  hanging_roots:
+    material: HANGING_ROOTS
+    display-name: '&fHanging Roots'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  large_fern:
+    material: LARGE_FERN
+    display-name: '&fLarge Fern'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  nether_sprouts:
+    material: NETHER_SPROUTS
+    display-name: '&fNether Sprouts'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  short_grass:
+    material: SHORT_GRASS
+    display-name: '&fShort Grass'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  tall_grass:
+    material: TALL_GRASS
+    display-name: '&fTall Grass'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
   twisting_vines:
     material: TWISTING_VINES
     display-name: '&fTwisting Vines'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  vine:
-    material: VINE
-    display-name: '&fVine'
-    trade-amount: 1
-    category: nature
-    buy:
-      enabled: true
-      price: 2
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 1
-      max-buy-price: 4
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  warped_fungus:
-    material: WARPED_FUNGUS
-    display-name: '&fWarped Fungus'
     trade-amount: 1
     category: nature
     buy:
@@ -12494,9 +12270,233 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  white_tulip:
-    material: WHITE_TULIP
-    display-name: '&fWhite Tulip'
+  crimson_fungus:
+    material: CRIMSON_FUNGUS
+    display-name: '&fCrimson Fungus'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  warped_fungus:
+    material: WARPED_FUNGUS
+    display-name: '&fWarped Fungus'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  big_dripleaf:
+    material: BIG_DRIPLEAF
+    display-name: '&fBig Dripleaf'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  dandelion:
+    material: DANDELION
+    display-name: '&fDandelion'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  dead_bush:
+    material: DEAD_BUSH
+    display-name: '&fDead Bush'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  pitcher_plant:
+    material: PITCHER_PLANT
+    display-name: '&fPitcher Plant'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  poppy:
+    material: POPPY
+    display-name: '&fPoppy'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  small_dripleaf:
+    material: SMALL_DRIPLEAF
+    display-name: '&fSmall Dripleaf'
+    trade-amount: 1
+    category: nature
+    buy:
+      enabled: true
+      price: 2
+    sell:
+      enabled: false
+      price: 0
+      daily-limit-per-player: 0
+    pricing:
+      mode: DEMAND
+      demand-enabled: true
+      min-buy-price: 1
+      max-buy-price: 4
+      min-sell-price: 0
+      max-sell-price: 0
+      max-change-percent-per-update: 2.0
+      max-change-percent-per-day: 10.0
+      admin-locked-price: false
+    stock:
+      enabled: false
+      current: -1
+      max: -1
+      restock-amount: 0
+      restock-interval-minutes: 0
+  vine:
+    material: VINE
+    display-name: '&fVine'
     trade-amount: 1
     category: nature
     buy:

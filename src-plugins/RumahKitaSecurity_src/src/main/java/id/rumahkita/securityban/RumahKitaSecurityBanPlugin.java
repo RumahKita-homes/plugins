@@ -323,7 +323,7 @@ TabExecutor {
         if (online != null && plugin.getConfig().getBoolean("security.kick-online-target", true)) {
             online.kickPlayer(this.denyMessage("STRICT", reason));
         }
-        this.Text(sender, this.pref() + plugin.getConfig().getString("messages.banned", "&cTarget berhasil diban ketat."));
+        this.Text(sender, this.pref() + plugin.getConfig().getString("messages.banned", "&cTarget successfully hard banned."));
     }
 
     private void banIp(CommandSender sender, String value, String reason) {
@@ -341,7 +341,7 @@ TabExecutor {
             if (a == null || a.getAddress() == null || !(pip = a.getAddress().getHostAddress()).equalsIgnoreCase(value) && !this.orSubnet(value, pip) || p.hasPermission("rumahkita.securityban.bypass")) continue;
             p.kickPlayer(this.denyMessage("IP", reason));
         }
-        this.Text(sender, this.pref() + plugin.getConfig().getString("messages.ip-banned", "&cIP/Subnet berhasil diban."));
+        this.Text(sender, this.pref() + plugin.getConfig().getString("messages.ip-banned", "&cIP/Subnet successfully banned."));
     }
 
     private boolean orSubnet(String target, String playerIp) {
@@ -622,7 +622,7 @@ TabExecutor {
             }
         }
         catch (Exception e) {
-            plugin.getLogger().warning("Gagal save data.yml: " + e.getMessage());
+            plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
         }
     }
 

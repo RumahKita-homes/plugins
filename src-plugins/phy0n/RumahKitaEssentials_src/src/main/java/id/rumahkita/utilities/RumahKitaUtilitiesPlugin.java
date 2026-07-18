@@ -46,6 +46,10 @@ public final class RumahKitaUtilitiesPlugin
     private BansosManager bansosManager;
     private VanishManager vanishManager;
     private InfoManager infoManager;
+    
+    public VanishManager getVanishManager() {
+        return this.vanishManager;
+    }
 
     public void onEnable() {
         plugin.saveDefaultConfig();
@@ -71,6 +75,11 @@ public final class RumahKitaUtilitiesPlugin
         plugin.getCommand("rkvanish").setTabCompleter((TabCompleter)this.vanishManager);
         plugin.getCommand("ping").setExecutor(this.infoManager);
         plugin.getCommand("tps").setExecutor(this.infoManager);
+        
+        if (plugin.getCommand("online") != null) {
+            plugin.getCommand("online").setExecutor(new OnlineCommand(this));
+        }
+        
         this.bansosManager.startScheduler();
         plugin.getLogger().info("RumahKitaUtilities v1.2.0 enabled.");
     }
@@ -110,7 +119,7 @@ public final class RumahKitaUtilitiesPlugin
                 file.createNewFile();
             }
             catch (Exception e) {
-                plugin.getLogger().warning("Gagal membuat " + name + ": " + e.getMessage());
+                plugin.getLogger().warning("Failed to create " + name + ": " + e.getMessage());
             }
         }
     }

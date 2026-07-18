@@ -90,7 +90,7 @@ scoreboard:
       title: "&d&lRUMAHKITA &fS2"
       lines:
         - "&8&m                      "
-        - "&f%player%%essentials_afk%"
+        - "&f%player%%essentials_afk% &b%rumahkitaguilds_tag_raw%"
         - "&a%rke_balance%"
         - "&8&m                      "
 

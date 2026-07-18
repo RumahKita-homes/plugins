@@ -71,6 +71,12 @@ commands:
     usage: /rkvanish [player|list|reload]
     aliases:
     - rkv
+  ping:
+    description: Cek ping internet kamu
+    usage: /ping [player]
+  tps:
+    description: Cek TPS server
+    usage: /tps
 permissions:
   rumahkita.utilities.admin:
     description: Admin access to all RumahKitaUtilities commands.

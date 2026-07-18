@@ -84,4 +84,8 @@ public class RumahKitaWarpsPlugin  {
     public WarpManager getWarpManager() {
         return warpManager;
     }
+    
+    public ServerWarpManager getServerWarpManager() {
+        return serverWarpManager;
+    }
 }

@@ -28,29 +28,29 @@ public class TradeManager implements Listener {
 
     public void inviteTrade(Player inviter, Player target) {
         if (activeTrades.containsKey(inviter.getUniqueId())) {
-            inviter.sendMessage(ChatColor.RED + "Kamu sedang berada dalam sesi trade.");
+            inviter.sendMessage(ChatColor.RED + "You are currently in a trade session.");
             return;
         }
         if (activeTrades.containsKey(target.getUniqueId())) {
-            inviter.sendMessage(ChatColor.RED + "Pemain tersebut sedang berada dalam sesi trade.");
+            inviter.sendMessage(ChatColor.RED + "That player is currently in a trade session.");
             return;
         }
 
         invites.put(target.getUniqueId(), inviter.getUniqueId());
         
-        inviter.sendMessage(ChatColor.GREEN + "Berhasil mengirim ajakan trade ke " + target.getName() + ".");
+        inviter.sendMessage(ChatColor.GREEN + "Successfully sent trade request to " + target.getName() + ".");
         
-        target.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a--- &lAJAKAN TRADE &a---"));
-        target.sendMessage(ChatColor.YELLOW + inviter.getName() + " mengajak kamu untuk trade.");
-        target.sendMessage(ChatColor.translateAlternateColorCodes('&', "&eKetik &a/trade accept &eatau &c/trade deny"));
+        target.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a--- &lTRADE REQUEST &a---"));
+        target.sendMessage(ChatColor.YELLOW + inviter.getName() + " has requested to trade with you.");
+        target.sendMessage(ChatColor.translateAlternateColorCodes('&', "&eType &a/trade accept &eor &c/trade deny"));
         
         new BukkitRunnable() {
             @Override
             public void run() {
                 if (invites.containsKey(target.getUniqueId()) && invites.get(target.getUniqueId()).equals(inviter.getUniqueId())) {
                     invites.remove(target.getUniqueId());
-                    if (inviter.isOnline()) inviter.sendMessage(ChatColor.RED + "Ajakan trade ke " + target.getName() + " kedaluwarsa.");
-                    if (target.isOnline()) target.sendMessage(ChatColor.RED + "Ajakan trade dari " + inviter.getName() + " kedaluwarsa.");
+                    if (inviter.isOnline()) inviter.sendMessage(ChatColor.RED + "Trade request to " + target.getName() + " expired.");
+                    if (target.isOnline()) target.sendMessage(ChatColor.RED + "Trade request from " + inviter.getName() + " expired.");
                 }
             }
         }.runTaskLater(plugin, 600L);
@@ -58,7 +58,7 @@ public class TradeManager implements Listener {
 
     public void acceptTrade(Player target) {
         if (!invites.containsKey(target.getUniqueId())) {
-            target.sendMessage(ChatColor.RED + "Kamu tidak memiliki ajakan trade yang aktif.");
+            target.sendMessage(ChatColor.RED + "You do not have any active trade requests.");
             return;
         }
 
@@ -66,12 +66,12 @@ public class TradeManager implements Listener {
         Player inviter = plugin.getServer().getPlayer(inviterId);
 
         if (inviter == null || !inviter.isOnline()) {
-            target.sendMessage(ChatColor.RED + "Pemain yang mengajakmu sudah offline.");
+            target.sendMessage(ChatColor.RED + "The player who invited you is now offline.");
             return;
         }
 
         if (activeTrades.containsKey(inviter.getUniqueId()) || activeTrades.containsKey(target.getUniqueId())) {
-            target.sendMessage(ChatColor.RED + "Salah satu dari kalian sudah berada dalam sesi trade.");
+            target.sendMessage(ChatColor.RED + "One of you is already in a trade session.");
             return;
         }
 
@@ -80,16 +80,16 @@ public class TradeManager implements Listener {
 
     public void denyTrade(Player target) {
         if (!invites.containsKey(target.getUniqueId())) {
-            target.sendMessage(ChatColor.RED + "Kamu tidak memiliki ajakan trade yang aktif.");
+            target.sendMessage(ChatColor.RED + "You do not have any active trade requests.");
             return;
         }
 
         UUID inviterId = invites.remove(target.getUniqueId());
         Player inviter = plugin.getServer().getPlayer(inviterId);
 
-        target.sendMessage(ChatColor.RED + "Kamu menolak ajakan trade.");
+        target.sendMessage(ChatColor.RED + "You declined the trade request.");
         if (inviter != null && inviter.isOnline()) {
-            inviter.sendMessage(ChatColor.RED + target.getName() + " menolak ajakan trademu.");
+            inviter.sendMessage(ChatColor.RED + target.getName() + " declined your trade request.");
         }
     }
 
@@ -126,7 +126,7 @@ public class TradeManager implements Listener {
                 }
                 if (slot == TradeSession.LEFT_CANCEL_SLOT) {
                     e.setCancelled(true);
-                    cancelTrade(session, p.getName() + " membatalkan trade.");
+                    cancelTrade(session, p.getName() + " cancelled the trade.");
                     return;
                 }
                 if (slot == TradeSession.LEFT_MONEY_SLOT) {
@@ -134,9 +134,9 @@ public class TradeManager implements Listener {
                     if (session.isP1(p)) session.p1Typing = true;
                     if (session.isP2(p)) session.p2Typing = true;
                     p.closeInventory();
-                    p.sendMessage(ChatColor.GOLD + "=== UANG TRADE ===");
-                    p.sendMessage(ChatColor.YELLOW + "Ketik nominal uang yang ingin kamu tambahkan di chat.");
-                    p.sendMessage(ChatColor.GRAY + "Ketik 'batal' untuk membatalkan pengisian.");
+                    p.sendMessage(ChatColor.GOLD + "=== TRADE MONEY ===");
+                    p.sendMessage(ChatColor.YELLOW + "Type the amount of money you want to add in chat.");
+                    p.sendMessage(ChatColor.GRAY + "Type 'cancel' to cancel.");
                     return;
                 }
 
@@ -149,7 +149,7 @@ public class TradeManager implements Listener {
             } else {
                 if (e.isShiftClick()) {
                     e.setCancelled(true);
-                    p.sendMessage(ChatColor.RED + "Shift-click dinonaktifkan di menu Trade untuk keamanan.");
+                    p.sendMessage(ChatColor.RED + "Shift-click is disabled in Trade menu for security.");
                     return;
                 }
                 session.resetReady();
@@ -196,7 +196,7 @@ public class TradeManager implements Listener {
                 if (session.isP1(p) && session.p1Typing) return;
                 if (session.isP2(p) && session.p2Typing) return;
                 
-                cancelTrade(session, p.getName() + " menutup menu trade.");
+                cancelTrade(session, p.getName() + " closed the trade menu.");
             }
         }
     }
@@ -214,23 +214,23 @@ public class TradeManager implements Listener {
                 if (session.isP2(p)) session.p2Typing = false;
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (msg.equals("batal")) {
-                        p.sendMessage(ChatColor.RED + "Pengisian nominal dibatalkan.");
+                    if (msg.equalsIgnoreCase("cancel") || msg.equalsIgnoreCase("batal")) {
+                        p.sendMessage(ChatColor.RED + "Input cancelled.");
                     } else {
                         try {
                             long amount = Long.parseLong(msg);
                             if (amount < 0) throw new NumberFormatException();
                             RumahKitaEconomyRupiahPlugin eco = RumahKitaEconomyRupiahPlugin.getInstance();
                             if (eco.getBalance(p.getUniqueId()) < amount) {
-                                p.sendMessage(ChatColor.RED + "Saldo kamu tidak cukup!");
+                                p.sendMessage(ChatColor.RED + "Insufficient balance!");
                             } else {
                                 if (session.isP1(p)) session.setP1Money(amount);
                                 if (session.isP2(p)) session.setP2Money(amount);
                                 session.resetReady();
-                                p.sendMessage(ChatColor.GREEN + "Berhasil menset uang trade ke " + eco.formatRp(amount));
+                                p.sendMessage(ChatColor.GREEN + "Successfully set trade money to " + eco.formatRp(amount));
                             }
                         } catch (Exception ex) {
-                            p.sendMessage(ChatColor.RED + "Angka tidak valid!");
+                            p.sendMessage(ChatColor.RED + "Invalid number!");
                         }
                     }
                     if (activeTrades.containsKey(p.getUniqueId())) {
@@ -247,7 +247,7 @@ public class TradeManager implements Listener {
         TradeSession session = activeTrades.get(p.getUniqueId());
         if (session != null) {
             if (!session.isLocked()) {
-                cancelTrade(session, p.getName() + " keluar dari server.");
+                cancelTrade(session, p.getName() + " logged out.");
             }
         }
     }
@@ -259,8 +259,8 @@ public class TradeManager implements Listener {
             Player p1 = session.getP1();
             Player p2 = session.getP2();
             
-            p1.sendMessage(ChatColor.YELLOW + "Trade memproses dalam 3 detik...");
-            p2.sendMessage(ChatColor.YELLOW + "Trade memproses dalam 3 detik...");
+            p1.sendMessage(ChatColor.YELLOW + "Trade will process in 3 seconds...");
+            p2.sendMessage(ChatColor.YELLOW + "Trade will process in 3 seconds...");
             p1.playSound(p1.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
             p2.playSound(p2.getLocation(), org.bukkit.Sound.BLOCK_NOTE_BLOCK_PLING, 1f, 1f);
             
@@ -296,11 +296,11 @@ public class TradeManager implements Listener {
         activeTrades.remove(p2.getUniqueId());
         
         if (p1.isOnline()) {
-            p1.sendMessage(ChatColor.RED + "Trade dibatalkan: " + reason);
+            p1.sendMessage(ChatColor.RED + "Trade cancelled: " + reason);
             session.closeSafely();
         }
         if (p2.isOnline()) {
-            p2.sendMessage(ChatColor.RED + "Trade dibatalkan: " + reason);
+            p2.sendMessage(ChatColor.RED + "Trade cancelled: " + reason);
             session.closeSafely();
         }
     }

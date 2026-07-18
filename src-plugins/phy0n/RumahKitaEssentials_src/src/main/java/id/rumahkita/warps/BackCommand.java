@@ -25,12 +25,12 @@ public class BackCommand implements CommandExecutor {
         Location backLoc = backManager.getBackLocation(player.getUniqueId());
 
         if (backLoc == null) {
-            player.sendMessage(ChatColor.RED + "Tidak ada lokasi sebelumnya (atau lokasi kematian) untuk kembali!");
+            player.sendMessage(ChatColor.RED + "No previous location to return to!");
             return true;
         }
 
         player.teleport(backLoc);
-        player.sendMessage(ChatColor.GREEN + "Teleportasi ke lokasi sebelumnya!");
+        player.sendMessage(ChatColor.GREEN + "Teleported to previous location!");
         return true;
     }
 }

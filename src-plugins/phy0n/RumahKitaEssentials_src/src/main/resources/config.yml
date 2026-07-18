@@ -1,3 +1,65 @@
+# ==================================================
+# RumahKita Admin - Configuration
+# ==================================================
+
+# Server Auto-Restart Times (HH:mm format)
+# The timezone relies on the server's local machine timezone.
+restart-times:
+  - "06:59"
+  - "18:59"
+
+# How long before restart should warnings appear?
+# Use 'm' for minutes, 's' for seconds
+warnings:
+  - "10m"
+  - "5m"
+  - "1m"
+  - "30s"
+  - "10s"
+  - "5s"
+  - "4s"
+  - "3s"
+  - "2s"
+  - "1s"
+
+settings:
+  anti-vpn:
+    enabled: true
+    kick-message: "&c&lConnection Refused!\n\n&fOur Security System detected the use of a &e&lVPN / Proxy / Hosting&f.\n\n&7Please disable your VPN to join the server.\n&7If this is a mistake, contact an Admin."
+  warn:
+    max-warnings: 3
+  jail:
+    distance-limit: 10
+
+messages:
+  no-permission: "&cUnknown command. Type \"/help\" for help."
+  restart:
+    kick-message: "&cServer is restarting! Please rejoin in a few minutes."
+    warning-message: "&8[&c&l!&8] &c&lRESTART &8\u00bb &eServer is restarting in &c&l%time%&e!"
+  maintenance:
+    kick-message: "&cThe server is currently under Maintenance.\n&fPlease try again later."
+    enable-broadcast: "&4&lSERVER MAINTENANCE ENABLED!"
+    disable-broadcast: "&a&lMAINTENANCE COMPLETE!"
+  warn:
+    title: "&4&lWARNING!"
+    kick-message: "&cYou have been kicked for reaching maximum warnings.\n&fReason: &e%reason%"
+  jail:
+    jailed: "&cYou have been jailed by an Admin!"
+    unjailed: "&aYou have been unjailed. Don't break the rules again!"
+    cannot-escape: "&cYou cannot escape Jail!"
+  mute:
+    muted: "&cYou have been muted by an Admin! You cannot send messages."
+    unmuted: "&aYou have been unmuted. You can chat again."
+    cannot-chat: "&cYou cannot send messages because you are muted by an Admin."
+  freeze:
+    frozen: "&cYou have been frozen by an Admin!"
+    unfrozen: "&aYou have been unfrozen."
+
+# (Internal Data)
+# ips:
+# jailed_players:
+# warnings:
+# warnings:
 # RumahKitaUtilities v1.1.0
 # Fitur:
 # 1) Sleep skip tanpa harus semua player tidur
@@ -28,10 +90,10 @@ sleep:
   delay-after-bed-enter-ticks: 20
   set-time: 0
 
-  title-enabled: true
+  title-enabled: false
   title: "&b&lGood Morning!"
   subtitle: "&7Night skipped because &f%sleeper% &7is sleeping."
-  broadcast: "&8[&bSleep&8] &f%sleeper% &7is sleeping. Night skipped."
+  broadcast: "&f%sleeper% &7is sleeping. Night skipped."
 
 carry:
   enabled: true
@@ -133,10 +195,10 @@ carry:
     - world
 
   messages:
-    picked-player: "&8[&dCarry&8] &aYou are carrying &f%target%&a."
-    picked-entity: "&8[&dCarry&8] &aYou are carrying &f%target%&a."
-    dropped: "&8[&dCarry&8] &eCarry dropped."
-    disabled: "&8[&dCarry&8] &cCarry is currently disabled."
+    picked-player: "&aYou are carrying &f%target%&a."
+    picked-entity: "&aYou are carrying &f%target%&a."
+    dropped: "&eCarry dropped."
+    disabled: "&cCarry is currently disabled."
     no-permission: "&cYou don't have permission."
     too-far: "&cTarget is too far."
     blocked: "&cThat entity cannot be carried."
@@ -176,7 +238,7 @@ bansos:
     - "&7Thank you for playing on RumahKita S2!"
     - "&8&m--------------------------------"
 
-  title-enabled: true
+  title-enabled: false
   title: "&a&lFRIDAY REWARDS"
   subtitle: "&b+5 Diamond &a+10 Emerald &c+20 Beef"
 

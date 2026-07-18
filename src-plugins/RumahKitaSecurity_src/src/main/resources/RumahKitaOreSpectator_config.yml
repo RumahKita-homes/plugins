@@ -102,13 +102,13 @@ filters:
 
 messages:
   prefix: "&8[&bSpec2&8] "
-  no-permission: "&cKamu tidak punya permission."
+  no-permission: "&cYou don't have permission."
   already-enabled: "&eSpec2 sudah aktif. Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%"
   enabled: "&aSpec2 aktif. Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%"
-  disabled: "&cSpec2 nonaktif. Kamu muncul kembali."
+  disabled: "&cSpec2 disabled. You are now visible."
   no-markers-tip: "&eMarker masih 0. Terbang lebih dekat ke tanah/underground, atau pakai &f/spec2 filter all &edan &f/spec2 deep&e."
   reloaded: "&aConfig OreSpectator direload."
-  status: "&7Spec2 kamu: &f%active% &7| Marker: &f%count% &7| Ditemukan: &f%found% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius% &7| Semua session: &f%sessions%"
+  status: "&7Your Spec2: &f%active% &7| Marker: &f%count% &7| Found: &f%found% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius% &7| All sessions: &f%sessions%"
   radius-set: "&aRadius horizontal diubah ke &f%radius%&a. Marker: &f%count%"
   vradius-set: "&aVertical radius diubah ke &f%vradius%&a. Marker: &f%count%"
   filter-set: "&aFilter diubah ke &f%filter%&a. Marker: &f%count%"

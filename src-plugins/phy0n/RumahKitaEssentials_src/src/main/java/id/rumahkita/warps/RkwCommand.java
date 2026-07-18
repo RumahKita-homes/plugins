@@ -41,7 +41,9 @@ public class RkwCommand implements CommandExecutor, TabCompleter {
 
         if (args[0].equalsIgnoreCase("reload")) {
             plugin.reloadConfig();
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8[&aRumahKitaWarps&8] &aConfig reloaded successfully."));
+            if (plugin.getWarpManager() != null) plugin.getWarpManager().loadWarps();
+            if (plugin.getServerWarpManager() != null) plugin.getServerWarpManager().loadFile();
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8[&aRumahKitaWarps&8] &aConfig and warps data reloaded successfully."));
             return true;
         }
 

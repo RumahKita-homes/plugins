@@ -56,6 +56,7 @@ public class WarpManager implements Listener {
     }
 
     public void loadWarps() {
+        warpsConfig = YamlConfiguration.loadConfiguration(warpsFile);
         warps.clear();
         ConfigurationSection section = warpsConfig.getConfigurationSection("warps");
         if (section != null) {
@@ -342,7 +343,7 @@ public class WarpManager implements Listener {
     }
 
     public String getPrefix() {
-        return ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("messages.prefix", "&8[&b&lPWarp&8] "));
+        return "";
     }
 
     public List<String> getWarpNames() {

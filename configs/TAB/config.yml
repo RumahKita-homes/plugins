@@ -4,13 +4,12 @@ header-footer:
     default:
       header:
         - ""
-        - "&d&lRUMAH KITA S2"
+        - "&d&lRUMAHKITA &fS2"
         - "&fSurvival &8• &fEconomy &8• &fGuild"
         - ""
       footer:
         - ""
-        - "&7Online: &a%online% &8| &7Ping: %condition:ping_color%ms &8| &7TPS: %server_tps_1_colored%"
-        - "&d&lrumahkita.homes"
+        - "&7rumahkita.homes"
         - ""
 
 tablist-name-formatting:
@@ -48,7 +47,7 @@ prevent-spectator-effect:
   enabled: false
 
 bossbar:
-  enabled: true
+  enabled: false
   toggle-command: /bossbar
   remember-toggle-choice: false
   hidden-by-default: false
@@ -88,18 +87,12 @@ scoreboard:
         - ""
         
     rumahkita:
-      title: "&d&lRUMAH KITA S2"
+      title: "&d&lRUMAHKITA &fS2"
       lines:
-        - ""
-        - " &7Nama: &f%player%%essentials_afk%"
-        - " &7Rank:&f%luckperms_prefix%"
-        - " &7Guild: &b%rumahkitaguilds_name%"
-        - " &7Uang: &a%rke_balance%"
-        - " &7Online: &a%online%&8/&a35"
-        - " &7Ping: %condition:ping_color%ms"
-        - ""
-        - " &7%date%"
-        - " &d&lrumahkita.homes"
+        - "&8&m                      "
+        - "&f%player%%essentials_afk%"
+        - "&a%rke_balance%"
+        - "&8&m                      "
 
 layout:
   enabled: false

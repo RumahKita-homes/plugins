@@ -15,6 +15,7 @@ import id.rumahkita.utilities.BansosManager;
 import id.rumahkita.utilities.CarryManager;
 import id.rumahkita.utilities.SleepManager;
 import id.rumahkita.utilities.VanishManager;
+import id.rumahkita.utilities.InfoManager;
 import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
@@ -44,6 +45,7 @@ public final class RumahKitaUtilitiesPlugin
     private CarryManager carryManager;
     private BansosManager bansosManager;
     private VanishManager vanishManager;
+    private InfoManager infoManager;
 
     public void onEnable() {
         plugin.saveDefaultConfig();
@@ -52,9 +54,11 @@ public final class RumahKitaUtilitiesPlugin
         this.carryManager = new CarryManager(this);
         this.bansosManager = new BansosManager(this);
         this.vanishManager = new VanishManager(this);
+        this.infoManager = new InfoManager(this);
         Bukkit.getPluginManager().registerEvents((Listener)this.sleepManager, plugin);
         Bukkit.getPluginManager().registerEvents((Listener)this.carryManager, plugin);
         Bukkit.getPluginManager().registerEvents((Listener)this.vanishManager, plugin);
+        Bukkit.getPluginManager().registerEvents(new ServerLinksManager(this), plugin);
         plugin.getCommand("rksleep").setExecutor((CommandExecutor)this.sleepManager);
         plugin.getCommand("rksleep").setTabCompleter((TabCompleter)this.sleepManager);
         plugin.getCommand("carry").setExecutor((CommandExecutor)this.carryManager);
@@ -65,6 +69,8 @@ public final class RumahKitaUtilitiesPlugin
         plugin.getCommand("rkbansos").setTabCompleter((TabCompleter)this.bansosManager);
         plugin.getCommand("rkvanish").setExecutor((CommandExecutor)this.vanishManager);
         plugin.getCommand("rkvanish").setTabCompleter((TabCompleter)this.vanishManager);
+        plugin.getCommand("ping").setExecutor(this.infoManager);
+        plugin.getCommand("tps").setExecutor(this.infoManager);
         this.bansosManager.startScheduler();
         plugin.getLogger().info("RumahKitaUtilities v1.2.0 enabled.");
     }

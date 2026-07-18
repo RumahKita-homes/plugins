@@ -104,7 +104,7 @@ public class TradeSession {
         ItemStack item = new ItemStack(Material.GOLD_NUGGET);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Uang Trade");
+            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + "Trade Money");
             List<String> lore = new ArrayList<>();
             lore.add(ChatColor.GRAY + "Milik: " + ChatColor.WHITE + owner);
             lore.add(ChatColor.GRAY + "Nominal: " + ChatColor.YELLOW + "Rp " + amount);
@@ -210,8 +210,8 @@ public class TradeSession {
             eco.takeBalance(p2.getUniqueId(), p2Money);
         }
 
-        p1.sendMessage(ChatColor.GREEN + "Trade dengan " + p2.getName() + " berhasil diselesaikan!");
-        p2.sendMessage(ChatColor.GREEN + "Trade dengan " + p1.getName() + " berhasil diselesaikan!");
+        p1.sendMessage(ChatColor.GREEN + "Trade with " + p2.getName() + " completed successfully!");
+        p2.sendMessage(ChatColor.GREEN + "Trade with " + p1.getName() + " completed successfully!");
         p1.playSound(p1.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         p2.playSound(p2.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         
@@ -225,8 +225,8 @@ public class TradeSession {
             java.io.PrintWriter pw = new java.io.PrintWriter(fw);
             String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new java.util.Date());
             pw.println("[" + timestamp + "] TRADE COMPLETED:");
-            pw.println("Player 1: " + p1.getName() + " | Uang: Rp " + p1Money + " | Item: " + String.join(", ", p1ItemsLog));
-            pw.println("Player 2: " + p2.getName() + " | Uang: Rp " + p2Money + " | Item: " + String.join(", ", p2ItemsLog));
+            pw.println("Player 1: " + p1.getName() + " | Money: Rp " + p1Money + " | Items: " + String.join(", ", p1ItemsLog));
+            pw.println("Player 2: " + p2.getName() + " | Money: Rp " + p2Money + " | Items: " + String.join(", ", p2ItemsLog));
             pw.println("-------------------------------------------------");
             pw.close();
         } catch (Exception e) {
@@ -239,7 +239,7 @@ public class TradeSession {
     private void giveItemOrDrop(Player p, ItemStack item) {
         if (!p.getInventory().addItem(item).isEmpty()) {
             p.getWorld().dropItemNaturally(p.getLocation(), item);
-            p.sendMessage(ChatColor.RED + "Inventory kamu penuh! Item telah dijatuhkan ke tanah.");
+            p.sendMessage(ChatColor.RED + "Your inventory is full! Items were dropped on the ground.");
         }
     }
 

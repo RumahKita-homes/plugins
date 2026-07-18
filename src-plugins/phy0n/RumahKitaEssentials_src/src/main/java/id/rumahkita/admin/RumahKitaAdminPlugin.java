@@ -824,7 +824,17 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                 }
                 
                 if (count > 0) {
-                    if (count <= 10 || count == 15 || count == 30 || count % 60 == 0 || count == finalCountdown) {
+                    boolean notify = false;
+                    if (count == finalCountdown) notify = true;
+                    else if (count <= 10) notify = true;
+                    else if (count == 15 || count == 30) notify = true;
+                    else if (count % 60 == 0) {
+                        int m = count / 60;
+                        if (m <= 5) notify = true;
+                        else if (m % 10 == 0) notify = true;
+                    }
+
+                    if (notify) {
                         String timeStr = formatTimeLength(count);
                         for (Player p : Bukkit.getOnlinePlayers()) {
                             p.sendTitle(ChatColor.DARK_RED + "MAINTENANCE!", ChatColor.RED + "Kicking in " + timeStr + "...", 0, 30, 10);

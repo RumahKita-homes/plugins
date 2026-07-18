@@ -35,7 +35,7 @@ public class ServerWarpManager implements Listener {
         loadFile();
     }
 
-    private void loadFile() {
+    public void loadFile() {
         file = new File(plugin.getDataFolder(), "server_warps.yml");
         if (!file.exists()) {
             try {
@@ -189,7 +189,7 @@ public class ServerWarpManager implements Listener {
     }
 
     public void teleportToWarp(Player p, String name) {
-        String prefix = ChatColor.translateAlternateColorCodes('&', "&8[&b&lWarp&8] ");
+        String prefix = "";
         ServerWarp w = getWarp(name.toLowerCase());
         if (w == null) {
             p.sendMessage(prefix + ChatColor.RED + "Warp '" + name + "' not found.");

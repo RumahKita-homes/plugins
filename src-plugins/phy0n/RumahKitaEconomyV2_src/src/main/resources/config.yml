@@ -3,6 +3,21 @@ currency:
   prefix: "Rp"
   thousands-separator: "."
   starting-balance: 10000
+
+mysql:
+  enabled: true
+  host: "mysql.discord.sgp2.shockbyte.host"
+  port: 3306
+  database: "678e110c69-coresystem"
+  username: "678e110c69-coresystem-admin"
+  password: "019fa0b2cbeb140b"
+  table-prefix: "rke_"
+  pool:
+    max-pool-size: 10
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+
 settings:
   min-playtime-hours-to-sell: 5
   transaction-cooldown-ms: 700
@@ -15,7 +30,7 @@ sell-rules:
   allowed-categories:
     - mobdrops
     - farming
-  blocked-message-category-info: "&7Untuk menjaga ekonomi server, hanya hasil &aMob Drops &7dan &aFarming &7yang bisa dijual ke server."
+  blocked-message-category-info: "&7To maintain server economy, only &aMob Drops &7and &aFarming &7items can be sold to the server."
 old-player-shop:
   search-files:
     - "plugins/RumahKitaEconomy/json/player-market-rupiah.json"

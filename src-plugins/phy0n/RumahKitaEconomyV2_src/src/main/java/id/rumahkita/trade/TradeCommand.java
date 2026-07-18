@@ -50,12 +50,12 @@ public class TradeCommand implements CommandExecutor, TabCompleter {
 
         Player target = Bukkit.getPlayerExact(args[0]);
         if (target == null) {
-            p.sendMessage(ChatColor.RED + "Pemain tersebut tidak ditemukan atau sedang offline.");
+            p.sendMessage(ChatColor.RED + "Player not found or offline.");
             return true;
         }
 
         if (target.equals(p)) {
-            p.sendMessage(ChatColor.RED + "Kamu tidak bisa trade dengan dirimu sendiri.");
+            p.sendMessage(ChatColor.RED + "You cannot trade with yourself.");
             return true;
         }
 

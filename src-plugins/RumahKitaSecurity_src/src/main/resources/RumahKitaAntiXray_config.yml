@@ -93,8 +93,8 @@ logs:
 
 messages:
   prefix: "&8[&bAntiXray&8] "
-  no-permission: "&cKamu tidak punya permission."
-  reloaded: "&aAntiXray berhasil direload."
-  reset: "&aRisk player berhasil direset."
-  frozen: "&cKamu sedang dibekukan sementara karena mining mencurigakan. Hubungi staff."
-  limited: "&cKamu sedang dibatasi mining ore langka sementara karena mining mencurigakan."
+  no-permission: "&cYou don't have permission."
+  reloaded: "&aAntiXray successfully reloaded."
+  reset: "&aRisk player successfully reset."
+  frozen: "&cYou are temporarily frozen due to suspicious mining. Contact staff."
+  limited: "&cYou are temporarily limited from mining rare ores due to suspicious mining."

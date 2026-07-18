@@ -22,15 +22,15 @@ history:
 
 messages:
   prefix: "&8[&cSecurityBan&8] "
-  no-permission: "&cKamu tidak punya permission."
-  reloaded: "&aSecurityBan berhasil direload."
+  no-permission: "&cYou don't have permission."
+  reloaded: "&aSecurityBan reloaded successfully."
   player-not-found: "&cPlayer tidak ditemukan di online/history."
-  banned: "&cTarget berhasil diban ketat."
-  ip-banned: "&cIP/Subnet berhasil diban."
-  unbanned: "&aData ban berhasil dihapus."
+  banned: "&cTarget successfully hard-banned."
+  ip-banned: "&cIP/Subnet successfully banned."
+  unbanned: "&aBan data successfully deleted."
   not-banned: "&eData itu tidak ditemukan di ban list."
   deny-message:
-    - "&cKamu diblok dari RumahKita S2."
+    - "&cYou are blocked from RumahKita S2."
     - "&7Alasan: &f%reason%"
     - "&7Tipe: &f%type%"
     - ""

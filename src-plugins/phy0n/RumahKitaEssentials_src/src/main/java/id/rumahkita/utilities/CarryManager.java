@@ -191,13 +191,13 @@ TabExecutor {
         }
         if (this.carrierToCarried.containsKey(carrier.getUniqueId()) || this.carriedToCarrier.containsKey(carrier.getUniqueId())) {
             if (sendMessage) {
-                Text.msg((CommandSender)carrier, "&cKamu sedang carry / sedang digendong.");
+                Text.msg((CommandSender)carrier, "&cYou are already carrying someone or being carried.");
             }
             return false;
         }
         if (this.carriedToCarrier.containsKey(target.getUniqueId())) {
             if (sendMessage) {
-                Text.msg((CommandSender)carrier, "&cTarget sedang digendong orang lain.");
+                Text.msg((CommandSender)carrier, "&cTarget is already being carried by someone else.");
             }
             return false;
         }
@@ -302,12 +302,12 @@ TabExecutor {
             if (target instanceof Player) {
                 Player p = (Player)target;
                 Text.msg((CommandSender)carrier, this.message("picked-player").replace("%target%", p.getName()));
-                Text.msg((CommandSender)p, "&8[&dCarry&8] &7Kamu sedang digendong oleh &f" + carrier.getName() + "&7. Shift untuk turun.");
+                Text.msg((CommandSender)p, "&7You are being carried by &f" + carrier.getName() + "&7. Press Shift to drop.");
             } else {
                 Text.msg((CommandSender)carrier, this.message("picked-entity").replace("%target%", target.getType().name()));
             }
         } else {
-            Text.msg((CommandSender)carrier, "&cGagal carry target.");
+            Text.msg((CommandSender)carrier, "&cFailed to carry target.");
         }
     }
 
@@ -350,11 +350,21 @@ TabExecutor {
     }
 
     private String message(String key) {
-        return Text.color(this.plugin.getConfig().getString("carry.messages." + key, key));
+        String def = key.equals("picked-player") ? "&aYou are carrying &f%target%&a." :
+                     key.equals("picked-entity") ? "&aYou are carrying &f%target%&a." :
+                     key.equals("dropped") ? "&eCarry dropped." : key;
+        return Text.color(this.plugin.getConfig().getString("carry.messages." + key, def));
     }
 
     private void msg(Player player, String key) {
-        Text.msg((CommandSender)player, this.plugin.getConfig().getString("carry.messages." + key, key));
+        String def = key.equals("dropped") ? "&eCarry dropped." :
+                     key.equals("too-far") ? "&cTarget is too far." :
+                     key.equals("blocked") ? "&cThat entity cannot be carried." :
+                     key.equals("too-heavy") ? "&cThat entity is too heavy to carry." :
+                     key.equals("land-denied") ? "&cYou cannot pickup entities in someone else's claim." :
+                     key.equals("not-found") ? "&cTarget not found." :
+                     key.equals("disabled") ? "&cCarry is currently disabled." : key;
+        Text.msg((CommandSender)player, this.plugin.getConfig().getString("carry.messages." + key, def));
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -369,7 +379,7 @@ TabExecutor {
         }
         if (args.length == 0) {
             Text.msg(sender, "&e/carry <player|drop>");
-            Text.msg(sender, "&eSneak + klik kanan entity untuk carry mob/player.");
+            Text.msg(sender, "&eSneak + Right-Click an entity to carry them.");
             return true;
         }
         if (args[0].equalsIgnoreCase("drop")) {

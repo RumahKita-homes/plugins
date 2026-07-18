@@ -18,7 +18,7 @@ commands:
   bal:
     description: Cek saldo Rupiah
     usage: /bal
-    aliases: [balance, uang, money]
+    aliases: [balance, uang, money, cash]
   baltop:
     description: Lihat pemain paling kaya
     usage: /baltop
@@ -30,15 +30,12 @@ commands:
     description: Transfer saldo Rupiah
     usage: /pay <player> <amount>
   payall:
-    description: Bagi-bagi uang ke semua player online
+    description: Distribute money to all online players
     usage: /payall <amount> <alasan>
   rke:
     description: Admin Economy RumahKita
     usage: /rke
-  trade:
-    description: "Pertukaran item aman antar pemain"
-    aliases: [barter, tukar]
-    usage: "/trade <nama_player> | /trade accept | /trade deny"
+
 permissions:
   market.use:
     default: true

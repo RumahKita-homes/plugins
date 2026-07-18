@@ -14,7 +14,7 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
     public void onEnable() {
         // Save default config from all modules if needed, or handle in modules
-        this.saveDefaultConfig();
+
 
         getLogger().info("Initializing RumahKita Essentials Modules...");
 

@@ -373,6 +373,31 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.msg(sender, this.pref() + "&aBackup manual selesai. File: &f" + count);
                     break;
                 }
+                case "migratemysql": {
+                    if (!this.has(sender, "rumahkita.guild.admin.reload")) {
+                        return this.noPerm(sender);
+                    }
+                    if (args.length < 2 || !args[1].equalsIgnoreCase("confirm")) {
+                        return this.confirm(sender, "/rkgadmin migratemysql confirm");
+                    }
+                    if (!plugin.getConfig().getBoolean("mysql.enabled", false)) {
+                        this.msg(sender, this.pref() + "&cMySQL tidak aktif di config.yml.");
+                        break;
+                    }
+                    this.msg(sender, this.pref() + "&aMemulai migrasi guild ke MySQL...");
+                    int count = 0;
+                    DatabaseManager db = new DatabaseManager(plugin);
+                    for (GuildRef ref : this.allGuildRefs()) {
+                        Guild guild = Guild.loadFrom(ref.yml.getConfigurationSection(ref.path));
+                        if (guild != null) {
+                            db.saveGuildSync(guild);
+                            count++;
+                        }
+                    }
+                    db.close();
+                    this.msg(sender, this.pref() + "&aBerhasil memigrasi &e" + count + " &aguild ke MySQL. Silakan restart server.");
+                    break;
+                }
                 default: {
                     this.sendHelp(sender);
                     break;
@@ -425,6 +450,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
         this.msg(s, "&e/rkgadmin rename <guild> <namaBaru> confirm");
         this.msg(s, "&e/rkgadmin setprefix <guild> <prefix>");
         this.msg(s, "&e/rkgadmin backup / reload / scan");
+        this.msg(s, "&e/rkgadmin migratemysql confirm");
         this.msg(s, "&8&m--------------------------------");
     }
 
@@ -786,7 +812,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
 
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return this.filter(args[0], List.of("help", "scan", "list", "info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "removeplayer", "setleader", "rename", "setprefix", "backup", "reload"));
+            return this.filter(args[0], List.of("help", "scan", "list", "info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "removeplayer", "setleader", "rename", "setprefix", "backup", "reload", "migratemysql"));
         }
         if (args.length == 2 && List.of("info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "setleader", "rename", "setprefix").contains(args[0].toLowerCase(Locale.ROOT))) {
             ArrayList<String> names = new ArrayList<String>();

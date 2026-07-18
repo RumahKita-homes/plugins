@@ -14,6 +14,20 @@ settings:
     max-length: 24
   invite-expire-seconds: 120
 
+mysql:
+  enabled: true
+  host: "mysql.discord.sgp2.shockbyte.host"
+  port: 3306
+  database: "678e110c69-coresystem"
+  username: "678e110c69-coresystem-admin"
+  password: "019fa0b2cbeb140b"
+  table-prefix: "rkg_"
+  pool:
+    max-pool-size: 10
+    connection-timeout: 30000
+    idle-timeout: 600000
+    max-lifetime: 1800000
+
 guild-home:
   teleport-delay-seconds: 5
   cooldown-seconds: 60

@@ -156,7 +156,7 @@ TabExecutor {
             catch (Exception exception) {}
         }
         String name = sleeper == null ? "Seseorang" : sleeper.getName();
-        String broadcast = this.plugin.getConfig().getString("sleep.broadcast", "&8[&bSleep&8] &f%sleeper% &7tidur. Malam dilewati.").replace("%sleeper%", name);
+        String broadcast = this.plugin.getConfig().getString("sleep.broadcast", "&f%sleeper% &7is sleeping. Night skipped.").replace("%sleeper%", name);
         Bukkit.broadcastMessage((String)Text.color(broadcast));
         if (this.plugin.getConfig().getBoolean("sleep.title-enabled", true)) {
             String title = this.plugin.getConfig().getString("sleep.title", "&b&lSelamat Pagi!").replace("%sleeper%", name);

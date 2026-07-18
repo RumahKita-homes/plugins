@@ -39,15 +39,23 @@ public final class GuildManager {
     private final Map<String, Guild> guildsByTag = new LinkedHashMap<String, Guild>();
     private final Map<UUID, String> playerGuild = new HashMap<UUID, String>();
     private final File dataFile;
+    private final DatabaseManager dbManager;
 
     public GuildManager(RumahKitaGuildsPlugin plugin) {
         this.plugin = plugin;
         this.dataFile = new File(plugin.getDataFolder(), "guilds.yml");
+        this.dbManager = new DatabaseManager(plugin);
     }
 
     public void load() {
         this.guildsByTag.clear();
         this.playerGuild.clear();
+        
+        if (dbManager.isEnabled()) {
+            dbManager.loadAllGuilds(this);
+            return;
+        }
+        
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
         }
@@ -75,6 +83,14 @@ public final class GuildManager {
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
         }
+        
+        if (dbManager.isEnabled()) {
+            for (Guild guild : this.guildsByTag.values()) {
+                dbManager.saveGuildAsync(guild);
+            }
+            return; // We skip YAML saving if MySQL is enabled to prevent I/O blocking
+        }
+        
         YamlConfiguration data = new YamlConfiguration();
         ConfigurationSection guildsSection = data.createSection("guilds");
         for (Guild guild : this.guildsByTag.values()) {
@@ -171,7 +187,11 @@ public final class GuildManager {
             this.playerGuild.remove(member);
         }
         this.guildsByTag.remove(this.normalizeTag(guild.getTag()));
-        this.save();
+        if (dbManager.isEnabled()) {
+            dbManager.deleteGuildAsync(guild.getTag());
+        } else {
+            this.save();
+        }
     }
 
     public boolean renameGuild(Guild guild, String newName) {
@@ -197,6 +217,11 @@ public final class GuildManager {
         }
         String old = this.normalizeTag(guild.getTag());
         this.guildsByTag.remove(old);
+        
+        if (dbManager.isEnabled()) {
+            dbManager.deleteGuildAsync(guild.getTag());
+        }
+        
         guild.setTag(newTag.toUpperCase(Locale.ROOT));
         this.guildsByTag.put(normalized, guild);
         for (UUID member : guild.getMembers().keySet()) {
@@ -273,6 +298,18 @@ public final class GuildManager {
             if ((remaining -= take) <= 0) break;
         }
         player.updateInventory();
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return this.dbManager;
+    }
+
+    public Map<String, Guild> getRawGuildsMap() {
+        return this.guildsByTag;
+    }
+
+    public Map<UUID, String> getRawPlayerGuildMap() {
+        return this.playerGuild;
     }
 
     public static enum CreateResult {

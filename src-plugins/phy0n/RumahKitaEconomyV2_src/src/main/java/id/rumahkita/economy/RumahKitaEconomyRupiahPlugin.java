@@ -131,6 +131,7 @@ TabExecutor {
     private NamespacedKey keyVoucherPercent;
     private NamespacedKey keyRefundId;
     private id.rumahkita.trade.TradeManager tradeManager;
+    private DatabaseManager dbManager;
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static RumahKitaEconomyRupiahPlugin instance;
@@ -149,6 +150,7 @@ TabExecutor {
         this.keyVoucherId = new NamespacedKey((Plugin)this, "voucher_id");
         this.keyVoucherPercent = new NamespacedKey((Plugin)this, "voucher_percent");
         this.keyRefundId = new NamespacedKey((Plugin)this, "refund_id");
+        this.dbManager = new DatabaseManager(this);
         this.reloadAll();
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
         for (String cmd : Arrays.asList("market", "sellhand", "sellall", "bal", "pay", "payall", "rke", "baltop", "hidebal")) {
@@ -164,13 +166,13 @@ TabExecutor {
             Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.runRefundMigration((CommandSender)Bukkit.getConsoleSender(), false), 60L);
         }
         this.setupVault();
-        this.tradeManager = new id.rumahkita.trade.TradeManager(this);
-        id.rumahkita.trade.TradeCommand tradeCmd = new id.rumahkita.trade.TradeCommand(this.tradeManager);
-        if (this.getCommand("trade") != null) {
-            this.getCommand("trade").setExecutor((CommandExecutor)tradeCmd);
-            this.getCommand("trade").setTabCompleter((TabCompleter)tradeCmd);
-        }
-        Bukkit.getPluginManager().registerEvents(this.tradeManager, this);
+//        this.tradeManager = new id.rumahkita.trade.TradeManager(this);
+//        id.rumahkita.trade.TradeCommand tradeCmd = new id.rumahkita.trade.TradeCommand(this.tradeManager);
+//        if (this.getCommand("trade") != null) {
+//            this.getCommand("trade").setExecutor((CommandExecutor)tradeCmd);
+//            this.getCommand("trade").setTabCompleter((TabCompleter)tradeCmd);
+//        }
+//        Bukkit.getPluginManager().registerEvents(this.tradeManager, this);
         this.getLogger().info("RumahKitaEconomyRupiah v2.1.1 BalanceMigrationFix enabled.");
     }
 
@@ -188,6 +190,9 @@ TabExecutor {
             this.tradeManager.cancelAllActiveTrades();
         }
         this.saveData();
+        if (this.dbManager != null) {
+            this.dbManager.close();
+        }
     }
 
     private void hookPlaceholderAPI() {
@@ -199,6 +204,17 @@ TabExecutor {
             catch (Throwable t) {
                 this.getLogger().warning("PlaceholderAPI hook failed: " + t.getMessage());
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent e) {
+        if (this.dbManager != null && this.dbManager.isEnabled()) {
+            this.dbManager.loadBalance(e.getPlayer().getUniqueId()).thenAccept(bal -> {
+                if (bal >= 0L) {
+                    this.balancesCfg.set("balances." + e.getPlayer().getUniqueId().toString(), bal);
+                }
+            });
         }
     }
 
@@ -558,7 +574,7 @@ TabExecutor {
         }
         ItemStack hand = p.getInventory().getItemInMainHand();
         if (hand == null || hand.getType() == Material.AIR) {
-            this.msg((CommandSender)p, "&cPegang item yang mau dijual.");
+            this.msg((CommandSender)p, "&cHold the item you want to sell in your hand.");
             return true;
         }
         MarketItem mi = (MarketItem)this.sellByMaterial.get(hand.getType());
@@ -707,9 +723,9 @@ TabExecutor {
             return true;
         }
         this.addBalance(target.getUniqueId(), amount);
-        this.msg((CommandSender)p, "&aSuccessfully transferred &e" + this.formatRp(amount) + " &ake &f" + target.getName());
+        this.msg((CommandSender)p, "&aSuccessfully transferred &e" + this.formatRp(amount) + " &ato &f" + target.getName());
         if (target.isOnline()) {
-            this.msg((CommandSender)target.getPlayer(), "&aKamu menerima &e" + this.formatRp(amount) + " &adari &f" + p.getName());
+            this.msg((CommandSender)target.getPlayer(), "&aYou received &e" + this.formatRp(amount) + " &afrom &f" + p.getName());
         }
         return true;
     }
@@ -723,7 +739,7 @@ TabExecutor {
             return this.noPerm(sender);
         }
         if (args.length < 1) {
-            this.msg((CommandSender)p, "&cGunakan /payall <total_uang> [alasan...]");
+            this.msg((CommandSender)p, "&cUsage: /payall <total_money> [reason...]");
             return true;
         }
         long now = System.currentTimeMillis();
@@ -801,6 +817,7 @@ TabExecutor {
             this.msg(sender, "&a /rke voucher giveall <percent> <amount>");
             this.msg(sender, "&a /rke reload | save | placeholders | demandupdate");
             this.msg(sender, "&a /rke migratebalances");
+            this.msg(sender, "&a /rke migratemysql &7- Pindah data balances ke MySQL");
             this.msg(sender, "&e--- Player Commands ---");
             this.msg(sender, "&a /market atau /shop &7- Buka Menu Toko");
             this.msg(sender, "&a /bal or /money &7- Check Balance");
@@ -834,6 +851,32 @@ TabExecutor {
         if (sub.equals("migratebalances")) {
             int migrated = this.migrateLegacyBalancesIfNeeded(true);
             this.msg(sender, "&aBalance migration complete. Entries processed: &e" + migrated + "&a. Check balance with /bal <player>.");
+            return true;
+        }
+        if (sub.equals("migratemysql")) {
+            if (!this.dbManager.isEnabled()) {
+                this.msg(sender, "&cMySQL is not enabled in config.yml.");
+                return true;
+            }
+            this.msg(sender, "&aMemulai migrasi balances ke MySQL. Harap tunggu...");
+            Bukkit.getScheduler().runTaskAsynchronously((Plugin)this, () -> {
+                int count = 0;
+                ConfigurationSection players = this.balancesCfg.getConfigurationSection("balances");
+                if (players != null) {
+                    for (String uuidStr : players.getKeys(false)) {
+                        long bal = players.getLong(uuidStr, 0L);
+                        try {
+                            UUID uuid = UUID.fromString(uuidStr);
+                            this.dbManager.saveBalanceSync(uuid, bal);
+                            count++;
+                        } catch (Exception ignored) {}
+                    }
+                }
+                final int finalCount = count;
+                Bukkit.getScheduler().runTask((Plugin)this, () -> {
+                    this.msg(sender, "&aBerhasil memigrasi &e" + finalCount + " &adata player ke MySQL!");
+                });
+            });
             return true;
         }
         if (sub.equals("voucher")) {
@@ -935,15 +978,15 @@ TabExecutor {
                 }
             }
         }
-        inv.setItem(this.marketCfg.getInt("gui.main.slots.voucher", 48), this.icon(Material.PAPER, "&dVoucher Diskon", Arrays.asList("&7Pilih voucher yang mau dipakai.", "&7Voucher is not automatically used.", "&fKlik untuk pilih voucher.")));
-        inv.setItem(this.marketCfg.getInt("gui.main.slots.info", 49), this.icon(Material.BOOK, "&bInfo Ekonomi", Arrays.asList("&7Untuk menjaga ekonomi server tetap stabil,", "&7only farm items and mob drops can be sold.")));
+        inv.setItem(this.marketCfg.getInt("gui.main.slots.voucher", 48), this.icon(Material.PAPER, "&dDiscount Voucher", Arrays.asList("&7Select the voucher you want to use.", "&7Voucher is not automatically used.", "&fClick to select voucher.")));
+        inv.setItem(this.marketCfg.getInt("gui.main.slots.info", 49), this.icon(Material.BOOK, "&bEconomy Info", Arrays.asList("&7To keep the server economy stable,", "&7only farm items and mob drops can be sold.")));
         if (this.hasAdmin((CommandSender)p, "market.admin")) {
-            inv.setItem(this.marketCfg.getInt("gui.main.slots.admin", 53), this.icon(Material.COMMAND_BLOCK, "&cAdmin Market", Arrays.asList("&7Kelola item, stock, harga, demand,", "&7statistik, refund, dan reload config.")));
+            inv.setItem(this.marketCfg.getInt("gui.main.slots.admin", 53), this.icon(Material.COMMAND_BLOCK, "&cMarket Admin", Arrays.asList("&7Manage items, stock, prices, demand,", "&7statistics, refunds, and reload config.")));
         }
         int balSlot = this.marketCfg.getInt("gui.main.slots.balance", 50);
         if (balSlot >= 0 && balSlot < size) {
             String balStr = this.formatRp(this.getBalance(p.getUniqueId()));
-            inv.setItem(balSlot, this.icon(Material.EMERALD, "&eYour Money", Arrays.asList("&7Sisa uangmu saat ini:", "&a" + balStr)));
+            inv.setItem(balSlot, this.icon(Material.EMERALD, "&eYour Money", Arrays.asList("&7Your current balance:", "&a" + balStr)));
         }
         p.openInventory(inv);
     }
@@ -995,19 +1038,19 @@ TabExecutor {
         
         if (mi.buyEnabled) {
             long unitB = (long)Math.ceil((double)mi.currentBuyPrice / (double)mi.tradeAmount);
-            inv.setItem(9, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBeli 1", java.util.Collections.singletonList("&7Harga: &e" + this.formatRp(unitB * 1))));
-            inv.setItem(10, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBeli 10", java.util.Collections.singletonList("&7Harga: &e" + this.formatRp(unitB * 10))));
-            inv.setItem(11, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBeli 64", java.util.Collections.singletonList("&7Harga: &e" + this.formatRp(unitB * 64))));
+            inv.setItem(9, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBuy 1", java.util.Collections.singletonList("&7Price: &e" + this.formatRp(unitB * 1))));
+            inv.setItem(10, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBuy 10", java.util.Collections.singletonList("&7Price: &e" + this.formatRp(unitB * 10))));
+            inv.setItem(11, this.icon(Material.GREEN_STAINED_GLASS_PANE, "&aBuy 64", java.util.Collections.singletonList("&7Price: &e" + this.formatRp(unitB * 64))));
         }
         
         if (this.isSellAllowed(mi)) {
             long unitS = (long)Math.floor((double)mi.currentSellPrice / (double)mi.tradeAmount);
-            inv.setItem(15, this.icon(Material.RED_STAINED_GLASS_PANE, "&cJual 1", java.util.Collections.singletonList("&7Harga: &a" + this.formatRp(unitS * 1))));
-            inv.setItem(16, this.icon(Material.RED_STAINED_GLASS_PANE, "&cJual 10", java.util.Collections.singletonList("&7Harga: &a" + this.formatRp(unitS * 10))));
-            inv.setItem(17, this.icon(Material.RED_STAINED_GLASS_PANE, "&cJual 64", java.util.Collections.singletonList("&7Harga: &a" + this.formatRp(unitS * 64))));
+            inv.setItem(15, this.icon(Material.RED_STAINED_GLASS_PANE, "&cSell 1", java.util.Collections.singletonList("&7Price: &a" + this.formatRp(unitS * 1))));
+            inv.setItem(16, this.icon(Material.RED_STAINED_GLASS_PANE, "&cSell 10", java.util.Collections.singletonList("&7Price: &a" + this.formatRp(unitS * 10))));
+            inv.setItem(17, this.icon(Material.RED_STAINED_GLASS_PANE, "&cSell 64", java.util.Collections.singletonList("&7Price: &a" + this.formatRp(unitS * 64))));
         }
         
-        inv.setItem(31, this.icon(Material.ARROW, "&cKembali", java.util.Collections.singletonList("&7Click to return.")));
+        inv.setItem(31, this.icon(Material.ARROW, "&cBack", java.util.Collections.singletonList("&7Click to return.")));
         
         p.openInventory(inv);
     }
@@ -1133,9 +1176,9 @@ TabExecutor {
         if (holder.type.equals("category")) {
             if (e.getSlot() == 45) {
                 if (holder.page > 0) {
-                    this.openCategory(p, holder.value, holder.page - 1);
+                    Bukkit.getScheduler().runTask((Plugin)this, () -> this.openCategory(p, holder.value, holder.page - 1));
                 } else {
-                    this.openMain(p);
+                    Bukkit.getScheduler().runTask((Plugin)this, () -> this.openMain(p));
                 }
                 return;
             }
@@ -1144,8 +1187,8 @@ TabExecutor {
                 return;
             }
             if (e.getSlot() == 53) {
-                if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.ARROW) {
-                    this.openCategory(p, holder.value, holder.page + 1);
+                if (e.getCurrentItem() != null) {
+                    Bukkit.getScheduler().runTask((Plugin)this, () -> this.openCategory(p, holder.value, holder.page + 1));
                 }
                 return;
             }
@@ -1226,7 +1269,7 @@ TabExecutor {
         if (meta != null) {
             meta.setDisplayName(this.color(mi.displayName));
             ArrayList<String> lore = new ArrayList<String>();
-            lore.add(this.color("&8Kategori: &f" + this.niceCategory(mi.category)));
+            lore.add(this.color("&8Category: &f" + this.niceCategory(mi.category)));
             lore.add(this.color("&7Trade Amount: &f" + mi.tradeAmount));
             if (mi.buyEnabled) {
                 long diff = mi.currentBuyPrice - mi.baseBuyPrice;
@@ -1235,7 +1278,7 @@ TabExecutor {
                     long pct = Math.abs(diff) * 100L / mi.baseBuyPrice;
                     indicator = diff > 0 ? "&a\u2191 +" + pct + "%" : "&c\u2193 -" + pct + "%";
                 }
-                lore.add(this.color("&7Harga Beli: &a" + this.formatRp(mi.currentBuyPrice) + " " + indicator));
+                lore.add(this.color("&7Buy Price: &a" + this.formatRp(mi.currentBuyPrice) + " " + indicator));
             } else {
                 lore.add(this.color("&7Buy Price: &cNot for sale"));
             }
@@ -1246,7 +1289,7 @@ TabExecutor {
                     long pct = Math.abs(diff) * 100L / mi.baseSellPrice;
                     indicator = diff > 0 ? "&a\u2191 +" + pct + "%" : "&c\u2193 -" + pct + "%";
                 }
-                lore.add(this.color("&7Harga Jual: &a" + this.formatRp(mi.currentSellPrice) + " " + indicator));
+                lore.add(this.color("&7Sell Price: &a" + this.formatRp(mi.currentSellPrice) + " " + indicator));
             } else {
                 lore.add(this.color("&7Sell Price: &cCannot be sold"));
             }
@@ -1619,22 +1662,22 @@ TabExecutor {
         topSold.removeIf(mi -> this.stat(mi.key, "total_sold") == 0);
         topSold.sort((a, b) -> Long.compare(this.stat(b.key, "total_sold"), this.stat(a.key, "total_sold")));
         
-        sender.sendMessage(this.color("&b&lTop 10 Barang Paling Banyak Dibeli:"));
+        sender.sendMessage(this.color("&b&lTop 10 Most Bought Items:"));
         for (int i = 0; i < Math.min(10, topBought.size()); i++) {
             MarketItem mi = topBought.get(i);
             long count = this.stat(mi.key, "total_bought");
             long rp = this.stat(mi.key, "buy_rp");
-            sender.sendMessage(this.color("&f" + (i+1) + ". &e" + mi.displayName + " &7- Terbeli: &a" + count + "x &7(" + this.formatRp(rp) + ")"));
+            sender.sendMessage(this.color("&f" + (i+1) + ". &e" + mi.displayName + " &7- Bought: &a" + count + "x &7(" + this.formatRp(rp) + ")"));
         }
         if (topBought.isEmpty()) sender.sendMessage(this.color("&7- No purchase data yet."));
         
         sender.sendMessage("");
-        sender.sendMessage(this.color("&c&lTop 10 Barang Paling Banyak Dijual:"));
+        sender.sendMessage(this.color("&c&lTop 10 Most Sold Items:"));
         for (int i = 0; i < Math.min(10, topSold.size()); i++) {
             MarketItem mi = topSold.get(i);
             long count = this.stat(mi.key, "total_sold");
             long rp = this.stat(mi.key, "sell_rp");
-            sender.sendMessage(this.color("&f" + (i+1) + ". &e" + mi.displayName + " &7- Terjual: &c" + count + "x &7(" + this.formatRp(rp) + ")"));
+            sender.sendMessage(this.color("&f" + (i+1) + ". &e" + mi.displayName + " &7- Sold: &c" + count + "x &7(" + this.formatRp(rp) + ")"));
         }
         if (topSold.isEmpty()) sender.sendMessage(this.color("&7- No sales data yet."));
     }
@@ -1652,7 +1695,11 @@ TabExecutor {
     }
 
     public void setBalance(UUID uuid, long amount) {
-        this.balancesCfg.set("balances." + String.valueOf(uuid), Math.max(0L, amount));
+        long newBal = Math.max(0L, amount);
+        this.balancesCfg.set("balances." + String.valueOf(uuid), newBal);
+        if (this.dbManager != null && this.dbManager.isEnabled()) {
+            this.dbManager.saveBalanceAsync(uuid, newBal);
+        }
     }
 
     public void addBalance(UUID uuid, long amount) {
@@ -1698,11 +1745,17 @@ TabExecutor {
 
     public String getBalanceShort(OfflinePlayer p) {
         long v = this.getBalance(p.getUniqueId());
+        if (v >= 1000000000000L) {
+            return "Rp " + (v / 1000000000000L) + "T";
+        }
+        if (v >= 1000000000L) {
+            return "Rp " + (v / 1000000000L) + "B";
+        }
         if (v >= 1000000L) {
-            return "Rp " + v / 1000000L + "jt";
+            return "Rp " + (v / 1000000L) + "M";
         }
         if (v >= 1000L) {
-            return "Rp " + v / 1000L + "rb";
+            return "Rp " + (v / 1000L) + "K";
         }
         return this.formatRp(v);
     }
@@ -1929,9 +1982,9 @@ TabExecutor {
         }
         if (name.equals("payall")) {
             if (args.length == 1) {
-                return Collections.singletonList("<total_uang>");
+                return Collections.singletonList("<total_money>");
             } else if (args.length >= 2) {
-                return Collections.singletonList("<alasan...>");
+                return Collections.singletonList("<reason...>");
             }
             return Collections.emptyList();
         }
@@ -1940,7 +1993,7 @@ TabExecutor {
                 return Collections.emptyList();
             }
             if (args.length == 1) {
-                return this.filter(Arrays.asList("give", "take", "set", "balance", "voucher", "reload", "save", "placeholders", "demandupdate", "migratebalances"), args[0]);
+                return this.filter(Arrays.asList("give", "take", "set", "balance", "voucher", "reload", "save", "placeholders", "demandupdate", "migratebalances", "migratemysql"), args[0]);
             }
             if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("voucher")) {

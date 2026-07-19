@@ -985,7 +985,7 @@ TabExecutor {
     }
 
     private String pref() {
-        return this.getConfig().getString("messages.prefix", "&8[&bVerify&8] ");
+        return "";
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -1,6 +1,6 @@
 package id.rumahkita.games;
 
-import id.rumahkita.economy.RumahKitaEconomyRupiahPlugin;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -38,13 +38,13 @@ public class CoinflipManager implements Listener {
             return;
         }
         
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < amount) {
+        Economy economy = plugin.getEconomy();
+        if (!economy.has(p, amount)) {
             p.sendMessage(ChatColor.RED + "You don't have enough money to bet that much!");
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), amount);
+        economy.withdrawPlayer(p, amount);
 
         CoinflipGame game = new CoinflipGame(p.getUniqueId(), p.getName(), amount, side, null);
         activeGames.put(p.getUniqueId(), game);
@@ -105,7 +105,7 @@ public class CoinflipManager implements Listener {
         }
 
         CoinflipGame game = activeGames.remove(p.getUniqueId());
-        RumahKitaEconomyRupiahPlugin.getInstance().addBalance(p.getUniqueId(), game.amount);
+        plugin.getEconomy().depositPlayer(p, game.amount);
         p.sendMessage(ChatColor.GREEN + "Coinflip game cancelled. Your Rp" + game.amount + " has been refunded.");
     }
 
@@ -126,14 +126,14 @@ public class CoinflipManager implements Listener {
             return;
         }
 
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
+        Economy economy = plugin.getEconomy();
         
-        if (economy.getBalance(p.getUniqueId()) < game.amount) {
+        if (!economy.has(p, game.amount)) {
             p.sendMessage(ChatColor.RED + "Not enough money! You need Rp" + game.amount);
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), game.amount);
+        economy.withdrawPlayer(p, game.amount);
 
         activeGames.remove(target.getUniqueId());
 
@@ -171,7 +171,7 @@ public class CoinflipManager implements Listener {
                     }
                     ticks++;
                 } else {
-                    economy.addBalance(winner.getUniqueId(), winAmount);
+                    plugin.getEconomy().depositPlayer(winner, winAmount);
                     
                     int currentStreak = winStreaks.getOrDefault(winner.getUniqueId(), 0) + 1;
                     int loserStreak = winStreaks.getOrDefault(loser.getUniqueId(), 0);
@@ -201,13 +201,15 @@ public class CoinflipManager implements Listener {
                         winner.playSound(winner.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                         winner.sendMessage(ChatColor.GREEN + "Congratulations! You won the Coinflip!");
                         
-                        try {
-                            org.bukkit.entity.Firework fw = winner.getWorld().spawn(winner.getLocation(), org.bukkit.entity.Firework.class);
-                            org.bukkit.inventory.meta.FireworkMeta fwm = fw.getFireworkMeta();
-                            fwm.addEffect(org.bukkit.FireworkEffect.builder().withColor(org.bukkit.Color.YELLOW).withColor(org.bukkit.Color.GREEN).with(org.bukkit.FireworkEffect.Type.STAR).withTrail().build());
-                            fwm.setPower(1);
-                            fw.setFireworkMeta(fwm);
-                        } catch (Exception ignored) {}
+                        if (winner.isOnline()) {
+                            try {
+                                org.bukkit.entity.Firework fw = winner.getWorld().spawn(winner.getLocation(), org.bukkit.entity.Firework.class);
+                                org.bukkit.inventory.meta.FireworkMeta fwm = fw.getFireworkMeta();
+                                fwm.addEffect(org.bukkit.FireworkEffect.builder().withColor(org.bukkit.Color.YELLOW).withColor(org.bukkit.Color.GREEN).with(org.bukkit.FireworkEffect.Type.STAR).withTrail().build());
+                                fwm.setPower(1);
+                                fw.setFireworkMeta(fwm);
+                            } catch (Exception ignored) {}
+                        }
                     }
                     if (loser.isOnline()) {
                         loser.sendTitle(
@@ -235,13 +237,13 @@ public class CoinflipManager implements Listener {
             return;
         }
 
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < amount) {
+        Economy economy = plugin.getEconomy();
+        if (!economy.has(p, amount)) {
             p.sendMessage(ChatColor.RED + "You don't have enough money to bet that much!");
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), amount);
+        economy.withdrawPlayer(p, amount);
         CoinflipGame game = new CoinflipGame(p.getUniqueId(), p.getName(), amount, side, target.getUniqueId());
         activeGames.put(p.getUniqueId(), game);
 
@@ -260,7 +262,7 @@ public class CoinflipManager implements Listener {
         }
 
         activeGames.remove(target.getUniqueId());
-        RumahKitaEconomyRupiahPlugin.getInstance().addBalance(target.getUniqueId(), game.amount);
+        plugin.getEconomy().depositPlayer(target, game.amount);
         
         p.sendMessage(ChatColor.GREEN + "You denied Coinflip invite from " + target.getName() + ".");
         if (target.isOnline()) {

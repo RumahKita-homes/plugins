@@ -1,6 +1,6 @@
 package id.rumahkita.games;
 
-import id.rumahkita.economy.RumahKitaEconomyRupiahPlugin;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -40,13 +40,13 @@ public class RpsManager implements Listener {
             return;
         }
         
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < amount) {
+        Economy economy = plugin.getEconomy();
+        if (!economy.has(p, amount)) {
             p.sendMessage(ChatColor.RED + "You don't have enough money to bet that much!");
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), amount);
+        economy.withdrawPlayer(p, amount);
         RpsGame game = new RpsGame(p.getUniqueId(), p.getName(), amount, choice.toUpperCase(), null);
         activeGames.put(p.getUniqueId(), game);
 
@@ -154,7 +154,7 @@ public class RpsManager implements Listener {
         }
 
         RpsGame game = activeGames.remove(p.getUniqueId());
-        RumahKitaEconomyRupiahPlugin.getInstance().addBalance(p.getUniqueId(), game.amount);
+        plugin.getEconomy().depositPlayer(p, game.amount);
         p.sendMessage(ChatColor.GREEN + "RPS game cancelled. Your Rp" + game.amount + " has been refunded.");
     }
 
@@ -177,13 +177,13 @@ public class RpsManager implements Listener {
         
         choice = choice.toUpperCase();
 
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < game.amount) {
+        Economy economy = plugin.getEconomy();
+        if (!economy.has(p, game.amount)) {
             p.sendMessage(ChatColor.RED + "Not enough money! You need Rp" + game.amount);
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), game.amount);
+        economy.withdrawPlayer(p, game.amount);
         activeGames.remove(target.getUniqueId());
 
         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
@@ -225,15 +225,15 @@ public class RpsManager implements Listener {
                     int result = calculateWinner(creatorChoice, fJoinerChoice); 
                     
                     if (result == 0) {
-                        economy.addBalance(target.getUniqueId(), game.amount);
-                        economy.addBalance(p.getUniqueId(), game.amount);
+                        economy.depositPlayer(target, game.amount);
+                        economy.depositPlayer(p, game.amount);
                         
                         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
                             "&e[RPS] &aTie! &f" + target.getName() + " &a(" + creatorChoice + ") vs &f" + p.getName() + " &a(" + fJoinerChoice + ")"));
                         
                         sendResult(target, p, "TIE!", "You both chose " + creatorChoice);
                     } else if (result == 1) {
-                        economy.addBalance(target.getUniqueId(), winAmount);
+                        economy.depositPlayer(target, winAmount);
                         
                         int currentStreak = winStreaks.getOrDefault(target.getUniqueId(), 0) + 1;
                         int loserStreak = winStreaks.getOrDefault(p.getUniqueId(), 0);
@@ -254,7 +254,7 @@ public class RpsManager implements Listener {
                         
                         sendWinLoss(target, p, creatorChoice, fJoinerChoice, winAmount);
                     } else {
-                        economy.addBalance(p.getUniqueId(), winAmount);
+                        economy.depositPlayer(p, winAmount);
                         
                         int currentStreak = winStreaks.getOrDefault(p.getUniqueId(), 0) + 1;
                         int loserStreak = winStreaks.getOrDefault(target.getUniqueId(), 0);
@@ -341,13 +341,13 @@ public class RpsManager implements Listener {
             return;
         }
 
-        RumahKitaEconomyRupiahPlugin economy = RumahKitaEconomyRupiahPlugin.getInstance();
-        if (economy.getBalance(p.getUniqueId()) < amount) {
+        Economy economy = plugin.getEconomy();
+        if (!economy.has(p, amount)) {
             p.sendMessage(ChatColor.RED + "You don't have enough money to bet that much!");
             return;
         }
 
-        economy.takeBalance(p.getUniqueId(), amount);
+        economy.withdrawPlayer(p, amount);
         RpsGame game = new RpsGame(p.getUniqueId(), p.getName(), amount, choice.toUpperCase(), target.getUniqueId());
         activeGames.put(p.getUniqueId(), game);
 
@@ -366,7 +366,7 @@ public class RpsManager implements Listener {
         }
 
         activeGames.remove(target.getUniqueId());
-        RumahKitaEconomyRupiahPlugin.getInstance().addBalance(target.getUniqueId(), game.amount);
+        plugin.getEconomy().depositPlayer(target, game.amount);
         
         p.sendMessage(ChatColor.GREEN + "You denied RPS invite from " + target.getName() + ".");
         if (target.isOnline()) {

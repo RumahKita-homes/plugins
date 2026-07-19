@@ -149,7 +149,7 @@ implements TabExecutor {
     }
 
     public String message(String key, MemoryInfo info) {
-        String prefix = plugin.getConfig().getString("messages.prefix", "&8[&aRamGuard&8] ");
+        String prefix = "";
         String message = plugin.getConfig().getString("messages." + key, "");
         return (prefix + message).replace("%percent%", info.getPercentFormatted()).replace("%used%", info.getUsedFormatted()).replace("%max%", info.getMaxFormatted());
     }

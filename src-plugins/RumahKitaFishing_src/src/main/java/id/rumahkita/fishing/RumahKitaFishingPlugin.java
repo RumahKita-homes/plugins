@@ -32,26 +32,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class RumahKitaFishingPlugin
+public final class RumahKitaFishingPlugin extends JavaPlugin
 {
-    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
-    public void saveConfig() { plugin.saveConfig(); }
-    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
-    public void reloadConfig() { plugin.reloadConfig(); }
-    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
-    public org.bukkit.Server getServer() { return plugin.getServer(); }
-    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
-    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
-    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
-
-    
-    private final org.bukkit.plugin.java.JavaPlugin plugin;
-    public RumahKitaFishingPlugin(org.bukkit.plugin.java.JavaPlugin plugin) {
-        this.plugin = plugin;
-    }
 
     private ConfigFile fishesConfig;
     private ConfigFile messagesConfig;
@@ -68,13 +52,13 @@ public final class RumahKitaFishingPlugin
     private int autoSaveTaskId = -1;
 
     public void onEnable() {
-        plugin.saveDefaultConfig();
+        this.saveDefaultConfig();
         this.setupFiles();
         this.setupManagers();
         this.setupCommands();
         this.setupListeners();
         this.startAutoSaveTask();
-        plugin.getLogger().info("RumahKitaFishing enabled with " + this.fishManager.fishes().size() + " custom fishes.");
+        this.getLogger().info("RumahKitaFishing enabled with " + this.fishManager.fishes().size() + " custom fishes.");
     }
 
     public void onDisable() {
@@ -87,11 +71,11 @@ public final class RumahKitaFishingPlugin
         if (this.dailyLimitManager != null) {
             this.dailyLimitManager.save();
         }
-        plugin.getLogger().info("RumahKitaFishing disabled.");
+        this.getLogger().info("RumahKitaFishing disabled.");
     }
 
     public void reloadEverything() {
-        plugin.reloadConfig();
+        this.reloadConfig();
         this.fishesConfig.reload();
         this.messagesConfig.reload();
         this.guiConfig.reload();
@@ -102,9 +86,9 @@ public final class RumahKitaFishingPlugin
     }
 
     private void setupFiles() {
-        this.fishesConfig = new ConfigFile(this.plugin, "fishes.yml");
-        this.messagesConfig = new ConfigFile(this.plugin, "messages.yml");
-        this.guiConfig = new ConfigFile(this.plugin, "gui.yml");
+        this.fishesConfig = new ConfigFile(this, "fishes.yml");
+        this.messagesConfig = new ConfigFile(this, "messages.yml");
+        this.guiConfig = new ConfigFile(this, "gui.yml");
         this.fishesConfig.setup();
         this.messagesConfig.setup();
         this.guiConfig.setup();
@@ -126,13 +110,13 @@ public final class RumahKitaFishingPlugin
 
     private void setupCommands() {
         FishCommand fishCommand = new FishCommand(this);
-        PluginCommand fish = plugin.getCommand("fish");
+        PluginCommand fish = this.getCommand("fish");
         if (fish != null) {
             fish.setExecutor((CommandExecutor)fishCommand);
             fish.setTabCompleter((TabCompleter)fishCommand);
         }
         FishAdminCommand adminCommand = new FishAdminCommand(this);
-        PluginCommand fishAdmin = plugin.getCommand("fishadmin");
+        PluginCommand fishAdmin = this.getCommand("fishadmin");
         if (fishAdmin != null) {
             fishAdmin.setExecutor((CommandExecutor)adminCommand);
             fishAdmin.setTabCompleter((TabCompleter)adminCommand);
@@ -140,14 +124,14 @@ public final class RumahKitaFishingPlugin
     }
 
     private void setupListeners() {
-        Bukkit.getPluginManager().registerEvents((Listener)new FishingListener(this), this.plugin);
-        Bukkit.getPluginManager().registerEvents((Listener)new GuiListener(this), this.plugin);
-        Bukkit.getPluginManager().registerEvents((Listener)new PlayerListener(this), this.plugin);
+        Bukkit.getPluginManager().registerEvents((Listener)new FishingListener(this), this);
+        Bukkit.getPluginManager().registerEvents((Listener)new GuiListener(this), this);
+        Bukkit.getPluginManager().registerEvents((Listener)new PlayerListener(this), this);
     }
 
     private void startAutoSaveTask() {
-        long minutes = Math.max(1L, plugin.getConfig().getLong("settings.auto-save-interval-minutes", 10L));
-        this.autoSaveTaskId = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+        long minutes = Math.max(1L, this.getConfig().getLong("settings.auto-save-interval-minutes", 10L));
+        this.autoSaveTaskId = Bukkit.getScheduler().runTaskTimer(this, () -> {
             this.playerDataManager.saveAll();
             this.dailyLimitManager.save();
         }, minutes * 60L * 20L, minutes * 60L * 20L).getTaskId();

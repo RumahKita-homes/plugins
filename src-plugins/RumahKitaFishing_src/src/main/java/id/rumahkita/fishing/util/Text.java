@@ -54,7 +54,7 @@ public final class Text {
     }
 
     public static void send(CommandSender sender, FileConfiguration messages, String path, Map<String, String> placeholders) {
-        String prefix = messages.getString("prefix", "&bFishing &8\u00bb &r");
+        String prefix = "";
         if (messages.isList(path)) {
             List<String> lines = messages.getStringList(path);
             for (String line : lines) {

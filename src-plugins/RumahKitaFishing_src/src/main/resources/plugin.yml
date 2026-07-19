@@ -1,0 +1,10 @@
+name: RumahKitaFishing
+version: 1.0.0
+main: id.rumahkita.fishing.RumahKitaFishingPlugin
+api-version: 1.20
+commands:
+  fish:
+    description: Main fishing command
+  fishadmin:
+    description: Admin fishing command
+    permission: rumahkita.fishing.admin

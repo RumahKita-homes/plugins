@@ -299,47 +299,12 @@ public class WarpManager implements Listener {
             return;
         }
 
-        p.sendMessage(getPrefix() + ChatColor.YELLOW + "Teleporting in 5 seconds. Do not move!");
+        p.teleport(warp.location);
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         
-        Location startLoc = p.getLocation();
-
-        new BukkitRunnable() {
-            int countdown = 5;
-
-            @Override
-            public void run() {
-                if (!p.isOnline()) {
-                    this.cancel();
-                    return;
-                }
-
-                if (startLoc.distanceSquared(p.getLocation()) > 1.0) {
-                    p.sendMessage(getPrefix() + ChatColor.RED + "Teleportation cancelled because you moved.");
-                    this.cancel();
-                    return;
-                }
-
-                if (countdown > 0) {
-                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&a&l" + countdown), ChatColor.YELLOW + "Do not move!", 0, 25, 0);
-                    countdown--;
-                } else {
-                    p.teleport(warp.location);
-                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-                    
-                    OfflinePlayer owner = Bukkit.getOfflinePlayer(warp.owner);
-                    String ownerName = owner.getName() != null ? owner.getName() : "Unknown";
-                    
-                    p.sendTitle(
-                        ChatColor.translateAlternateColorCodes('&', "&e&lWelcome to &a&l" + warp.name),
-                        ChatColor.translateAlternateColorCodes('&', "&fOwner &b" + ownerName),
-                        10, 60, 10
-                    );
-                    
-                    this.cancel();
-                }
-            }
-        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
+        OfflinePlayer owner = Bukkit.getOfflinePlayer(warp.owner);
+        String ownerName = owner.getName() != null ? owner.getName() : "Unknown";
+        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aWelcome to &e" + warp.name + "&a!"));
     }
 
     public String getPrefix() {

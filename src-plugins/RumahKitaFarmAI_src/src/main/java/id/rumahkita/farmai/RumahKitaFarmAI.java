@@ -146,7 +146,7 @@ extends JavaPlugin {
         this.nudgeStrength = Math.max(0.0, this.getConfig().getDouble("stuck-helper.nudge-strength", 0.1));
         this.maxYDifferenceForNudge = Math.max(0.0, this.getConfig().getDouble("stuck-helper.max-y-difference-for-nudge", 6.0));
         this.nudgeOnlyWhenHasTarget = this.getConfig().getBoolean("stuck-helper.only-when-has-target", true);
-        this.prefix = this.color(this.getConfig().getString("messages.prefix", "&8[&aRumahKitaFarmAI&8] "));
+        this.prefix = "";
     }
 
     private void loadZones() {

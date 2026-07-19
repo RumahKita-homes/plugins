@@ -196,38 +196,9 @@ public class ServerWarpManager implements Listener {
             return;
         }
 
-        p.sendMessage(prefix + ChatColor.YELLOW + "Teleporting to " + ChatColor.GREEN + w.name + ChatColor.YELLOW + " in 5 seconds. Do not move!");
-        Location startLoc = p.getLocation();
-
-        new BukkitRunnable() {
-            int countdown = 5;
-
-            @Override
-            public void run() {
-                if (!p.isOnline()) {
-                    this.cancel();
-                    return;
-                }
-
-                if (startLoc.distanceSquared(p.getLocation()) > 1.0) {
-                    p.sendMessage(prefix + ChatColor.RED + "Teleport cancelled because you moved.");
-                    this.cancel();
-                    return;
-                }
-
-                if (countdown > 0) {
-                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
-                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&a&l" + countdown), ChatColor.YELLOW + "Do not move!", 0, 25, 0);
-                    countdown--;
-                } else {
-                    p.teleport(w.loc);
-                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-                    p.sendMessage(prefix + ChatColor.GREEN + "Teleported to " + ChatColor.YELLOW + w.name + ChatColor.GREEN + " successfully!");
-                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&e&l" + w.name.toUpperCase()), ChatColor.WHITE + "Welcome!", 10, 60, 10);
-                    this.cancel();
-                }
-            }
-        }.runTaskTimer(plugin.getPlugin(), 0L, 20L);
+        p.teleport(w.loc);
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        p.sendMessage(prefix + ChatColor.GREEN + "Teleported to " + ChatColor.YELLOW + w.name + ChatColor.GREEN + " successfully!");
     }
 
     public static class ServerWarp {

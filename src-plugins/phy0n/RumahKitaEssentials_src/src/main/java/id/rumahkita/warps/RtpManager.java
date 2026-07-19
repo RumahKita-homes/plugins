@@ -27,7 +27,7 @@ public class RtpManager {
     }
 
     private String getPrefix() {
-        return ChatColor.translateAlternateColorCodes('&', "&8[&b&lRTP&8] &r");
+        return "";
     }
 
     public void randomTeleport(Player p) {
@@ -70,6 +70,7 @@ public class RtpManager {
             
             @Override
             public void run() {
+                attempts++;
                 Location loc = findSafeLocation(p.getWorld());
                 if (loc != null) {
                     this.cancel();
@@ -83,12 +84,12 @@ public class RtpManager {
                     
                     economy.withdrawPlayer(p, rtpCost);
                     rtpCooldowns.put(p.getUniqueId(), System.currentTimeMillis());
-                    teleportWithCountdown(p, loc, rtpCost);
-                    
-                } else {
-                    attempts++;
-                    if (attempts > 10) {
-                        this.cancel();
+                    p.teleport(loc);
+                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+                    p.sendMessage(ChatColor.GREEN + "Successfully RTP to random coordinates!");
+                } else if (attempts > 10) {
+                    this.cancel();
+                    if (p.isOnline()) {
                         p.sendMessage(getPrefix() + ChatColor.RED + "Failed to find a safe location, try again.");
                     }
                 }

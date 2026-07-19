@@ -24,7 +24,7 @@ public final class Text {
     }
 
     public static String prefixed(RumahKitaGuildsPlugin plugin, String path) {
-        return plugin.getConfig().getString("settings.prefix", "&8[&bRumahKitaGuilds&8] ") + plugin.getConfig().getString("messages." + path, path);
+        return plugin.getConfig().getString("messages." + path, path);
     }
 
     public static String replace(String text, String ... replacements) {

@@ -416,8 +416,8 @@ TabExecutor {
             mi.baseSellPrice = this.marketCfg.getLong(path + "sell.price", 0L);
             mi.currentBuyPrice = this.pricesCfg.getLong(key + ".buy", mi.baseBuyPrice);
             mi.currentSellPrice = this.pricesCfg.getLong(key + ".sell", mi.baseSellPrice);
-            mi.dailyBuyLimit = this.marketCfg.getInt(path + "buy.daily-limit-per-player", 0);
-            mi.dailySellLimit = this.marketCfg.getInt(path + "sell.daily-limit-per-player", 0);
+            mi.dailyBuyLimit = 0; // Forced disabled by request
+            mi.dailySellLimit = 0; // Forced disabled by request
             mi.stockEnabled = this.marketCfg.getBoolean(path + "stock.enabled", false);
             mi.stockCurrent = this.stockCfg.getLong(key + ".current", this.marketCfg.getLong(path + "stock.current", -1L));
             mi.stockMax = this.marketCfg.getLong(path + "stock.max", -1L);
@@ -1491,11 +1491,13 @@ TabExecutor {
             long oldBuy = mi.currentBuyPrice;
             long oldSell = mi.currentSellPrice;
             if (mi.buyEnabled && mi.currentBuyPrice > 0L) {
-                pct = wb >= (long)mi.tradeAmount * 20L ? mi.maxChangeUpdate : (wb == 0L ? -Math.min(2.0, mi.maxChangeUpdate) : 0.0);
+                double impact = ((double)wb / (mi.tradeAmount * 50.0)) * (mi.maxChangeUpdate * 1.5);
+                pct = Math.min(mi.maxChangeUpdate, - (mi.maxChangeUpdate * 0.5) + impact);
                 mi.currentBuyPrice = this.clampPrice(mi.currentBuyPrice, pct, mi.minBuyPrice, mi.maxBuyPrice);
             }
             if (mi.sellEnabled && mi.currentSellPrice > 0L) {
-                pct = ws >= (long)mi.tradeAmount * 32L ? -mi.maxChangeUpdate : (ws == 0L ? Math.min(1.0, mi.maxChangeUpdate) : 0.0);
+                double impact = ((double)ws / (mi.tradeAmount * 50.0)) * (mi.maxChangeUpdate * 1.5);
+                pct = Math.max(-mi.maxChangeUpdate, (mi.maxChangeUpdate * 0.5) - impact);
                 mi.currentSellPrice = this.clampPrice(mi.currentSellPrice, pct, mi.minSellPrice, mi.maxSellPrice);
             }
             if (oldBuy != mi.currentBuyPrice || oldSell != mi.currentSellPrice) {
@@ -1915,7 +1917,7 @@ TabExecutor {
     }
 
     private void msg(CommandSender s, String message) {
-        String prefix = this.messagesCfg.getString("prefix", "");
+        String prefix = "";
         for (String line : message.split("\\n")) {
             s.sendMessage(this.color(prefix + line));
         }

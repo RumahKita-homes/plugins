@@ -90,6 +90,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -114,6 +115,34 @@ TabCompleter {
 
     public RumahKitaCaptureFlag(id.rumahkita.minigames.RumahKitaMinigamesPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    private id.rumahkita.ctf.view.CtfAdminUI adminUI;
+
+    private org.bukkit.configuration.file.FileConfiguration customConfig;
+    private java.io.File customConfigFile;
+
+    public void reloadConfig() {
+        if (customConfigFile == null) {
+            customConfigFile = new java.io.File(plugin.getDataFolder(), "RumahKitaCaptureFlag_config.yml");
+        }
+        customConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(customConfigFile);
+    }
+    
+    public org.bukkit.configuration.file.FileConfiguration getConfig() {
+        if (customConfig == null) {
+            reloadConfig();
+        }
+        return customConfig;
+    }
+    
+    public void saveConfig() {
+        if (customConfig == null || customConfigFile == null) return;
+        try {
+            getConfig().save(customConfigFile);
+        } catch (java.io.IOException ex) {
+            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Could not save config to " + customConfigFile, ex);
+        }
     }
 
     private GameState state = GameState.IDLE;
@@ -178,7 +207,6 @@ TabCompleter {
     private String prefix;
 
     public void onEnable() {
-        plugin.saveDefaultConfig();
         this.loadSettings();
         plugin.getServer().getPluginManager().registerEvents((Listener)this, this.plugin);
         if (plugin.getCommand("rkctf") != null) {
@@ -188,6 +216,7 @@ TabCompleter {
         this.startParticleTask();
         this.startScoreboardTask();
         this.registerPlaceholderExpansion();
+        this.adminUI = new id.rumahkita.ctf.view.CtfAdminUI(this.plugin, this);
         plugin.getLogger().info("RumahKitaCaptureFlag v1.5.0 enabled.");
     }
 
@@ -202,55 +231,55 @@ TabCompleter {
         plugin.getLogger().info("RumahKitaCaptureFlag disabled.");
     }
 
-    private void loadSettings() {
-        plugin.reloadConfig();
-        this.enabled = plugin.getConfig().getBoolean("enabled", true);
-        this.minPlayers = Math.max(1, plugin.getConfig().getInt("settings.min-players", 2));
-        this.countdownSeconds = Math.max(3, plugin.getConfig().getInt("settings.countdown-seconds", 15));
-        this.durationSeconds = Math.max(10, plugin.getConfig().getInt("settings.duration-seconds", 300));
-        this.pointsPerSecond = Math.max(1, plugin.getConfig().getInt("settings.points-per-second", 1));
-        this.freezeBeforeStart = plugin.getConfig().getBoolean("settings.freeze-before-start", true);
-        this.teleportToExitAfterEvent = plugin.getConfig().getBoolean("settings.teleport-to-exit-after-event", true);
-        this.restoreScoreboardAfterEvent = plugin.getConfig().getBoolean("settings.restore-scoreboard-after-event", true);
-        this.announceEveryMinute = plugin.getConfig().getBoolean("settings.announce-every-minute", true);
-        this.allowJoinWhileCountdown = plugin.getConfig().getBoolean("settings.allow-join-while-countdown", true);
-        this.allowJoinWhileRunning = plugin.getConfig().getBoolean("settings.allow-join-while-running", false);
-        this.onlyAliveCanScore = plugin.getConfig().getBoolean("settings.only-alive-can-score", true);
-        this.winnersOnlyAlive = plugin.getConfig().getBoolean("settings.winners-only-alive", true);
-        this.arenaBoundaryEnabled = plugin.getConfig().getBoolean("arena.enabled", false);
-        this.soundsEnabled = plugin.getConfig().getBoolean("sounds.enabled", true);
-        this.particlesEnabled = plugin.getConfig().getBoolean("particles.enabled", true);
-        this.showCaptureRing = plugin.getConfig().getBoolean("particles.show-capture-ring", true);
-        this.rewardsEnabled = plugin.getConfig().getBoolean("rewards.enabled", true);
-        this.forceScoreboardEnabled = plugin.getConfig().getBoolean("scoreboard.force-update.enabled", true);
-        this.forceScoreboardTicks = Math.max(1, plugin.getConfig().getInt("scoreboard.force-update.interval-ticks", 1));
-        this.showCaptureStatusInScoreboard = plugin.getConfig().getBoolean("scoreboard.show-capture-status", true);
-        this.zoneActionBarEnabled = plugin.getConfig().getBoolean("capture.actionbar.enabled", true);
-        this.zoneChatMessageEnabled = plugin.getConfig().getBoolean("capture.chat-message-every-second", false);
-        this.captureShape = plugin.getConfig().getString("capture.shape", "CIRCLE").toUpperCase(Locale.ROOT);
-        this.captureRotationEnabled = plugin.getConfig().getBoolean("capture.rotation.enabled", true);
-        this.captureRotationRandom = plugin.getConfig().getBoolean("capture.rotation.random", false);
-        this.captureAnnounceOnRotate = plugin.getConfig().getBoolean("capture.rotation.announce", true);
-        this.captureNextRotateSeconds = this.captureRotateSeconds = Math.max(5, plugin.getConfig().getInt("capture.rotation.interval-seconds", 25));
+    public void loadSettings() {
+        reloadConfig();
+        this.enabled = getConfig().getBoolean("enabled", true);
+        this.minPlayers = Math.max(1, getConfig().getInt("settings.min-players", 2));
+        this.countdownSeconds = Math.max(3, getConfig().getInt("settings.countdown-seconds", 15));
+        this.durationSeconds = Math.max(10, getConfig().getInt("settings.duration-seconds", 300));
+        this.pointsPerSecond = Math.max(1, getConfig().getInt("settings.points-per-second", 1));
+        this.freezeBeforeStart = getConfig().getBoolean("settings.freeze-before-start", true);
+        this.teleportToExitAfterEvent = getConfig().getBoolean("settings.teleport-to-exit-after-event", true);
+        this.restoreScoreboardAfterEvent = getConfig().getBoolean("settings.restore-scoreboard-after-event", true);
+        this.announceEveryMinute = getConfig().getBoolean("settings.announce-every-minute", true);
+        this.allowJoinWhileCountdown = getConfig().getBoolean("settings.allow-join-while-countdown", true);
+        this.allowJoinWhileRunning = getConfig().getBoolean("settings.allow-join-while-running", false);
+        this.onlyAliveCanScore = getConfig().getBoolean("settings.only-alive-can-score", true);
+        this.winnersOnlyAlive = getConfig().getBoolean("settings.winners-only-alive", true);
+        this.arenaBoundaryEnabled = getConfig().getBoolean("arena.enabled", false);
+        this.soundsEnabled = getConfig().getBoolean("sounds.enabled", true);
+        this.particlesEnabled = getConfig().getBoolean("particles.enabled", true);
+        this.showCaptureRing = getConfig().getBoolean("particles.show-capture-ring", true);
+        this.rewardsEnabled = getConfig().getBoolean("rewards.enabled", true);
+        this.forceScoreboardEnabled = getConfig().getBoolean("scoreboard.force-update.enabled", true);
+        this.forceScoreboardTicks = Math.max(20, getConfig().getInt("scoreboard.force-update.interval-ticks", 20));
+        this.showCaptureStatusInScoreboard = getConfig().getBoolean("scoreboard.show-capture-status", true);
+        this.zoneActionBarEnabled = getConfig().getBoolean("capture.actionbar.enabled", true);
+        this.zoneChatMessageEnabled = getConfig().getBoolean("capture.chat-message-every-second", false);
+        this.captureShape = getConfig().getString("capture.shape", "CIRCLE").toUpperCase(Locale.ROOT);
+        this.captureRotationEnabled = getConfig().getBoolean("capture.rotation.enabled", true);
+        this.captureRotationRandom = getConfig().getBoolean("capture.rotation.random", false);
+        this.captureAnnounceOnRotate = getConfig().getBoolean("capture.rotation.announce", true);
+        this.captureNextRotateSeconds = this.captureRotateSeconds = Math.max(5, getConfig().getInt("capture.rotation.interval-seconds", 25));
         this.loadCapturePoints();
-        this.inventorySystemEnabled = plugin.getConfig().getBoolean("inventory.enabled", true);
-        this.restoreInventoryAfterEvent = plugin.getConfig().getBoolean("inventory.restore-after-event", true);
-        this.clearInventoryOnJoin = plugin.getConfig().getBoolean("inventory.clear-on-join", true);
-        this.restoreBackupOnJoin = plugin.getConfig().getBoolean("inventory.restore-backup-on-join", true);
-        this.preventItemDrop = plugin.getConfig().getBoolean("inventory.prevent-item-drop", true);
-        this.preventItemPickup = plugin.getConfig().getBoolean("inventory.prevent-item-pickup", true);
-        this.preventInventoryClick = plugin.getConfig().getBoolean("inventory.prevent-inventory-click", false);
-        this.clearDeathDrops = plugin.getConfig().getBoolean("inventory.clear-death-drops", true);
-        this.preventBlockBreak = plugin.getConfig().getBoolean("inventory.prevent-block-break", true);
-        this.preventBlockPlace = plugin.getConfig().getBoolean("inventory.prevent-block-place", true);
-        this.resetHealthFoodOnJoin = plugin.getConfig().getBoolean("inventory.reset-health-food-on-join", true);
-        this.kitEnabled = plugin.getConfig().getBoolean("kit.enabled", true);
-        this.kitKnockbackStick = plugin.getConfig().getBoolean("kit.knockback-stick.enabled", true);
-        this.kitStickSlot = Math.max(0, Math.min(8, plugin.getConfig().getInt("kit.knockback-stick.slot", 0)));
-        this.kitKnockbackLevel = Math.max(1, plugin.getConfig().getInt("kit.knockback-stick.knockback-level", 2));
-        this.kitStickName = plugin.getConfig().getString("kit.knockback-stick.name", "&c&lCTF Stick &7(Knockback II)");
-        this.kitStickLore = plugin.getConfig().getStringList("kit.knockback-stick.lore");
-        this.prefix = this.color(plugin.getConfig().getString("messages.prefix", "&8[&dRumahKita CTF&8] "));
+        this.inventorySystemEnabled = getConfig().getBoolean("inventory.enabled", true);
+        this.restoreInventoryAfterEvent = getConfig().getBoolean("inventory.restore-after-event", true);
+        this.clearInventoryOnJoin = getConfig().getBoolean("inventory.clear-on-join", true);
+        this.restoreBackupOnJoin = getConfig().getBoolean("inventory.restore-backup-on-join", true);
+        this.preventItemDrop = getConfig().getBoolean("inventory.prevent-item-drop", true);
+        this.preventItemPickup = getConfig().getBoolean("inventory.prevent-item-pickup", true);
+        this.preventInventoryClick = getConfig().getBoolean("inventory.prevent-inventory-click", false);
+        this.clearDeathDrops = getConfig().getBoolean("inventory.clear-death-drops", true);
+        this.preventBlockBreak = getConfig().getBoolean("inventory.prevent-block-break", true);
+        this.preventBlockPlace = getConfig().getBoolean("inventory.prevent-block-place", true);
+        this.resetHealthFoodOnJoin = getConfig().getBoolean("inventory.reset-health-food-on-join", true);
+        this.kitEnabled = getConfig().getBoolean("kit.enabled", true);
+        this.kitKnockbackStick = getConfig().getBoolean("kit.knockback-stick.enabled", true);
+        this.kitStickSlot = Math.max(0, Math.min(8, getConfig().getInt("kit.knockback-stick.slot", 0)));
+        this.kitKnockbackLevel = Math.max(1, getConfig().getInt("kit.knockback-stick.knockback-level", 2));
+        this.kitStickName = getConfig().getString("kit.knockback-stick.name", "&c&lCTF Stick &7(Knockback II)");
+        this.kitStickLore = getConfig().getStringList("kit.knockback-stick.lore");
+        this.prefix = "";
     }
 
     private void registerPlaceholderExpansion() {
@@ -318,25 +347,25 @@ TabCompleter {
 
     private void loadCapturePoints() {
         this.capturePoints.clear();
-        if (plugin.getConfig().isConfigurationSection("capture.points")) {
-            for (String id : plugin.getConfig().getConfigurationSection("capture.points").getKeys(false)) {
-                if (!plugin.getConfig().getBoolean("capture.points." + id + ".enabled", true)) continue;
+        if (getConfig().isConfigurationSection("capture.points")) {
+            for (String id : getConfig().getConfigurationSection("capture.points").getKeys(false)) {
+                if (!getConfig().getBoolean("capture.points." + id + ".enabled", true)) continue;
                 String path = "capture.points." + id;
-                String world = plugin.getConfig().getString(path + ".world", plugin.getConfig().getString("capture.world", "world"));
-                String name = plugin.getConfig().getString(path + ".name", id);
-                String shape = plugin.getConfig().getString(path + ".shape", plugin.getConfig().getString("capture.shape", "CIRCLE"));
-                double radius = plugin.getConfig().getDouble(path + ".radius", plugin.getConfig().getDouble("capture.radius", 13.0));
-                double radiusX = plugin.getConfig().getDouble(path + ".radius-x", radius);
-                double radiusZ = plugin.getConfig().getDouble(path + ".radius-z", radius);
-                double x = plugin.getConfig().getDouble(path + ".x", plugin.getConfig().getDouble("capture.center-x", 4286.0));
-                double z = plugin.getConfig().getDouble(path + ".z", plugin.getConfig().getDouble("capture.center-z", 2394.0));
-                double minY = plugin.getConfig().getDouble(path + ".min-y", plugin.getConfig().getDouble("capture.min-y", 120.0));
-                double maxY = plugin.getConfig().getDouble(path + ".max-y", plugin.getConfig().getDouble("capture.max-y", 150.0));
+                String world = getConfig().getString(path + ".world", getConfig().getString("capture.world", "world"));
+                String name = getConfig().getString(path + ".name", id);
+                String shape = getConfig().getString(path + ".shape", getConfig().getString("capture.shape", "CIRCLE"));
+                double radius = getConfig().getDouble(path + ".radius", getConfig().getDouble("capture.radius", 13.0));
+                double radiusX = getConfig().getDouble(path + ".radius-x", radius);
+                double radiusZ = getConfig().getDouble(path + ".radius-z", radius);
+                double x = getConfig().getDouble(path + ".x", getConfig().getDouble("capture.center-x", 4286.0));
+                double z = getConfig().getDouble(path + ".z", getConfig().getDouble("capture.center-z", 2394.0));
+                double minY = getConfig().getDouble(path + ".min-y", getConfig().getDouble("capture.min-y", 120.0));
+                double maxY = getConfig().getDouble(path + ".max-y", getConfig().getDouble("capture.max-y", 150.0));
                 this.capturePoints.add(new CapturePoint(id, name, world, shape, x, z, radius, radiusX, radiusZ, minY, maxY));
             }
         }
         if (this.capturePoints.isEmpty()) {
-            this.capturePoints.add(new CapturePoint("legacy_center", plugin.getConfig().getString("capture.name", "Tengah"), plugin.getConfig().getString("capture.world", "world"), plugin.getConfig().getString("capture.shape", "CIRCLE"), plugin.getConfig().getDouble("capture.center-x", 4286.0), plugin.getConfig().getDouble("capture.center-z", 2394.0), plugin.getConfig().getDouble("capture.radius", 13.0), plugin.getConfig().getDouble("capture.radius-x", plugin.getConfig().getDouble("capture.radius", 13.0)), plugin.getConfig().getDouble("capture.radius-z", plugin.getConfig().getDouble("capture.radius", 13.0)), plugin.getConfig().getDouble("capture.min-y", 120.0), plugin.getConfig().getDouble("capture.max-y", 150.0)));
+            this.capturePoints.add(new CapturePoint("legacy_center", getConfig().getString("capture.name", "Tengah"), getConfig().getString("capture.world", "world"), getConfig().getString("capture.shape", "CIRCLE"), getConfig().getDouble("capture.center-x", 4286.0), getConfig().getDouble("capture.center-z", 2394.0), getConfig().getDouble("capture.radius", 13.0), getConfig().getDouble("capture.radius-x", getConfig().getDouble("capture.radius", 13.0)), getConfig().getDouble("capture.radius-z", getConfig().getDouble("capture.radius", 13.0)), getConfig().getDouble("capture.min-y", 120.0), getConfig().getDouble("capture.max-y", 150.0)));
         }
         if (this.activeCaptureIndex < 0 || this.activeCaptureIndex >= this.capturePoints.size()) {
             this.activeCaptureIndex = 0;
@@ -400,11 +429,19 @@ TabCompleter {
         for (Participant p : this.participants.values()) {
             p.lastInsideCapture = false;
         }
+        
+        Location targetLoc = new Location(Bukkit.getWorld((String)point.world), point.x, point.minY, point.z);
+        
         if (announce && this.captureAnnounceOnRotate) {
-            this.broadcast(plugin.getConfig().getString("messages.capture-moved", "&eCapture point pindah ke &d%point%&e! Ikuti marker partikel yang menyala.").replace("%point%", point.name));
+            this.broadcast(getConfig().getString("messages.capture-moved", "&eCapture point moved to &d%point%&e! Follow your compass.").replace("%point%", point.name));
             for (Player player : this.getOnlineParticipants()) {
-                player.sendTitle(this.color("&d&lCAPTURE PINDAH"), this.color("&fLokasi aktif: &e" + point.name), 5, 35, 8);
+                player.sendTitle(this.color("&d&lCAPTURE MOVED"), this.color("&fActive location: &e" + point.name), 5, 35, 8);
                 this.playSound(player, Sound.BLOCK_BEACON_ACTIVATE, 0.8f, 1.2f);
+                player.setCompassTarget(targetLoc);
+            }
+        } else {
+            for (Player player : this.getOnlineParticipants()) {
+                player.setCompassTarget(targetLoc);
             }
         }
     }
@@ -441,6 +478,16 @@ TabCompleter {
             return true;
         }
         String sub = args[0].toLowerCase(Locale.ROOT);
+        if (sub.equals("admin")) {
+            if (!(sender instanceof Player)) return true;
+            Player player = (Player) sender;
+            if (player.hasPermission("rumahkita.ctf.admin")) {
+                if (this.adminUI != null) this.adminUI.open(player);
+            } else {
+                player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "No permission.");
+            }
+            return true;
+        }
         if (sub.equals("join")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(this.prefix + "Command ini hanya untuk player.");
@@ -515,9 +562,17 @@ TabCompleter {
                 this.setCaptureBox(sender, args);
                 break;
             }
+            case "addcapturebox": {
+                this.addCaptureBox(sender, args);
+                break;
+            }
+            case "clearcaptures": {
+                this.clearCaptures(sender);
+                break;
+            }
             case "nextcapture": {
                 this.rotateCapturePoint(true);
-                sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Capture point dipindahkan manual ke: " + this.getActiveCaptureName());
+                sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Capture point manually moved to: " + this.getActiveCaptureName());
                 break;
             }
             case "listcaptures": {
@@ -559,26 +614,29 @@ TabCompleter {
         sender.sendMessage(this.color("&8&m------------------------------"));
         sender.sendMessage(this.color("&d&lRumahKita Capture Flag"));
         sender.sendMessage(this.color("&e/rkctf join &7- join event"));
-        sender.sendMessage(this.color("&e/rkctf leave &7- keluar event"));
-        sender.sendMessage(this.color("&e/rkctf status &7- lihat status event"));
+        sender.sendMessage(this.color("&e/rkctf leave &7- leave event"));
+        sender.sendMessage(this.color("&e/rkctf status &7- view event status"));
         if (sender.hasPermission("rumahkita.ctf.admin")) {
             sender.sendMessage(this.color("&cAdmin:"));
-            sender.sendMessage(this.color("&e/rkctf start &7- mulai countdown"));
-            sender.sendMessage(this.color("&e/rkctf forcestart &7- paksa mulai"));
+            sender.sendMessage(this.color("&e/rkctf start &7- start countdown"));
+            sender.sendMessage(this.color("&e/rkctf forcestart &7- force start"));
             sender.sendMessage(this.color("&e/rkctf stop &7- stop event"));
-            sender.sendMessage(this.color("&e/rkctf setside1 &7- set spawn sisi 1"));
-            sender.sendMessage(this.color("&e/rkctf setside2 &7- set spawn sisi 2"));
-            sender.sendMessage(this.color("&e/rkctf setexit &7- set exit setelah event"));
+            sender.sendMessage(this.color("&e/rkctf setside1 &7- set spawn side 1"));
+            sender.sendMessage(this.color("&e/rkctf setside2 &7- set spawn side 2"));
+            sender.sendMessage(this.color("&e/rkctf setexit &7- set exit location"));
             sender.sendMessage(this.color("&e/rkctf setarena <radius> &7- set arena center"));
-            sender.sendMessage(this.color("&e/rkctf setcapture <radius> <minY> <maxY> &7- set lingkaran capture"));
-            sender.sendMessage(this.color("&e/rkctf setcapturebox <radiusX> <radiusZ> <minY> <maxY> &7- set kotak capture"));
-            sender.sendMessage(this.color("&e/rkctf nextcapture &7- pindah capture point aktif manual"));
-            sender.sendMessage(this.color("&e/rkctf listcaptures &7- lihat semua capture point"));
-            sender.sendMessage(this.color("&e/rkctf check &7- cek apakah kamu masuk capture zone"));
-            sender.sendMessage(this.color("&e/rkctf setduration <detik> &7- set durasi event"));
-            sender.sendMessage(this.color("&e/rkctf restoreitems <player> &7- restore backup item manual"));
-            sender.sendMessage(this.color("&e/rkctf backupstatus <player> &7- cek backup item"));
-            sender.sendMessage(this.color("&e/rkctf clearbackup <player> &7- hapus backup item"));
+            sender.sendMessage(this.color("&e/rkctf setcapture <radius> <minY> <maxY> &7- set circle capture"));
+            sender.sendMessage(this.color("&e/rkctf setcapturebox <radiusX> <radiusZ> <minY> <maxY> &7- set primary box capture"));
+            sender.sendMessage(this.color("&e/rkctf addcapturebox <radiusX> <radiusZ> <minY> <maxY> &7- add new capture"));
+            sender.sendMessage(this.color("&e/rkctf clearcaptures &7- clear all extra captures"));
+            sender.sendMessage(this.color("&e/rkctf nextcapture &7- manually move active capture point"));
+            sender.sendMessage(this.color("&e/rkctf listcaptures &7- view all capture points"));
+            sender.sendMessage(this.color("&e/rkctf check &7- check if you are in capture zone"));
+            sender.sendMessage(this.color("&e/rkctf setduration <seconds> &7- set event duration"));
+            sender.sendMessage(this.color("&e/rkctf restoreitems <player> &7- manually restore backup item"));
+            sender.sendMessage(this.color("&e/rkctf backupstatus <player> &7- check item backup"));
+            sender.sendMessage(this.color("&e/rkctf clearbackup <player> &7- clear item backup"));
+            sender.sendMessage(this.color("&e/rkctf admin &7- open admin GUI menu"));
             sender.sendMessage(this.color("&e/rkctf reload &7- reload config"));
         }
         sender.sendMessage(this.color("&8&m------------------------------"));
@@ -611,7 +669,7 @@ TabCompleter {
         }
         if (this.restoreBackupOnJoin && this.hasBackup(player.getUniqueId()) && !this.participants.containsKey(player.getUniqueId())) {
             this.restoreInventoryBackup(player, true, false);
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Backup item event lama ditemukan dan sudah direstore dulu sebelum join.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Item backup event lama ditemukan dan sudah direstore dulu sebelum join.");
         }
         String team = this.chooseTeam();
         Participant participant = new Participant(player, team);
@@ -683,7 +741,7 @@ TabCompleter {
         if (this.kitKnockbackStick) {
             player.getInventory().setItem(this.kitStickSlot, this.createKnockbackStick());
         }
-        List<String> commands = plugin.getConfig().getStringList("kit.commands");
+        List<String> commands = getConfig().getStringList("kit.commands");
         for (String raw : commands) {
             String cmd = raw.replace("%player%", player.getName());
             Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd);
@@ -730,23 +788,23 @@ TabCompleter {
 
     private void startCountdown(CommandSender sender, boolean force) {
         if (this.state != GameState.IDLE) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event sedang berjalan/countdown.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event is already running or in countdown.");
             return;
         }
         if (!force && this.participants.size() < this.minPlayers) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Minimal player: " + this.minPlayers + ". Sekarang: " + this.participants.size());
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Pakai /rkctf forcestart kalau mau paksa mulai.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Minimum players: " + this.minPlayers + ". Current: " + this.participants.size());
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Use /rkctf forcestart to force start.");
             return;
         }
         if (this.participants.isEmpty()) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Belum ada player yang join.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "No players have joined yet.");
             return;
         }
         this.state = GameState.COUNTDOWN;
         this.countdownLeft = this.countdownSeconds;
         this.teleportAllToTeams();
         this.updateAllScoreboards();
-        this.broadcast("&eCapture Flag akan dimulai. Player dikunci di sisi masing-masing dulu.");
+        this.broadcast("&eCapture Flag is starting. Players are locked in their sides.");
         this.countdownTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
             if (this.countdownLeft <= 0) {
                 if (this.countdownTask != null) {
@@ -758,7 +816,7 @@ TabCompleter {
             }
             this.broadcast(this.applyTime(this.msg("messages.countdown"), this.countdownLeft));
             for (Player player : this.getOnlineParticipants()) {
-                player.sendTitle(this.color("&d&lCapture Flag"), this.color("&eMulai dalam &c" + this.countdownLeft + " &edetik"), 5, 20, 5);
+                player.sendTitle(this.color("&d&lCapture Flag"), this.color("&eStarts in &c" + this.countdownLeft + " &eseconds"), 5, 20, 5);
                 this.playSound(player, Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 1.5f);
             }
             --this.countdownLeft;
@@ -780,10 +838,14 @@ TabCompleter {
         this.broadcast(this.msg("messages.started"));
         CapturePoint active = this.getActiveCapture();
         if (active != null) {
-            this.broadcast(plugin.getConfig().getString("messages.capture-active", "&eCapture point aktif sekarang: &d%point%&e. Ikuti marker partikel yang menyala.").replace("%point%", active.name));
+            this.broadcast(getConfig().getString("messages.capture-active", "&eActive capture point: &d%point%&e. Follow your compass.").replace("%point%", active.name));
+            Location targetLoc = new Location(Bukkit.getWorld((String)active.world), active.x, active.minY, active.z);
+            for (Player player : this.getOnlineParticipants()) {
+                player.setCompassTarget(targetLoc);
+            }
         }
         for (Player player : this.getOnlineParticipants()) {
-            player.sendTitle(this.color("&a&lMULAI!"), this.color("&fRebut area tengah dan kumpulkan point!"), 10, 40, 10);
+            player.sendTitle(this.color("&a&lFIGHT!"), this.color("&fCapture the zone and collect points!"), 10, 40, 10);
             this.playSound(player, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.7f, 1.0f);
         }
         this.gameTask = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
@@ -796,7 +858,6 @@ TabCompleter {
 
     private void tickGame() {
         this.processPlayers();
-        this.updateAllScoreboards();
         if (this.announceEveryMinute && this.timeLeft > 0 && this.timeLeft % 60 == 0) {
             this.broadcast(this.applyTime(this.msg("messages.time-left"), this.timeLeft));
         }
@@ -832,10 +893,16 @@ TabCompleter {
                 continue;
             }
             if (this.zoneActionBarEnabled) {
-                this.sendActionBar(player, this.color("&7CTF: cari marker &d" + this.getActiveCaptureName() + " &8| &fPoint kamu: &a" + participant.points));
+                CapturePoint cp = this.getActiveCapture();
+                String distStr = "?";
+                if (cp != null && cp.world.equals(player.getWorld().getName())) {
+                    int dist = (int) player.getLocation().distance(new Location(player.getWorld(), cp.x, player.getLocation().getY(), cp.z));
+                    distStr = String.valueOf(dist);
+                }
+                this.sendActionBar(player, this.color("&7CTF: &fRun to &d" + this.getActiveCaptureName() + " &e(" + distStr + "m) &8| &fPoints: &a" + participant.points));
             }
             if (wasInsideCapture && this.zoneActionBarEnabled) {
-                this.sendActionBar(player, this.color("&7Keluar dari area capture. Point kamu: &a" + participant.points));
+                this.sendActionBar(player, this.color("&7Left capture zone. Your points: &a" + participant.points));
             }
             if (!this.arenaBoundaryEnabled || this.isInsideArena(player.getLocation())) continue;
             Location spawn = this.getTeamSpawn(participant.team);
@@ -848,11 +915,11 @@ TabCompleter {
 
     private void stopEvent(CommandSender sender) {
         if (this.state == GameState.IDLE) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event belum berjalan.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "The event is not running.");
             return;
         }
         this.endEvent(true);
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Event dihentikan paksa.");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Event force stopped.");
     }
 
     private void forceStopNoPlayers() {
@@ -869,7 +936,7 @@ TabCompleter {
         List<Participant> winners = this.getWinners();
         this.broadcast(this.msg("messages.ended"));
         this.broadcast("&8&m----------------------------------");
-        this.broadcast("&d&lHASIL CAPTURE FLAG RUMAHKITA S2");
+        this.broadcast("&d&lRUMAHKITA CTF S2 RESULTS");
         if (winners.isEmpty()) {
             this.broadcast(this.msg("messages.no-winners"));
         } else {
@@ -883,7 +950,7 @@ TabCompleter {
         this.broadcast("&8&m----------------------------------");
         for (Player player : this.getOnlineParticipants()) {
             this.playSound(player, Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.8f, 1.0f);
-            player.sendTitle(this.color("&d&lCTF SELESAI"), this.color("&fCek pemenang di chat!"), 10, 60, 10);
+            player.sendTitle(this.color("&d&lCTF SELESAI"), this.color("&fCheck winners in chat!"), 10, 60, 10);
         }
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.restoreAllPlayers(this.teleportToExitAfterEvent);
@@ -937,7 +1004,7 @@ TabCompleter {
         if (player == null || !player.isOnline()) {
             return;
         }
-        List<String> commands = plugin.getConfig().getStringList("rewards.rank" + rank);
+        List<String> commands = getConfig().getStringList("rewards.rank" + rank);
         for (String raw : commands) {
             String cmd = raw.replace("%player%", player.getName()).replace("%rank%", String.valueOf(rank)).replace("%points%", String.valueOf(participant.points));
             Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd);
@@ -1012,7 +1079,7 @@ TabCompleter {
                 player.setSaturation(8.0f);
                 player.setFireTicks(0);
                 player.setFallDistance(0.0f);
-                player.sendTitle(this.color("&a&lRESPAWN"), this.color("&7Kamu kembali ke spawn team dan lanjut main."), 5, 35, 10);
+                player.sendTitle(this.color("&a&lRESPAWN"), this.color("&7You have returned to team spawn to continue playing."), 5, 35, 10);
                 this.updateScoreboard(player);
             }
         }, 2L);
@@ -1050,7 +1117,7 @@ TabCompleter {
             Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 if (!this.participants.containsKey(player.getUniqueId()) && this.hasBackup(player.getUniqueId())) {
                     this.restoreInventoryBackup(player, true, false);
-                    player.sendMessage(this.prefix + this.color("&aBackup item dari event CTF sebelumnya berhasil direstore otomatis."));
+                    player.sendMessage(this.prefix + this.color("&aItem backup from previous CTF event has been automatically restored."));
                 }
             }, 20L);
         }
@@ -1079,10 +1146,25 @@ TabCompleter {
     }
 
     @EventHandler
+    public void onInteract(PlayerInteractEvent event) {
+        if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) {
+            if (this.participants.containsKey(event.getPlayer().getUniqueId()) && this.state == GameState.RUNNING) {
+                org.bukkit.block.Block b = event.getClickedBlock();
+                if (b != null) {
+                    String type = b.getType().name();
+                    if (type.endsWith("_STAIRS") || type.endsWith("_SLAB")) {
+                        event.setCancelled(true);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
         if (this.preventItemDrop && this.participants.containsKey(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage(this.prefix + this.color("&cItem event tidak bisa dibuang."));
+            event.getPlayer().sendMessage(this.prefix + this.color("&cEvent items cannot be dropped."));
         }
     }
 
@@ -1155,13 +1237,13 @@ TabCompleter {
 
     private boolean isInsideArena(Location loc) {
         double dz;
-        World world = Bukkit.getWorld((String)plugin.getConfig().getString("arena.world", "world"));
+        World world = Bukkit.getWorld((String)getConfig().getString("arena.world", "world"));
         if (world == null || loc.getWorld() == null || !loc.getWorld().equals((Object)world)) {
             return false;
         }
-        double cx = plugin.getConfig().getDouble("arena.center-x", 4283.0);
-        double cz = plugin.getConfig().getDouble("arena.center-z", 2334.0);
-        double radius = plugin.getConfig().getDouble("arena.radius", 120.0);
+        double cx = getConfig().getDouble("arena.center-x", 4283.0);
+        double cz = getConfig().getDouble("arena.center-z", 2334.0);
+        double radius = getConfig().getDouble("arena.radius", 120.0);
         double dx = loc.getX() - cx;
         return dx * dx + (dz = loc.getZ() - cz) * dz <= radius * radius;
     }
@@ -1179,7 +1261,7 @@ TabCompleter {
             return false;
         }
         double y = loc.getY();
-        boolean ignoreY = plugin.getConfig().getBoolean("capture.ignore-y", false);
+        boolean ignoreY = getConfig().getBoolean("capture.ignore-y", false);
         if (!ignoreY && (y < point.minY || y > point.maxY)) {
             return false;
         }
@@ -1220,17 +1302,17 @@ TabCompleter {
 
     private String captureDebug(Location loc) {
         if (loc == null || loc.getWorld() == null) {
-            return this.color("&cLokasi tidak valid.");
+            return this.color("&cInvalid location.");
         }
         CapturePoint point = this.getActiveCapture();
         if (point == null) {
-            return this.color("&cCapture point tidak ditemukan.");
+            return this.color("&cCapture point not found.");
         }
         double dx = loc.getX() - point.x;
         double dz = loc.getZ() - point.z;
         double distance = Math.sqrt(dx * dx + dz * dz);
         boolean inside = this.isInsideCapture(loc);
-        return this.color("&7World: &e" + loc.getWorld().getName() + " &8(target " + point.world + ")\n&7Active point: &d" + point.name + "\n&7Shape: &e" + point.shape + "\n&7Posisi kamu: &eX " + this.round(loc.getX()) + " Y " + this.round(loc.getY()) + " Z " + this.round(loc.getZ()) + "\n&7Center: &eX " + this.round(point.x) + " Z " + this.round(point.z) + "\n&7Jarak horizontal: &e" + this.round(distance) + " &8(radius " + this.round(point.radius) + ")\n&7Y valid: &e" + this.round(point.minY) + " - " + this.round(point.maxY) + "\n&7Next rotate: &e" + Math.max(0, this.captureNextRotateSeconds) + "s\n&7Inside capture: " + (inside ? "&aYA" : "&cTIDAK"));
+        return this.color("&7World: &e" + loc.getWorld().getName() + " &8(target " + point.world + ")\n&7Active point: &d" + point.name + "\n&7Shape: &e" + point.shape + "\n&7Your position: &eX " + this.round(loc.getX()) + " Y " + this.round(loc.getY()) + " Z " + this.round(loc.getZ()) + "\n&7Center: &eX " + this.round(point.x) + " Z " + this.round(point.z) + "\n&7Horizontal distance: &e" + this.round(distance) + " &8(radius " + this.round(point.radius) + ")\n&7Valid Y: &e" + this.round(point.minY) + " - " + this.round(point.maxY) + "\n&7Next rotate: &e" + Math.max(0, this.captureNextRotateSeconds) + "s\n&7Inside capture: " + (inside ? "&aYES" : "&cNO"));
     }
 
     private Location getTeamSpawn(String team) {
@@ -1241,93 +1323,93 @@ TabCompleter {
     }
 
     private Location getConfiguredLocation(String path) {
-        String worldName = plugin.getConfig().getString(path + ".world", "world");
+        String worldName = getConfig().getString(path + ".world", "world");
         World world = Bukkit.getWorld((String)worldName);
         if (world == null) {
             return null;
         }
-        double x = plugin.getConfig().getDouble(path + ".x");
-        double y = plugin.getConfig().getDouble(path + ".y");
-        double z = plugin.getConfig().getDouble(path + ".z");
-        float yaw = (float)plugin.getConfig().getDouble(path + ".yaw", 0.0);
-        float pitch = (float)plugin.getConfig().getDouble(path + ".pitch", 0.0);
+        double x = getConfig().getDouble(path + ".x");
+        double y = getConfig().getDouble(path + ".y");
+        double z = getConfig().getDouble(path + ".z");
+        float yaw = (float)getConfig().getDouble(path + ".yaw", 0.0);
+        float pitch = (float)getConfig().getDouble(path + ".pitch", 0.0);
         return new Location(world, x, y, z, yaw, pitch);
     }
 
     private void setLocation(CommandSender sender, String path) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + "Command ini harus dari player.");
+            sender.sendMessage(this.prefix + "This command must be run by a player.");
             return;
         }
         Player player = (Player)sender;
         Location loc = player.getLocation();
-        plugin.getConfig().set(path + ".world", (Object)loc.getWorld().getName());
-        plugin.getConfig().set(path + ".x", (Object)this.round(loc.getX()));
-        plugin.getConfig().set(path + ".y", (Object)this.round(loc.getY()));
-        plugin.getConfig().set(path + ".z", (Object)this.round(loc.getZ()));
-        plugin.getConfig().set(path + ".yaw", (Object)this.round(loc.getYaw()));
-        plugin.getConfig().set(path + ".pitch", (Object)this.round(loc.getPitch()));
-        plugin.saveConfig();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Lokasi " + path + " berhasil diset.");
+        getConfig().set(path + ".world", (Object)loc.getWorld().getName());
+        getConfig().set(path + ".x", (Object)this.round(loc.getX()));
+        getConfig().set(path + ".y", (Object)this.round(loc.getY()));
+        getConfig().set(path + ".z", (Object)this.round(loc.getZ()));
+        getConfig().set(path + ".yaw", (Object)this.round(loc.getYaw()));
+        getConfig().set(path + ".pitch", (Object)this.round(loc.getPitch()));
+        saveConfig();
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Location " + path + " successfully set.");
     }
 
     private void setArena(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + "Command ini harus dari player.");
+            sender.sendMessage(this.prefix + "This command must be run by a player.");
             return;
         }
         Player player = (Player)sender;
         if (args.length < 2) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf setarena <radius>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf setarena <radius>");
             return;
         }
         double radius = this.parseDouble(args[1], 120.0);
         Location loc = player.getLocation();
-        plugin.getConfig().set("arena.world", (Object)loc.getWorld().getName());
-        plugin.getConfig().set("arena.center-x", (Object)this.round(loc.getX()));
-        plugin.getConfig().set("arena.center-y", (Object)this.round(loc.getY()));
-        plugin.getConfig().set("arena.center-z", (Object)this.round(loc.getZ()));
-        plugin.getConfig().set("arena.radius", (Object)radius);
-        plugin.getConfig().set("arena.enabled", (Object)true);
-        plugin.saveConfig();
+        getConfig().set("arena.world", (Object)loc.getWorld().getName());
+        getConfig().set("arena.center-x", (Object)this.round(loc.getX()));
+        getConfig().set("arena.center-y", (Object)this.round(loc.getY()));
+        getConfig().set("arena.center-z", (Object)this.round(loc.getZ()));
+        getConfig().set("arena.radius", (Object)radius);
+        getConfig().set("arena.enabled", (Object)true);
+        saveConfig();
         this.loadSettings();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Arena center diset dengan radius " + radius + ". Boundary arena sekarang aktif.");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Arena center set with radius " + radius + ". Arena boundary is now active.");
     }
 
     private void setCapture(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + "Command ini harus dari player.");
+            sender.sendMessage(this.prefix + "This command must be run by a player.");
             return;
         }
         Player player = (Player)sender;
         if (args.length < 4) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf setcapture <radius> <minY> <maxY>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf setcapture <radius> <minY> <maxY>");
             return;
         }
         double radius = this.parseDouble(args[1], 13.0);
         double minY = this.parseDouble(args[2], player.getLocation().getY() - 5.0);
         double maxY = this.parseDouble(args[3], player.getLocation().getY() + 5.0);
         Location loc = player.getLocation();
-        plugin.getConfig().set("capture.world", (Object)loc.getWorld().getName());
-        plugin.getConfig().set("capture.shape", (Object)"CIRCLE");
-        plugin.getConfig().set("capture.center-x", (Object)this.round(loc.getX()));
-        plugin.getConfig().set("capture.center-z", (Object)this.round(loc.getZ()));
-        plugin.getConfig().set("capture.radius", (Object)radius);
-        plugin.getConfig().set("capture.min-y", (Object)Math.min(minY, maxY));
-        plugin.getConfig().set("capture.max-y", (Object)Math.max(minY, maxY));
-        plugin.saveConfig();
+        getConfig().set("capture.world", (Object)loc.getWorld().getName());
+        getConfig().set("capture.shape", (Object)"CIRCLE");
+        getConfig().set("capture.center-x", (Object)this.round(loc.getX()));
+        getConfig().set("capture.center-z", (Object)this.round(loc.getZ()));
+        getConfig().set("capture.radius", (Object)radius);
+        getConfig().set("capture.min-y", (Object)Math.min(minY, maxY));
+        getConfig().set("capture.max-y", (Object)Math.max(minY, maxY));
+        saveConfig();
         this.loadSettings();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Capture zone CIRCLE diset. Radius " + radius + ", Y " + minY + " sampai " + maxY + ".");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "CIRCLE capture zone set. Radius " + radius + ", Y " + minY + " to " + maxY + ".");
     }
 
     private void setCaptureBox(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + "Command ini harus dari player.");
+            sender.sendMessage(this.prefix + "This command must be run by a player.");
             return;
         }
         Player player = (Player)sender;
         if (args.length < 5) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf setcapturebox <radiusX> <radiusZ> <minY> <maxY>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf setcapturebox <radiusX> <radiusZ> <minY> <maxY>");
             return;
         }
         double radiusX = this.parseDouble(args[1], 13.0);
@@ -1335,23 +1417,63 @@ TabCompleter {
         double minY = this.parseDouble(args[3], player.getLocation().getY() - 5.0);
         double maxY = this.parseDouble(args[4], player.getLocation().getY() + 5.0);
         Location loc = player.getLocation();
-        plugin.getConfig().set("capture.world", (Object)loc.getWorld().getName());
-        plugin.getConfig().set("capture.shape", (Object)"BOX");
-        plugin.getConfig().set("capture.center-x", (Object)this.round(loc.getX()));
-        plugin.getConfig().set("capture.center-z", (Object)this.round(loc.getZ()));
-        plugin.getConfig().set("capture.radius-x", (Object)Math.max(1.0, radiusX));
-        plugin.getConfig().set("capture.radius-z", (Object)Math.max(1.0, radiusZ));
-        plugin.getConfig().set("capture.radius", (Object)Math.max(radiusX, radiusZ));
-        plugin.getConfig().set("capture.min-y", (Object)Math.min(minY, maxY));
-        plugin.getConfig().set("capture.max-y", (Object)Math.max(minY, maxY));
-        plugin.saveConfig();
+        getConfig().set("capture.world", (Object)loc.getWorld().getName());
+        getConfig().set("capture.shape", (Object)"BOX");
+        getConfig().set("capture.center-x", (Object)this.round(loc.getX()));
+        getConfig().set("capture.center-z", (Object)this.round(loc.getZ()));
+        getConfig().set("capture.radius-x", (Object)Math.max(1.0, radiusX));
+        getConfig().set("capture.radius-z", (Object)Math.max(1.0, radiusZ));
+        getConfig().set("capture.radius", (Object)Math.max(radiusX, radiusZ));
+        getConfig().set("capture.min-y", (Object)Math.min(minY, maxY));
+        getConfig().set("capture.max-y", (Object)Math.max(minY, maxY));
+        saveConfig();
         this.loadSettings();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Capture BOX diset. RadiusX " + radiusX + ", RadiusZ " + radiusZ + ", Y " + minY + " sampai " + maxY + ".");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Primary BOX capture set. RadiusX " + radiusX + ", RadiusZ " + radiusZ + ", Y " + minY + " to " + maxY + ".");
+    }
+
+    private void addCaptureBox(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) return;
+        Player player = (Player)sender;
+        if (args.length < 5) return;
+        double radiusX = this.parseDouble(args[1], 13.0);
+        double radiusZ = this.parseDouble(args[2], 13.0);
+        double minY = this.parseDouble(args[3], player.getLocation().getY() - 5.0);
+        double maxY = this.parseDouble(args[4], player.getLocation().getY() + 5.0);
+        Location loc = player.getLocation();
+        
+        int nextId = 1;
+        if (getConfig().isConfigurationSection("capture.points")) {
+            nextId = getConfig().getConfigurationSection("capture.points").getKeys(false).size() + 1;
+        }
+        
+        String path = "capture.points.point_" + nextId;
+        getConfig().set(path + ".world", loc.getWorld().getName());
+        getConfig().set(path + ".shape", "BOX");
+        getConfig().set(path + ".x", this.round(loc.getX()));
+        getConfig().set(path + ".z", this.round(loc.getZ()));
+        getConfig().set(path + ".radius-x", Math.max(1.0, radiusX));
+        getConfig().set(path + ".radius-z", Math.max(1.0, radiusZ));
+        getConfig().set(path + ".radius", Math.max(radiusX, radiusZ));
+        getConfig().set(path + ".min-y", Math.min(minY, maxY));
+        getConfig().set(path + ".max-y", Math.max(minY, maxY));
+        getConfig().set(path + ".name", "Point " + nextId);
+        getConfig().set(path + ".enabled", true);
+        
+        saveConfig();
+        this.loadSettings();
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Added new Capture Point " + nextId + ".");
+    }
+
+    private void clearCaptures(CommandSender sender) {
+        getConfig().set("capture.points", null);
+        saveConfig();
+        this.loadSettings();
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Cleared all extra Capture Points.");
     }
 
     private void checkPosition(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + "Command ini harus dari player.");
+            sender.sendMessage(this.prefix + "This command must be run by a player.");
             return;
         }
         Player player = (Player)sender;
@@ -1362,85 +1484,85 @@ TabCompleter {
         }
         Participant participant = this.participants.get(player.getUniqueId());
         if (participant != null) {
-            sender.sendMessage(this.color("&7Point kamu: &a" + participant.points));
+            sender.sendMessage(this.color("&7Your points: &a" + participant.points));
             sender.sendMessage(this.color("&7State: &e" + String.valueOf((Object)this.state)));
             if (this.state != GameState.RUNNING) {
-                sender.sendMessage(this.color("&cPoint hanya bertambah saat state RUNNING. Pakai /rkctf forcestart untuk test."));
+                sender.sendMessage(this.color("&cPoints only increase during RUNNING state. Use /rkctf forcestart to test."));
             }
         } else {
-            sender.sendMessage(this.color("&7Kamu belum join event CTF."));
+            sender.sendMessage(this.color("&7You have not joined the CTF event."));
         }
         sender.sendMessage(this.color("&8&m------------------------------"));
     }
 
     private void setDuration(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf setduration <detik>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf setduration <seconds>");
             return;
         }
         int seconds = (int)this.parseDouble(args[1], 300.0);
         seconds = Math.max(10, seconds);
-        plugin.getConfig().set("settings.duration-seconds", (Object)seconds);
-        plugin.saveConfig();
+        getConfig().set("settings.duration-seconds", (Object)seconds);
+        saveConfig();
         this.loadSettings();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Durasi event diset ke " + seconds + " detik.");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Event duration set to " + seconds + " seconds.");
     }
 
     private void resetEvent(CommandSender sender) {
         if (this.state != GameState.IDLE) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Stop event dulu sebelum reset.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Stop the event before resetting.");
             return;
         }
         this.participants.clear();
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Participant event direset.");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Event participants have been reset.");
     }
 
     private void restoreItemsCommand(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf restoreitems <player>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf restoreitems <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Player harus online untuk restore manual.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Player must be online for manual restore.");
             return;
         }
         if (!this.hasBackup(target.getUniqueId())) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Backup item player itu tidak ditemukan.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "That player''s item backup was not found.");
             return;
         }
         this.restoreInventoryBackup(target, true, false);
-        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Backup item " + target.getName() + " berhasil direstore.");
+        sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Item backup " + target.getName() + " successfully restored.");
     }
 
     private void backupStatusCommand(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf backupstatus <player>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf backupstatus <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target != null) {
-            sender.sendMessage(this.prefix + (this.hasBackup(target.getUniqueId()) ? String.valueOf(ChatColor.GREEN) + "Backup ada untuk " + target.getName() : String.valueOf(ChatColor.YELLOW) + "Backup tidak ada untuk " + target.getName()));
+            sender.sendMessage(this.prefix + (this.hasBackup(target.getUniqueId()) ? String.valueOf(ChatColor.GREEN) + "Backup exists for " + target.getName() : String.valueOf(ChatColor.YELLOW) + "No backup exists for " + target.getName()));
         } else {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Player offline. Cek file backup manual di folder backups jika perlu.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Player is offline. Check backup files manually if needed.");
         }
     }
 
     private void clearBackupCommand(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Gunakan: /rkctf clearbackup <player>");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Usage: /rkctf clearbackup <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
         if (target == null) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Player harus online untuk clearbackup aman.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Player must be online for safe backup clear.");
             return;
         }
         File file = this.getBackupFile(target.getUniqueId());
         if (file.exists() && file.delete()) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Backup " + target.getName() + " sudah dihapus.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Backup " + target.getName() + " has been deleted.");
         } else {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Backup tidak ada / gagal dihapus.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Backup does not exist or failed to delete.");
         }
     }
 
@@ -1462,7 +1584,7 @@ TabCompleter {
         sender.sendMessage(this.color("&d&lRumahKita CTF Status"));
         sender.sendMessage(this.color("&7State: &e" + String.valueOf((Object)this.state)));
         if (this.state != GameState.RUNNING) {
-            sender.sendMessage(this.color("&cPoint hanya bertambah saat state RUNNING. Pakai /rkctf forcestart untuk test."));
+            sender.sendMessage(this.color("&cPoints only increase during RUNNING state. Use /rkctf forcestart to test."));
         }
         sender.sendMessage(this.color("&7Players: &e" + this.participants.size()));
         sender.sendMessage(this.color("&7Alive: &a" + this.getAliveCount()));
@@ -1475,12 +1597,12 @@ TabCompleter {
 
     private void sendParticipantList(CommandSender sender) {
         if (this.participants.isEmpty()) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Belum ada participant.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "No participants yet.");
             return;
         }
         sender.sendMessage(this.color("&dParticipant CTF:"));
         for (Participant p : this.participants.values()) {
-            sender.sendMessage(this.color("&7- &e" + p.name + " &8| &f" + p.team + " &8| &a" + p.points + " point &8| " + (p.alive ? "&aAlive" : "&cGugur")));
+            sender.sendMessage(this.color("&7- &e" + p.name + " &8| &f" + p.team + " &8| &a" + p.points + " point &8| " + (p.alive ? "&aAlive" : "&cEliminated")));
         }
     }
 
@@ -1498,24 +1620,35 @@ TabCompleter {
         if (participant == null) {
             return;
         }
-        ScoreboardManager manager = Bukkit.getScoreboardManager();
+        org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
         if (manager == null) {
             return;
         }
-        Scoreboard board = manager.getNewScoreboard();
-        Objective objective = board.registerNewObjective("rkctf", "dummy", this.color(plugin.getConfig().getString("scoreboard.title", "&d&lRumahKita CTF")));
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        org.bukkit.scoreboard.Scoreboard board = player.getScoreboard();
+        if (board == null || board.equals(manager.getMainScoreboard())) {
+            board = manager.getNewScoreboard();
+            player.setScoreboard(board);
+        }
+        
+        org.bukkit.scoreboard.Objective objective = board.getObjective("rkctf");
+        if (objective == null) {
+            objective = board.registerNewObjective("rkctf", "dummy", this.color(getConfig().getString("scoreboard.title", "&d&lRumahKita CTF")));
+            objective.setDisplaySlot(org.bukkit.scoreboard.DisplaySlot.SIDEBAR);
+        } else {
+            objective.setDisplayName(this.color(getConfig().getString("scoreboard.title", "&d&lRumahKita CTF")));
+        }
+        
         ArrayList<String> lines = new ArrayList<String>();
-        lines.add(this.color(plugin.getConfig().getString("scoreboard.line", "&8&m----------")));
+        lines.add(this.color(getConfig().getString("scoreboard.line", "&8&m----------")));
         lines.add(this.color("&fStatus: &e" + String.valueOf((Object)this.state)));
-        lines.add(this.color("&fWaktu: &c" + this.formatTime(this.timeLeft)));
+        lines.add(this.color("&fTime: &c" + this.formatTime(this.timeLeft)));
         lines.add(this.color("&fTeam: &b" + participant.team));
-        lines.add(this.color("&fPoint kamu: &a" + participant.points));
+        lines.add(this.color("&fYour points: &a" + participant.points));
         if (this.showCaptureStatusInScoreboard) {
             lines.add(this.color("&fCapture: &d" + this.getActiveCaptureName()));
-            lines.add(this.color("&fZone: " + (this.isInsideCapture(player.getLocation()) ? "&aDI ZONE" : "&7di luar")));
+            lines.add(this.color("&fZone: " + (this.isInsideCapture(player.getLocation()) ? "&aIN ZONE" : "&7outside")));
         }
-        lines.add(this.color("&fHidup: &a" + this.getAliveCount() + "&7/&f" + this.participants.size()));
+        lines.add(this.color("&fAlive: &a" + this.getAliveCount() + "&7/&f" + this.participants.size()));
         lines.add(this.color("&7"));
         lines.add(this.color("&dTop 3 Point"));
         int rank = 1;
@@ -1529,17 +1662,30 @@ TabCompleter {
             ++rank;
         }
         lines.add(this.color("&8&m----------"));
-        int score = lines.size();
-        int duplicate = 0;
-        for (String line : lines) {
-            Object entry = line;
-            while (board.getEntries().contains(entry)) {
-                entry = line + String.valueOf(ChatColor.values()[duplicate % ChatColor.values().length]);
-                ++duplicate;
+        
+        // Anti-flicker & Anti-lag Team based update
+        for (int i = 0; i < lines.size(); i++) {
+            String teamName = "rkctf_" + i;
+            org.bukkit.scoreboard.Team team = board.getTeam(teamName);
+            if (team == null) {
+                team = board.registerNewTeam(teamName);
             }
-            objective.getScore((String)entry).setScore(score--);
+            String entry = ChatColor.values()[i].toString() + ChatColor.RESET;
+            if (!team.hasEntry(entry)) {
+                team.addEntry(entry);
+            }
+            
+            String text = lines.get(i);
+            team.setPrefix(text.length() <= 64 ? text : text.substring(0, 64));
+            
+            objective.getScore(entry).setScore(lines.size() - i);
         }
-        player.setScoreboard(board);
+        
+        // Clean up remaining scores if any
+        for (int i = lines.size(); i < 15; i++) {
+            String entry = ChatColor.values()[i].toString() + ChatColor.RESET;
+            board.resetScores(entry);
+        }
     }
 
     private List<Participant> getTopParticipants() {
@@ -1625,8 +1771,8 @@ TabCompleter {
             yaml.save(file);
         }
         catch (IOException e) {
-            plugin.getLogger().warning("Gagal menyimpan inventory backup untuk " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(this.prefix + this.color("&cGagal backup inventory. Demi keamanan, event tidak disarankan dilanjutkan untuk kamu."));
+            plugin.getLogger().warning("Failed to save inventory backup for " + player.getName() + ": " + e.getMessage());
+            player.sendMessage(this.prefix + this.color("&cFailed to backup inventory. For safety, it is not recommended to continue."));
         }
     }
 
@@ -1677,7 +1823,7 @@ TabCompleter {
             player.teleport(loc);
         }
         if (deleteAfterRestore && file.exists() && !file.delete()) {
-            plugin.getLogger().warning("Backup file gagal dihapus: " + file.getName());
+            plugin.getLogger().warning("Failed to delete backup file: " + file.getName());
         }
         return true;
     }
@@ -1708,7 +1854,7 @@ TabCompleter {
     }
 
     private String msg(String path) {
-        return this.color(plugin.getConfig().getString(path, ""));
+        return this.color(getConfig().getString(path, ""));
     }
 
     private String applyPlaceholders(String message, Player player, Participant participant, int rank) {
@@ -1871,9 +2017,9 @@ TabCompleter {
                 return "false";
             case "capture_status":
                 if (player != null && participant != null && this.isInsideCapture(player.getLocation())) {
-                    return this.color("&aDI ZONE");
+                    return this.color("&aIN ZONE");
                 }
-                return this.color("&7di luar");
+                return this.color("&7outside");
             case "active_capture":
             case "capture_name": return this.getActiveCaptureName();
             case "active_capture_coord":
@@ -1895,11 +2041,11 @@ TabCompleter {
 
     private String getStateDisplay() {
         switch (this.state.ordinal()) {
-            case 0: return plugin.getConfig().getString("placeholder.state.idle", "Menunggu");
-            case 1: return plugin.getConfig().getString("placeholder.state.countdown", "Countdown");
-            case 2: return plugin.getConfig().getString("placeholder.state.running", "Berjalan");
-            case 3: return plugin.getConfig().getString("placeholder.state.ending", "Selesai");
-            default: return "Menunggu";
+            case 0: return getConfig().getString("placeholder.state.idle", "Waiting");
+            case 1: return getConfig().getString("placeholder.state.countdown", "Countdown");
+            case 2: return getConfig().getString("placeholder.state.running", "Running");
+            case 3: return getConfig().getString("placeholder.state.ending", "Ended");
+            default: return "Waiting";
         }
     }
 
@@ -1915,10 +2061,10 @@ TabCompleter {
     private String getTopLine(int rank) {
         List<Participant> top = this.getTopParticipants();
         if (rank < 1 || rank > top.size()) {
-            return plugin.getConfig().getString("placeholder.no-top", "-");
+            return getConfig().getString("placeholder.no-top", "-");
         }
         Participant p = top.get(rank - 1);
-        return plugin.getConfig().getString("placeholder.top-format", "%player% - %points%").replace("%rank%", String.valueOf(rank)).replace("%player%", p.name).replace("%points%", String.valueOf(p.points));
+        return getConfig().getString("placeholder.top-format", "%player% - %points%").replace("%rank%", String.valueOf(rank)).replace("%player%", p.name).replace("%points%", String.valueOf(p.points));
     }
 
     private String getTopName(int rank) {

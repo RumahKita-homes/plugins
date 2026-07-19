@@ -16,7 +16,14 @@ public final class Text {
     }
 
     public static String color(String text) {
-        return ChatColor.translateAlternateColorCodes((char)'&', (String)(text == null ? "" : text));
+        if (text == null) return "";
+        java.util.regex.Matcher match = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})").matcher(text);
+        while (match.find()) {
+            String hex = match.group(1);
+            text = text.replace("&#" + hex, net.md_5.bungee.api.ChatColor.of("#" + hex) + "");
+            match = java.util.regex.Pattern.compile("&#([A-Fa-f0-9]{6})").matcher(text);
+        }
+        return ChatColor.translateAlternateColorCodes((char)'&', text);
     }
 
     public static void msg(CommandSender sender, String message) {

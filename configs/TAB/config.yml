@@ -90,7 +90,7 @@ scoreboard:
       title: "&d&lRUMAHKITA &fS2"
       lines:
         - "%luckperms_prefix%%player%"
-        - "&a$ &f%rke_balance_short%"
+        - "&a$ &f%rke_balance%"
 
 layout:
   enabled: false

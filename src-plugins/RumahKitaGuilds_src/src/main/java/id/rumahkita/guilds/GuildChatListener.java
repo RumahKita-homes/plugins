@@ -35,7 +35,7 @@ implements Listener {
         this.chatManager = chatManager;
     }
 
-    @EventHandler
+    @EventHandler(priority = org.bukkit.event.EventPriority.LOW)
     public void onChat(AsyncPlayerChatEvent event) {
         if (this.chatManager.isToggled(event.getPlayer())) {
             event.setCancelled(true);
@@ -57,6 +57,21 @@ implements Listener {
         String format = this.plugin.getConfig().getString("chat-format.format", "%guild_tag% &7%player% &8\u00bb &f%message%");
         format = format.replace("%guild_tag%", tag).replace("%guild_name%", guild.getName()).replace("%guild_role%", guild.getRole(event.getPlayer().getUniqueId()).displayName(this.plugin)).replace("%player%", "%1$s").replace("%message%", "%2$s");
         event.setFormat(Text.color(format));
+    }
+    
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGHEST)
+    public void onChatFormatReplace(AsyncPlayerChatEvent event) {
+        if (event.isCancelled()) return;
+        String format = event.getFormat();
+        if (format.contains("{rumahkitaguilds_tag}") || format.contains("%rumahkitaguilds_tag%")) {
+            Guild guild = this.guildManager.getGuild(event.getPlayer());
+            String tag = "";
+            if (guild != null) {
+                tag = Text.color(this.plugin.getConfig().getString("placeholder.tag-format", "&8[&b%tag%&8]").replace("%tag%", guild.getTag()));
+            }
+            format = format.replace("{rumahkitaguilds_tag}", tag).replace("%rumahkitaguilds_tag%", tag);
+            event.setFormat(format);
+        }
     }
 
     @EventHandler

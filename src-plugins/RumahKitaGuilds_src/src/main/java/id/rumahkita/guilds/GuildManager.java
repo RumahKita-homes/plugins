@@ -163,7 +163,7 @@ public final class GuildManager {
             }
             this.removeItem(player, material, amount);
         }
-        Guild guild = new Guild(tag.toUpperCase(Locale.ROOT), name, player.getUniqueId(), player.getName(), System.currentTimeMillis());
+        Guild guild = new Guild(tag, name, player.getUniqueId(), player.getName(), System.currentTimeMillis());
         this.guildsByTag.put(this.normalizeTag(tag), guild);
         this.playerGuild.put(player.getUniqueId(), this.normalizeTag(tag));
         this.save();
@@ -212,7 +212,7 @@ public final class GuildManager {
             return false;
         }
         String normalized = this.normalizeTag(newTag);
-        if (this.guildsByTag.containsKey(normalized)) {
+        if (this.guildsByTag.containsKey(normalized) && !this.guildsByTag.get(normalized).equals(guild)) {
             return false;
         }
         String old = this.normalizeTag(guild.getTag());
@@ -222,7 +222,7 @@ public final class GuildManager {
             dbManager.deleteGuildAsync(guild.getTag());
         }
         
-        guild.setTag(newTag.toUpperCase(Locale.ROOT));
+        guild.setTag(newTag);
         this.guildsByTag.put(normalized, guild);
         for (UUID member : guild.getMembers().keySet()) {
             this.playerGuild.put(member, normalized);
@@ -239,10 +239,11 @@ public final class GuildManager {
         if (tag == null) {
             return false;
         }
+        String clean = this.normalizeTag(tag);
         int min = this.plugin.getConfig().getInt("settings.tag.min-length", 2);
         int max = this.plugin.getConfig().getInt("settings.tag.max-length", 5);
         String pattern = this.plugin.getConfig().getString("settings.tag.pattern", "^[A-Za-z0-9]+$");
-        return tag.length() >= min && tag.length() <= max && Pattern.matches(pattern, tag);
+        return clean.length() >= min && clean.length() <= max && java.util.regex.Pattern.matches(pattern, clean);
     }
 
     public boolean isValidName(String name) {
@@ -256,7 +257,10 @@ public final class GuildManager {
     }
 
     public String normalizeTag(String tag) {
-        return tag == null ? "" : tag.toUpperCase(Locale.ROOT);
+        if (tag == null) return "";
+        String clean = tag.replaceAll("&#[A-Fa-f0-9]{6}", "");
+        clean = org.bukkit.ChatColor.stripColor(org.bukkit.ChatColor.translateAlternateColorCodes('&', clean));
+        return clean.toUpperCase(Locale.ROOT);
     }
 
     public String getOfflineName(UUID uuid) {

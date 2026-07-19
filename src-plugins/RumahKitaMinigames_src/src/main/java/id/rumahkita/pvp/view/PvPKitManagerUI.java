@@ -25,7 +25,7 @@ public class PvPKitManagerUI implements Listener {
     private final String EDIT_TITLE_PREFIX = ChatColor.DARK_PURPLE + "Editing Kit: ";
     
     // Default kits
-    private final List<String> DEFAULT_KITS = Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO");
+    private final List<String> DEFAULT_KITS = Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "BOW", "AXE", "TRIDENT");
 
     public PvPKitManagerUI(RumahKitaMinigamesPlugin plugin, RumahKitaPvP1v1Plugin pvp) {
         this.plugin = plugin;

@@ -160,7 +160,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         }
         
         String finalKit = (kit == null || kit.isEmpty()) ? "NOKIT" : kit.toUpperCase();
-        boolean valid = getConfig().contains("kits." + finalKit) || Arrays.asList("DIAMOND", "IRON", "UHC", "NODEBUFF", "NETHERITE", "CRYSTAL", "SUMO", "NOKIT").contains(finalKit);
+        boolean valid = getConfig().contains("kits." + finalKit) || Arrays.asList("DIAMOND", "IRON", "UHC", "NODEBUFF", "NETHERITE", "CRYSTAL", "SUMO", "BOW", "AXE", "TRIDENT", "NOKIT").contains(finalKit);
         
         if (!valid) {
             this.msg(inviter, this.pref() + "&cInvalid kit.");
@@ -400,18 +400,45 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             player.getInventory().setItem(2, new ItemStack(Material.COOKED_BEEF, 64));
             player.getInventory().setItem(3, new ItemStack(Material.SHIELD));
         } else if (kit.equals("CRYSTAL")) {
-            player.getInventory().setHelmet(new ItemStack(Material.NETHERITE_HELMET));
-            player.getInventory().setChestplate(new ItemStack(Material.NETHERITE_CHESTPLATE));
-            player.getInventory().setLeggings(new ItemStack(Material.NETHERITE_LEGGINGS));
-            player.getInventory().setBoots(new ItemStack(Material.NETHERITE_BOOTS));
-            player.getInventory().setItem(0, new ItemStack(Material.NETHERITE_SWORD));
+            ItemStack helm = new ItemStack(Material.NETHERITE_HELMET);
+            helm.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+            helm.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setHelmet(helm);
+            
+            ItemStack chest = new ItemStack(Material.NETHERITE_CHESTPLATE);
+            chest.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+            chest.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setChestplate(chest);
+            
+            ItemStack legs = new ItemStack(Material.NETHERITE_LEGGINGS);
+            legs.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+            legs.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setLeggings(legs);
+            
+            ItemStack boots = new ItemStack(Material.NETHERITE_BOOTS);
+            boots.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+            boots.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setBoots(boots);
+            
+            ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+            sword.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 5);
+            sword.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setItem(0, sword);
+            
             player.getInventory().setItem(1, new ItemStack(Material.END_CRYSTAL, 64));
             player.getInventory().setItem(2, new ItemStack(Material.OBSIDIAN, 64));
             player.getInventory().setItem(3, new ItemStack(Material.RESPAWN_ANCHOR, 64));
             player.getInventory().setItem(4, new ItemStack(Material.GLOWSTONE, 64));
-            player.getInventory().setItem(5, new ItemStack(Material.TOTEM_OF_UNDYING));
-            player.getInventory().setItem(6, new ItemStack(Material.GOLDEN_APPLE, 64));
-            player.getInventory().setItem(7, new ItemStack(Material.NETHERITE_PICKAXE));
+            player.getInventory().setItem(5, new ItemStack(Material.COBWEB, 16));
+            player.getInventory().setItem(6, new ItemStack(Material.TOTEM_OF_UNDYING));
+            player.getInventory().setItem(7, new ItemStack(Material.TOTEM_OF_UNDYING));
+            player.getInventory().setItem(8, new ItemStack(Material.GOLDEN_APPLE, 64));
+            
+            ItemStack pickaxe = new ItemStack(Material.NETHERITE_PICKAXE);
+            pickaxe.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DIG_SPEED, 5);
+            pickaxe.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+            player.getInventory().setItem(9, pickaxe);
+            
             player.getInventory().setItemInOffHand(new ItemStack(Material.TOTEM_OF_UNDYING));
         } else if (kit.equals("SUMO")) {
             player.getInventory().setItem(0, new ItemStack(Material.STICK));
@@ -421,16 +448,18 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
             player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
             player.getInventory().setItem(0, new ItemStack(Material.DIAMOND_SWORD));
-            player.getInventory().setItem(1, new ItemStack(Material.GOLDEN_APPLE, 8));
+            player.getInventory().setItem(1, new ItemStack(Material.GOLDEN_APPLE, 16));
             player.getInventory().setItem(2, new ItemStack(Material.COOKED_BEEF, 64));
+            player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
         } else if (kit.equals("IRON")) {
             player.getInventory().setHelmet(new ItemStack(Material.IRON_HELMET));
             player.getInventory().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
             player.getInventory().setLeggings(new ItemStack(Material.IRON_LEGGINGS));
             player.getInventory().setBoots(new ItemStack(Material.IRON_BOOTS));
             player.getInventory().setItem(0, new ItemStack(Material.IRON_SWORD));
-            player.getInventory().setItem(1, new ItemStack(Material.GOLDEN_APPLE, 5));
+            player.getInventory().setItem(1, new ItemStack(Material.GOLDEN_APPLE, 8));
             player.getInventory().setItem(2, new ItemStack(Material.COOKED_BEEF, 64));
+            player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
         } else if (kit.equals("UHC")) {
             player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
             player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
@@ -445,6 +474,44 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             player.getInventory().setItem(6, new ItemStack(Material.OAK_PLANKS, 64));
             player.getInventory().setItem(7, new ItemStack(Material.COBBLESTONE, 64));
             player.getInventory().setItem(8, new ItemStack(Material.ARROW, 64));
+        } else if (kit.equals("BOW")) {
+            player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+            player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+            player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+            player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+            ItemStack bow = new ItemStack(Material.BOW);
+            bow.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.ARROW_INFINITE, 1);
+            bow.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.ARROW_DAMAGE, 2);
+            bow.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK, 1);
+            player.getInventory().setItem(0, bow);
+            player.getInventory().setItem(1, new ItemStack(Material.GOLDEN_APPLE, 16));
+            ItemStack sword = new ItemStack(Material.WOODEN_SWORD);
+            sword.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.KNOCKBACK, 1);
+            player.getInventory().setItem(2, sword);
+            player.getInventory().setItem(8, new ItemStack(Material.ARROW));
+        } else if (kit.equals("AXE")) {
+            player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+            player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+            player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+            player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+            ItemStack axe = new ItemStack(Material.IRON_AXE);
+            axe.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 2);
+            player.getInventory().setItem(0, axe);
+            player.getInventory().setItem(1, new ItemStack(Material.CROSSBOW));
+            player.getInventory().setItem(2, new ItemStack(Material.GOLDEN_APPLE, 8));
+            player.getInventory().setItem(3, new ItemStack(Material.COOKED_BEEF, 64));
+            player.getInventory().setItem(8, new ItemStack(Material.ARROW, 32));
+            player.getInventory().setItemInOffHand(new ItemStack(Material.SHIELD));
+        } else if (kit.equals("TRIDENT")) {
+            player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
+            player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
+            player.getInventory().setLeggings(new ItemStack(Material.DIAMOND_LEGGINGS));
+            player.getInventory().setBoots(new ItemStack(Material.DIAMOND_BOOTS));
+            ItemStack trident = new ItemStack(Material.TRIDENT);
+            trident.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.LOYALTY, 3);
+            player.getInventory().setItem(0, trident);
+            player.getInventory().setItem(1, new ItemStack(Material.WATER_BUCKET));
+            player.getInventory().setItem(2, new ItemStack(Material.GOLDEN_APPLE, 16));
         } else if (kit.equals("NODEBUFF")) {
             player.getInventory().setHelmet(new ItemStack(Material.DIAMOND_HELMET));
             player.getInventory().setChestplate(new ItemStack(Material.DIAMOND_CHESTPLATE));
@@ -462,6 +529,35 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
                 player.getInventory().setItem(i, pot.clone());
             }
         }
+        
+        // Add default enchantments for longer fights
+        if (!kit.equals("SUMO")) {
+            for (ItemStack item : player.getInventory().getArmorContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    if (!item.containsEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL)) {
+                        item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.PROTECTION_ENVIRONMENTAL, 2);
+                    }
+                    if (!item.containsEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY)) {
+                        item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+                    }
+                }
+            }
+            for (int i = 0; i < player.getInventory().getSize(); i++) {
+                ItemStack item = player.getInventory().getItem(i);
+                if (item != null && item.getType() != Material.AIR) {
+                    String name = item.getType().name();
+                    if (name.endsWith("_SWORD") || name.endsWith("_AXE")) {
+                        if (!item.containsEnchantment(org.bukkit.enchantments.Enchantment.DAMAGE_ALL)) {
+                            item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DAMAGE_ALL, 1);
+                        }
+                        if (!item.containsEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY)) {
+                            item.addUnsafeEnchantment(org.bukkit.enchantments.Enchantment.DURABILITY, 3);
+                        }
+                    }
+                }
+            }
+        }
+        
         player.updateInventory();
     }
 
@@ -494,8 +590,15 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             loser.sendTitle(this.cc("&cDEFEAT"), this.cc("&fAgainst &e" + winner.getName()), 5, 35, 10);
         }
         if (getConfig().getBoolean("protection.remove-projectiles-on-end", true)) {
-            this.removeNearbyProjectiles();
+            this.removeNearbyArenaEntities();
         }
+        
+        // Rollback placed blocks
+        for (int i = duel.placedBlocks.size() - 1; i >= 0; i--) {
+            duel.placedBlocks.get(i).update(true, true); // applyPhysics = true to make water recede
+        }
+        duel.placedBlocks.clear();
+        
         long delay = Math.max(0L, getConfig().getLong("arena.end-delay-ticks", 40L));
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
             this.restorePlayer(p1, duel.p1Return, duel.p1Inv, duel.p1Armor);
@@ -545,7 +648,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         saveConfig();
     }
 
-    private void removeNearbyProjectiles() {
+    private void removeNearbyArenaEntities() {
         World world = Bukkit.getWorld(getConfig().getString("arena.world", "world"));
         if (world == null) {
             return;
@@ -554,13 +657,19 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         int maxX = Math.max(getConfig().getInt("arena.pos1.x"), getConfig().getInt("arena.pos2.x")) + 8;
         int minZ = Math.min(getConfig().getInt("arena.pos1.z"), getConfig().getInt("arena.pos2.z")) - 8;
         int maxZ = Math.max(getConfig().getInt("arena.pos1.z"), getConfig().getInt("arena.pos2.z")) + 8;
-        int minY = getConfig().getInt("arena.min-y", 140) - 8;
-        int maxY = getConfig().getInt("arena.max-y", 230) + 8;
+        int minY = Math.min(getConfig().getInt("arena.pos1.y"), getConfig().getInt("arena.pos2.y")) - 8;
+        int maxY = Math.max(getConfig().getInt("arena.pos1.y"), getConfig().getInt("arena.pos2.y")) + 8;
         
         org.bukkit.util.BoundingBox box = new org.bukkit.util.BoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
         for (Entity entity : world.getNearbyEntities(box)) {
-            if (!(entity instanceof Projectile)) continue;
-            entity.remove();
+            if (entity instanceof Player) continue;
+            if (entity instanceof Projectile || 
+                entity instanceof org.bukkit.entity.Item || 
+                entity instanceof org.bukkit.entity.EnderCrystal ||
+                entity instanceof org.bukkit.entity.ExperienceOrb ||
+                entity instanceof org.bukkit.entity.AreaEffectCloud) {
+                entity.remove();
+            }
         }
     }
 
@@ -583,6 +692,10 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         }
         double finalHealth = victim.getHealth() - event.getFinalDamage();
         if (finalHealth > 0.0) {
+            return;
+        }
+        if (victim.getInventory().getItemInMainHand().getType() == Material.TOTEM_OF_UNDYING || 
+            victim.getInventory().getItemInOffHand().getType() == Material.TOTEM_OF_UNDYING) {
             return;
         }
         event.setCancelled(true);
@@ -687,31 +800,106 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST)
     public void onBreak(BlockBreakEvent event) {
-        if (getConfig().getBoolean("protection.block-break-place-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
-            event.setCancelled(true);
+        Duel duel = this.activeDuels.get(event.getPlayer().getUniqueId());
+        if (duel != null && duel.canDamage) {
+            boolean wasPlaced = false;
+            for (org.bukkit.block.BlockState state : duel.placedBlocks) {
+                if (state.getLocation().equals(event.getBlock().getLocation())) {
+                    wasPlaced = true;
+                    break;
+                }
+            }
+            if (wasPlaced) {
+                event.setCancelled(false);
+            } else if (getConfig().getBoolean("protection.block-break-place-in-arena", true)) {
+                event.setCancelled(true);
+            }
+        } else {
+            if (!event.isCancelled() && getConfig().getBoolean("protection.block-break-place-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
+                event.setCancelled(true);
+            }
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST)
     public void onPlace(BlockPlaceEvent event) {
-        if (getConfig().getBoolean("protection.block-break-place-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
-            event.setCancelled(true);
+        Duel duel = this.activeDuels.get(event.getPlayer().getUniqueId());
+        if (duel != null && duel.canDamage) {
+            event.setCancelled(false);
+            duel.placedBlocks.add(event.getBlockReplacedState());
+        } else {
+            if (!event.isCancelled() && getConfig().getBoolean("protection.block-break-place-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
+                event.setCancelled(true);
+            }
         }
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST)
     public void onBucketEmpty(PlayerBucketEmptyEvent event) {
-        if (getConfig().getBoolean("protection.block-buckets-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
-            event.setCancelled(true);
+        Duel duel = this.activeDuels.get(event.getPlayer().getUniqueId());
+        if (duel != null && duel.canDamage) {
+            event.setCancelled(false);
+            duel.placedBlocks.add(event.getBlock().getState());
+        } else {
+            if (!event.isCancelled() && getConfig().getBoolean("protection.block-buckets-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority=EventPriority.HIGHEST)
+    public void onBucketFill(PlayerBucketFillEvent event) {
+        Duel duel = this.activeDuels.get(event.getPlayer().getUniqueId());
+        if (duel != null && duel.canDamage) {
+            boolean wasPlaced = false;
+            for (org.bukkit.block.BlockState state : duel.placedBlocks) {
+                if (state.getLocation().equals(event.getBlock().getLocation())) {
+                    wasPlaced = true;
+                    break;
+                }
+            }
+            if (wasPlaced) {
+                event.setCancelled(false);
+            } else if (getConfig().getBoolean("protection.block-buckets-in-arena", true)) {
+                event.setCancelled(true);
+            }
+        } else {
+            if (!event.isCancelled() && getConfig().getBoolean("protection.block-buckets-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
+                event.setCancelled(true);
+            }
         }
     }
 
     @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
-    public void onBucketFill(PlayerBucketFillEvent event) {
-        if (getConfig().getBoolean("protection.block-buckets-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
-            event.setCancelled(true);
+    public void onBlockForm(org.bukkit.event.block.BlockFormEvent event) {
+        if (!this.isInArena(event.getBlock().getLocation())) return;
+        if (this.activeDuels.isEmpty()) return;
+        Duel duel = this.activeDuels.values().iterator().next();
+        if (duel.canDamage) {
+            duel.placedBlocks.add(event.getBlock().getState());
+        }
+    }
+
+    @EventHandler(priority=EventPriority.HIGHEST)
+    public void onPlayerInteract(org.bukkit.event.player.PlayerInteractEvent event) {
+        Duel duel = this.activeDuels.get(event.getPlayer().getUniqueId());
+        if (duel != null && duel.canDamage) {
+            event.setCancelled(false);
+            event.setUseItemInHand(org.bukkit.event.Event.Result.ALLOW);
+            event.setUseInteractedBlock(org.bukkit.event.Event.Result.ALLOW);
+        }
+    }
+
+    @EventHandler(priority=EventPriority.HIGHEST)
+    public void onProjectileLaunch(org.bukkit.event.entity.ProjectileLaunchEvent event) {
+        if (event.getEntity().getShooter() instanceof Player) {
+            Player player = (Player) event.getEntity().getShooter();
+            Duel duel = this.activeDuels.get(player.getUniqueId());
+            if (duel != null && duel.canDamage) {
+                event.setCancelled(false);
+            }
         }
     }
 
@@ -720,7 +908,12 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         if (!getConfig().getBoolean("protection.deny-mob-spawn-in-arena", true)) {
             return;
         }
-        if (event.getEntity() instanceof Player) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player || 
+            entity instanceof Projectile || 
+            entity instanceof org.bukkit.entity.Item ||
+            entity instanceof org.bukkit.entity.ExperienceOrb ||
+            entity instanceof org.bukkit.entity.EnderCrystal) {
             return;
         }
         if (this.isInArena(event.getLocation())) {
@@ -775,15 +968,17 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             return false;
         }
         int x1 = getConfig().getInt("arena.pos1.x");
+        int y1 = getConfig().getInt("arena.pos1.y");
         int z1 = getConfig().getInt("arena.pos1.z");
         int x2 = getConfig().getInt("arena.pos2.x");
+        int y2 = getConfig().getInt("arena.pos2.y");
         int z2 = getConfig().getInt("arena.pos2.z");
         int minX = Math.min(x1, x2);
         int maxX = Math.max(x1, x2);
+        int minY = Math.min(y1, y2);
+        int maxY = Math.max(y1, y2);
         int minZ = Math.min(z1, z2);
         int maxZ = Math.max(z1, z2);
-        int minY = getConfig().getInt("arena.min-y", Math.min(getConfig().getInt("arena.pos1.y"), getConfig().getInt("arena.pos2.y")));
-        int maxY = getConfig().getInt("arena.max-y", Math.max(getConfig().getInt("arena.pos1.y"), getConfig().getInt("arena.pos2.y")));
         return location.getBlockX() >= minX && location.getBlockX() <= maxX && location.getBlockY() >= minY && location.getBlockY() <= maxY && location.getBlockZ() >= minZ && location.getBlockZ() <= maxZ;
     }
 
@@ -915,7 +1110,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
                 }
                 String kitName = args[1].toUpperCase();
                 getConfig().set("kits." + kitName, null);
-                if (Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "NOKIT").contains(kitName)) {
+                if (Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "BOW", "AXE", "TRIDENT", "NOKIT").contains(kitName)) {
                     getConfig().set("deleted-default-kits." + kitName, true);
                 }
                 saveConfig();
@@ -999,7 +1194,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             return this.filter(names, args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("invite")) {
-            List<String> kits = new ArrayList<>(Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "NOKIT"));
+            List<String> kits = new ArrayList<>(Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "BOW", "AXE", "TRIDENT", "NOKIT"));
             if (getConfig().getConfigurationSection("kits") != null) {
                 for (String k : getConfig().getConfigurationSection("kits").getKeys(false)) {
                     if (!kits.contains(k.toUpperCase())) kits.add(k.toUpperCase());
@@ -1089,6 +1284,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         final long startedAt = System.currentTimeMillis();
         boolean canDamage = false;
         boolean ending = false;
+        final java.util.List<org.bukkit.block.BlockState> placedBlocks = new java.util.ArrayList<>();
 
         Duel(UUID p1, UUID p2, Location p1Return, Location p2Return, String kit) {
             this.p1 = p1;

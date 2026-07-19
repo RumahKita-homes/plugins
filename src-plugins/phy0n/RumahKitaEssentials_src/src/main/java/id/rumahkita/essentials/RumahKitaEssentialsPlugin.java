@@ -5,12 +5,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import id.rumahkita.admin.RumahKitaAdminPlugin;
 import id.rumahkita.utilities.RumahKitaUtilitiesPlugin;
 import id.rumahkita.warps.RumahKitaWarpsPlugin;
+import id.rumahkita.spawn.RumahKitaSpawnPlugin;
 
 public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
     private RumahKitaAdminPlugin adminModule;
     private RumahKitaUtilitiesPlugin utilitiesModule;
     private RumahKitaWarpsPlugin warpsModule;
+    private RumahKitaSpawnPlugin spawnModule;
 
     public void onEnable() {
         // Save default config from all modules if needed, or handle in modules
@@ -28,6 +30,9 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
         warpsModule = new RumahKitaWarpsPlugin(this);
         warpsModule.onEnable();
 
+        spawnModule = new RumahKitaSpawnPlugin(this);
+        spawnModule.onEnable();
+
         getLogger().info("RumahKita Essentials v1.0.0 Enabled.");
     }
 
@@ -40,6 +45,9 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
         }
         if (warpsModule != null) {
             warpsModule.onDisable();
+        }
+        if (spawnModule != null) {
+            spawnModule.onDisable();
         }
         getLogger().info("RumahKita Essentials Disabled.");
     }

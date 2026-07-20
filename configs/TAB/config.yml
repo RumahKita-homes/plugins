@@ -4,7 +4,7 @@ header-footer:
     default:
       header:
         - ""
-        - "&d&lRUMAHKITA &fS2"
+        - "&d&lRUMAHKITA &f&lS2"
         - "      &fSurvival &8• &fEconomy &8• &fGuild      "
         - ""
       footer:
@@ -91,6 +91,7 @@ scoreboard:
       lines:
         - "%luckperms_prefix%%player%"
         - "&a$ &fRp%rke_balance_short%"
+        - "&e⌚ &f%statistic_hours_played%h"
 
 layout:
   enabled: false

@@ -584,6 +584,8 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         this.activeDuels.remove(duel.p1);
         this.activeDuels.remove(duel.p2);
         if (winner != null && loser != null) {
+            winner.incrementStatistic(org.bukkit.Statistic.PLAYER_KILLS);
+            loser.incrementStatistic(org.bukkit.Statistic.DEATHS);
             this.msg(winner, this.pref() + this.replace(getConfig().getString("messages.match-win"), "%loser%", loser.getName()));
             this.msg(loser, this.pref() + this.replace(getConfig().getString("messages.match-lose"), "%winner%", winner.getName()));
             winner.sendTitle(this.cc("&aVICTORY!"), this.cc("&fAgainst &e" + loser.getName()), 5, 35, 10);

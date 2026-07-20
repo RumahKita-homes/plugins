@@ -31,7 +31,12 @@ public final class Text {
     }
 
     public static String prefixed(RumahKitaGuildsPlugin plugin, String path) {
-        return plugin.getConfig().getString("messages." + path, path);
+        String def = path;
+        if (path.equals("teleport-start")) def = "&eTeleporting to Guild Home in &c%seconds% &eseconds... Do not move!";
+        if (path.equals("teleport-cancelled")) def = "&cTeleport cancelled because you moved!";
+        if (path.equals("teleport-cooldown")) def = "&cWait &e%seconds% seconds &cbefore using Guild Home again.";
+        if (path.equals("teleport-done")) def = "&aSuccessfully teleported to Guild Home!";
+        return plugin.getConfig().getString("messages." + path, def);
     }
 
     public static String replace(String text, String ... replacements) {

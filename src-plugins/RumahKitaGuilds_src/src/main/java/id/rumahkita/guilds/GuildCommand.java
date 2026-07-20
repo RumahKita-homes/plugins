@@ -219,7 +219,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 3) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild create <TAG> <Nama Guild>");
+            Text.msg((CommandSender)player, "&eUsage: /guild create <TAG> <Guild Name>");
             return;
         }
         String tag = args[1];
@@ -262,7 +262,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild invite <player>");
+            Text.msg((CommandSender)player, "&eUsage: /guild invite <player>");
             return;
         }
         Guild guild = this.guildManager.getGuild(player);
@@ -299,7 +299,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild accept <TAG>");
+            Text.msg((CommandSender)player, "&eUsage: /guild accept <TAG>");
             return;
         }
         if (this.guildManager.hasGuild(player.getUniqueId())) {
@@ -375,7 +375,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild kick <player>");
+            Text.msg((CommandSender)player, "&eUsage: /guild kick <player>");
             return;
         }
         Guild guild = this.guildManager.getGuild(player);
@@ -430,7 +430,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, promote ? "&eGunakan: /guild promote <player>" : "&eGunakan: /guild demote <player>");
+            Text.msg((CommandSender)player, promote ? "&eUsage: /guild promote <player>" : "&eUsage: /guild demote <player>");
             return;
         }
         UUID targetUuid = this.guildManager.findMember(guild, args[1]);
@@ -440,7 +440,7 @@ implements TabExecutor {
         }
         if (promote) {
             if (guild.getRole(targetUuid) != GuildRole.MEMBER) {
-                Text.msg((CommandSender)player, "&cPlayer itu bukan Member.");
+                Text.msg((CommandSender)player, "&cThat player is not a Member.");
                 return;
             }
             guild.setRole(targetUuid, GuildRole.ADMIN);
@@ -448,7 +448,7 @@ implements TabExecutor {
             Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "promoted"), "%player%", this.guildManager.getOfflineName(targetUuid)));
         } else {
             if (guild.getRole(targetUuid) != GuildRole.ADMIN) {
-                Text.msg((CommandSender)player, "&cPlayer itu bukan Admin.");
+                Text.msg((CommandSender)player, "&cThat player is not an Admin.");
                 return;
             }
             guild.setRole(targetUuid, GuildRole.MEMBER);
@@ -491,7 +491,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild transfer <player>");
+            Text.msg((CommandSender)player, "&eUsage: /guild transfer <player>");
             return;
         }
         UUID targetUuid = this.guildManager.findMember(guild, args[1]);
@@ -515,7 +515,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild rename <nama baru>");
+            Text.msg((CommandSender)player, "&eUsage: /guild rename <new name>");
             return;
         }
         String newName = this.join(args, 1);
@@ -536,7 +536,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild settag <tag baru>");
+            Text.msg((CommandSender)player, "&eUsage: /guild settag <new tag>");
             return;
         }
         if (this.guildManager.changeTag(guild, args[1])) {
@@ -648,7 +648,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /guild info <tag>");
+            Text.msg(sender, "&eUsage: /guild info <tag>");
             return;
         }
         Guild guild = this.guildManager.getGuildByTag(args[1]);
@@ -659,7 +659,7 @@ implements TabExecutor {
         Text.msg(sender, "&bGuild: &f" + guild.getName() + " &8[&b" + guild.getTag() + "&8]");
         Text.msg(sender, "&7Leader: &f" + this.guildManager.getOfflineName(guild.getLeader()));
         Text.msg(sender, "&7Members: &f" + guild.size());
-        Text.msg(sender, "&7Home: &f" + (guild.getHome() == null ? "Belum diset" : "Sudah diset"));
+        Text.msg(sender, "&7Home: &f" + (guild.getHome() == null ? "Not set" : "Set"));
     }
 
     private void adminForceDisband(CommandSender sender, String[] args) {
@@ -668,7 +668,7 @@ implements TabExecutor {
             return;
         }
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /guild forcedisband <tag>");
+            Text.msg(sender, "&eUsage: /guild forcedisband <tag>");
             return;
         }
         Guild guild = this.guildManager.getGuildByTag(args[1]);
@@ -678,19 +678,19 @@ implements TabExecutor {
         }
         String name = guild.getName();
         this.guildManager.disband(guild);
-        Text.msg(sender, "&aGuild " + name + " berhasil dibubarkan paksa.");
+        Text.msg(sender, "&aGuild " + name + " has been forcefully disbanded.");
     }
 
     private void help(CommandSender sender) {
         Text.msg(sender, "&8&m----------------------------");
         Text.msg(sender, "&bRumahKitaGuilds Commands");
-        Text.msg(sender, "&e/guild &7- buka GUI");
-        Text.msg(sender, "&e/guild create <TAG> <Nama>");
-        Text.msg(sender, "&e/guild list");
-        Text.msg(sender, "&e/guild chat <pesan>");
+        Text.msg(sender, "&e/guild &7- open GUI");
+        Text.msg(sender, "&e/guild create <TAG> <Name>");
+        Text.msg(sender, "&e/guild list &7- list guilds");
+        Text.msg(sender, "&e/guild chat <message>");
         Text.msg(sender, "&e/guildchat &7- toggle guild chat");
-        Text.msg(sender, "&e/guild war <tag> &7- ajukan Guild War");
-        Text.msg(sender, "&e/guild wallet &7- wallet guild");
+        Text.msg(sender, "&e/guild war <tag> &7- challenge to Guild War");
+        Text.msg(sender, "&e/guild wallet &7- guild wallet");
         Text.msg(sender, "&e/guild home / sethome / delhome");
         Text.msg(sender, "&8&m----------------------------");
     }

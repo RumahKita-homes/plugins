@@ -211,9 +211,11 @@ TabExecutor {
     public void onPlayerJoin(PlayerJoinEvent e) {
         if (this.dbManager != null && this.dbManager.isEnabled()) {
             this.dbManager.loadBalance(e.getPlayer().getUniqueId()).thenAccept(bal -> {
-                if (bal >= 0L) {
-                    this.balancesCfg.set("balances." + e.getPlayer().getUniqueId().toString(), bal);
-                }
+                Bukkit.getScheduler().runTask(this, () -> {
+                    if (bal >= 0L) {
+                        this.balancesCfg.set("balances." + e.getPlayer().getUniqueId().toString(), bal);
+                    }
+                });
             });
         }
     }
@@ -464,6 +466,14 @@ TabExecutor {
     private void trySave(FileConfiguration cfg, File file) {
         try {
             cfg.save(file);
+            if (file.getName().equals("balances.yml") && this.getConfig().getBoolean("settings.auto-backup", true)) {
+                String dateHr = new java.text.SimpleDateFormat("yyyy-MM-dd_HH").format(new java.util.Date());
+                File backupFile = new File(file.getParentFile(), "backups/balances_" + dateHr + ".yml");
+                if (!backupFile.exists()) {
+                    backupFile.getParentFile().mkdirs();
+                    java.nio.file.Files.copy(file.toPath(), backupFile.toPath());
+                }
+            }
         }
         catch (Exception e) {
             this.getLogger().warning("Failed saving " + file.getName() + ": " + e.getMessage());
@@ -486,7 +496,7 @@ TabExecutor {
             return this.handleBal(sender, args);
         }
         if (name.equals("baltop")) {
-            return this.handleBaltop(sender);
+            return this.handleBaltop(sender, false);
         }
         if (name.equals("hidebal")) {
             return this.handleHidebal(sender);
@@ -625,7 +635,7 @@ TabExecutor {
         }
         return true;
     }
-    private boolean handleBaltop(CommandSender sender) {
+    private boolean handleBaltop(CommandSender sender, boolean bypassHide) {
         ConfigurationSection sec = this.balancesCfg.getConfigurationSection("balances");
         if (sec == null) {
             this.msg(sender, "&cNo balance data yet.");
@@ -634,7 +644,7 @@ TabExecutor {
         
         java.util.List<java.util.Map.Entry<String, Long>> top = new java.util.ArrayList<>();
         for (String uuidStr : sec.getKeys(false)) {
-            if (this.balancesCfg.getBoolean("players." + uuidStr + ".hidden", false)) continue;
+            if (!bypassHide && this.balancesCfg.getBoolean("players." + uuidStr + ".hidden", false)) continue;
             
             long bal = this.balancesCfg.getLong("balances." + uuidStr, 0L);
             String name = this.balancesCfg.getString("players." + uuidStr + ".name");
@@ -818,6 +828,7 @@ TabExecutor {
             this.msg(sender, "&a /rke reload | save | placeholders | demandupdate");
             this.msg(sender, "&a /rke migratebalances");
             this.msg(sender, "&a /rke migratemysql &7- Pindah data balances ke MySQL");
+            this.msg(sender, "&a /rke baltop &7- Lihat baltop (bypass hidebal)");
             this.msg(sender, "&e--- Player Commands ---");
             this.msg(sender, "&a /market atau /shop &7- Buka Menu Toko");
             this.msg(sender, "&a /bal or /money &7- Check Balance");
@@ -830,6 +841,9 @@ TabExecutor {
             this.reloadAll();
             this.msg(sender, this.m("reloaded"));
             return true;
+        }
+        if (sub.equals("baltop")) {
+            return this.handleBaltop(sender, true);
         }
         if (sub.equals("save")) {
             if (this.tradeManager != null) {
@@ -1697,10 +1711,23 @@ TabExecutor {
     }
 
     public void setBalance(UUID uuid, long amount) {
+        long oldBal = this.getBalance(uuid);
         long newBal = Math.max(0L, amount);
         this.balancesCfg.set("balances." + String.valueOf(uuid), newBal);
         if (this.dbManager != null && this.dbManager.isEnabled()) {
             this.dbManager.saveBalanceAsync(uuid, newBal);
+        }
+        if (oldBal != newBal) {
+            StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+            String caller = "unknown";
+            for (int i = 2; i < stack.length; i++) {
+                String c = stack[i].getClassName() + "." + stack[i].getMethodName();
+                if (!c.contains("setBalance") && !c.contains("addBalance") && !c.contains("takeBalance")) {
+                    caller = c;
+                    break;
+                }
+            }
+            this.logLine("economy_changes.log", this.nowLine() + " uuid=" + uuid + " old=" + oldBal + " new=" + newBal + " diff=" + (newBal - oldBal) + " caller=" + caller);
         }
     }
 
@@ -1995,7 +2022,7 @@ TabExecutor {
                 return Collections.emptyList();
             }
             if (args.length == 1) {
-                return this.filter(Arrays.asList("give", "take", "set", "balance", "voucher", "reload", "save", "placeholders", "demandupdate", "migratebalances", "migratemysql"), args[0]);
+                return this.filter(Arrays.asList("give", "take", "set", "balance", "voucher", "reload", "save", "placeholders", "demandupdate", "migratebalances", "migratemysql", "baltop"), args[0]);
             }
             if (args.length == 2) {
                 if (args[0].equalsIgnoreCase("voucher")) {

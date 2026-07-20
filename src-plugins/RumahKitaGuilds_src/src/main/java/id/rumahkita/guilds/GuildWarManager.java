@@ -98,7 +98,7 @@ implements Listener {
             return;
         }
         if (!this.plugin.getConfig().getBoolean("guild-war.enabled", true)) {
-            Text.msg((CommandSender)player, this.pref() + "&cGuild War sedang dimatikan di config.");
+            Text.msg((CommandSender)player, this.pref() + "&cGuild War is currently disabled in config.");
             return;
         }
         if (args.length < 2) {
@@ -148,7 +148,7 @@ implements Listener {
                 return;
             }
             if (args.length < 3) {
-                Text.msg((CommandSender)player, "&eGunakan: /guild wallet withdraw <amount|all>");
+                Text.msg((CommandSender)player, "&eUsage: /guild wallet withdraw <amount|all>");
                 return;
             }
             if (args[2].equalsIgnoreCase("all")) {
@@ -158,16 +158,16 @@ implements Listener {
                     amount = Integer.parseInt(args[2]);
                 }
                 catch (NumberFormatException ex) {
-                    Text.msg((CommandSender)player, "&cAmount harus angka atau all.");
+                    Text.msg((CommandSender)player, "&cAmount must be a number or 'all'.");
                     return;
                 }
             }
             if (amount <= 0) {
-                Text.msg((CommandSender)player, "&cWallet guild tidak punya emerald untuk diambil.");
+                Text.msg((CommandSender)player, "&cGuild wallet does not have any emeralds to withdraw.");
                 return;
             }
             if (!guild.withdrawEmeraldWallet(amount)) {
-                Text.msg((CommandSender)player, "&cEmerald wallet guild tidak cukup.");
+                Text.msg((CommandSender)player, "&cNot enough emeralds in guild wallet.");
                 return;
             }
             HashMap<Integer, ItemStack> left = player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.EMERALD, amount)});
@@ -175,19 +175,19 @@ implements Listener {
                 player.getWorld().dropItemNaturally(player.getLocation(), item);
             }
             this.guildManager.save();
-            Text.msg((CommandSender)player, this.pref() + "&aKamu mengambil &e" + amount + " Emerald &adari Guild Wallet.");
+            Text.msg((CommandSender)player, this.pref() + "&aYou withdrew &e" + amount + " Emeralds &afrom the Guild Wallet.");
         } else {
             Text.msg((CommandSender)player, "&8&m------------------------");
             Text.msg((CommandSender)player, "&bGuild Wallet &8[&f" + guild.getTag() + "&8]");
-            Text.msg((CommandSender)player, "&7Emerald: &a" + guild.getEmeraldWallet());
-            Text.msg((CommandSender)player, "&7Leader/Admin bisa pakai: &e/guild wallet withdraw <amount|all>");
+            Text.msg((CommandSender)player, "&7Emeralds: &a" + guild.getEmeraldWallet());
+            Text.msg((CommandSender)player, "&7Leader/Admin can use: &e/guild wallet withdraw <amount|all>");
             Text.msg((CommandSender)player, "&8&m------------------------");
         }
     }
 
     private void challenge(Player player, String enemyTag) {
         if (this.activeWar != null) {
-            Text.msg((CommandSender)player, this.pref() + "&cSedang ada Guild War berjalan.");
+            Text.msg((CommandSender)player, this.pref() + "&cThere is an ongoing Guild War.");
             return;
         }
         Guild guild = this.guildManager.getGuild(player);
@@ -196,7 +196,7 @@ implements Listener {
             return;
         }
         if (!this.canManageWar(guild, player.getUniqueId())) {
-            Text.msg((CommandSender)player, this.pref() + "&cHanya Leader atau Admin guild yang bisa mengajukan Guild War.");
+            Text.msg((CommandSender)player, this.pref() + "&cOnly Guild Leader or Admin can challenge to a Guild War.");
             return;
         }
         Guild enemy = this.guildManager.getGuildByTag(enemyTag);
@@ -205,29 +205,29 @@ implements Listener {
             return;
         }
         if (enemy == guild) {
-            Text.msg((CommandSender)player, this.pref() + "&cTidak bisa war melawan guild sendiri.");
+            Text.msg((CommandSender)player, this.pref() + "&cCannot declare war against your own guild.");
             return;
         }
         int minOnline = this.plugin.getConfig().getInt("guild-war.min-online-per-guild", 1);
         if (this.onlineMembers(guild).size() < minOnline || this.onlineMembers(enemy).size() < minOnline) {
-            Text.msg((CommandSender)player, this.pref() + "&cMasing-masing guild minimal harus punya &e" + minOnline + " &cplayer online.");
+            Text.msg((CommandSender)player, this.pref() + "&cEach guild must have at least &e" + minOnline + " &conline players.");
             return;
         }
         long expire = System.currentTimeMillis() + (long)this.plugin.getConfig().getInt("guild-war.challenge-expire-seconds", 120) * 1000L;
         Challenge challenge = new Challenge(guild.getTag(), enemy.getTag(), player.getUniqueId(), expire);
         this.challenges.put(enemy.getTag().toUpperCase(Locale.ROOT), challenge);
-        Text.msg((CommandSender)player, this.pref() + "&aGuild War diajukan ke guild &e" + enemy.getTag() + "&a.");
+        Text.msg((CommandSender)player, this.pref() + "&aGuild War challenge sent to guild &e" + enemy.getTag() + "&a.");
         for (Player p : this.onlineMembers(enemy)) {
             GuildRole role = enemy.getRole(p.getUniqueId());
             if (!role.atLeast(GuildRole.ADMIN)) continue;
-            Text.msg((CommandSender)p, this.pref() + "&eGuild &b" + guild.getTag() + " &emengajak Guild War. Ketik &a/guild war accept " + guild.getTag() + " &euntuk mulai.");
+            Text.msg((CommandSender)p, this.pref() + "&eGuild &b" + guild.getTag() + " &ehas challenged you to a Guild War. Type &a/guild war accept " + guild.getTag() + " &eto start.");
             p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
         }
     }
 
     private void accept(Player player, String[] args) {
         if (this.activeWar != null) {
-            Text.msg((CommandSender)player, this.pref() + "&cSedang ada Guild War berjalan.");
+            Text.msg((CommandSender)player, this.pref() + "&cThere is an ongoing Guild War.");
             return;
         }
         Guild guild = this.guildManager.getGuild(player);
@@ -236,22 +236,22 @@ implements Listener {
             return;
         }
         if (!this.canManageWar(guild, player.getUniqueId())) {
-            Text.msg((CommandSender)player, this.pref() + "&cHanya Leader atau Admin guild yang bisa accept Guild War.");
+            Text.msg((CommandSender)player, this.pref() + "&cOnly Guild Leader or Admin can accept Guild War challenges.");
             return;
         }
         if (args.length < 3) {
-            Text.msg((CommandSender)player, "&eGunakan: /guild war accept <tag musuh>");
+            Text.msg((CommandSender)player, "&eUsage: /guild war accept <enemy tag>");
             return;
         }
         Challenge ch = this.challenges.get(guild.getTag().toUpperCase(Locale.ROOT));
         if (ch == null || !ch.challengerTag.equalsIgnoreCase(args[2]) || ch.expireAt < System.currentTimeMillis()) {
             this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
-            Text.msg((CommandSender)player, this.pref() + "&cChallenge tidak ditemukan atau sudah expired.");
+            Text.msg((CommandSender)player, this.pref() + "&cChallenge not found or has expired.");
             return;
         }
         Guild challenger = this.guildManager.getGuildByTag(ch.challengerTag);
         if (challenger == null) {
-            Text.msg((CommandSender)player, this.pref() + "&cGuild penantang tidak ditemukan.");
+            Text.msg((CommandSender)player, this.pref() + "&cChallenger guild not found.");
             return;
         }
         this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
@@ -265,11 +265,11 @@ implements Listener {
             return;
         }
         if (!this.canManageWar(guild, player.getUniqueId())) {
-            Text.msg((CommandSender)player, this.pref() + "&cHanya Leader atau Admin guild yang bisa menolak Guild War.");
+            Text.msg((CommandSender)player, this.pref() + "&cOnly Guild Leader or Admin can deny Guild War challenges.");
             return;
         }
         this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
-        Text.msg((CommandSender)player, this.pref() + "&cChallenge Guild War ditolak.");
+        Text.msg((CommandSender)player, this.pref() + "&cGuild War challenge denied.");
     }
 
     private void startCountdown(Guild g1, Guild g2) {
@@ -277,7 +277,7 @@ implements Listener {
         List<Player> side1 = this.onlineMembers(g1);
         List<Player> side2 = this.onlineMembers(g2);
         if (side1.isEmpty() || side2.isEmpty()) {
-            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&cGuild War batal karena salah satu guild tidak punya member online."));
+            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&cGuild War cancelled because one of the guilds has no online members."));
             return;
         }
         this.activeWar = new War(g1.getTag(), g2.getTag());
@@ -292,7 +292,7 @@ implements Listener {
         countdown = this.plugin.getConfig().getInt("guild-war.countdown-seconds", 10);
         this.activeWar.countdownLeft = countdown;
         this.activeWar.running = false;
-        Bukkit.broadcastMessage((String)Text.color(this.pref() + "&dGuild War &f" + g1.getTag() + " &7vs &f" + g2.getTag() + " &edimulai dalam &c" + countdown + " detik&e!"));
+        Bukkit.broadcastMessage((String)Text.color(this.pref() + "&dGuild War &f" + g1.getTag() + " &7vs &f" + g2.getTag() + " &estarts in &c" + countdown + " seconds&e!"));
         this.ticker = Bukkit.getScheduler().runTaskTimer((Plugin)this.plugin, this::tickWar, 20L, 20L);
     }
 
@@ -322,10 +322,10 @@ implements Listener {
             if (this.activeWar.countdownLeft <= 0) {
                 this.activeWar.running = true;
                 this.activeWar.endsAt = System.currentTimeMillis() + (long)this.plugin.getConfig().getInt("guild-war.duration-seconds", 300) * 1000L;
-                this.broadcastWar("&aGuild War dimulai! Inventory tidak dihapus. Fight!");
+                this.broadcastWar("&aGuild War started! Inventory is not cleared. Fight!");
             } else {
                 for (Player p : this.activePlayers()) {
-                    p.sendTitle(Text.color("&d&lGUILD WAR"), Text.color("&eMulai dalam &c" + this.activeWar.countdownLeft + " &edetik"), 0, 25, 5);
+                    p.sendTitle(Text.color("&d&lGUILD WAR"), Text.color("&eStarts in &c" + this.activeWar.countdownLeft + " &eseconds"), 0, 25, 5);
                 }
                 --this.activeWar.countdownLeft;
             }
@@ -352,7 +352,7 @@ implements Listener {
         } else if (s2 > s1) {
             this.endWar("Score " + s1 + " - " + s2, this.activeWar.guild2);
         } else {
-            this.endWar("Score seri " + s1 + " - " + s2, null);
+            this.endWar("Score tie " + s1 + " - " + s2, null);
         }
     }
 
@@ -373,9 +373,9 @@ implements Listener {
                 winner.addEmeraldWallet(reward);
                 this.guildManager.save();
             }
-            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&aGuild War selesai! Pemenang: &e" + winnerTag + " &7(" + reason + ") &a+" + reward + " Emerald ke Guild Wallet."));
+            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&aGuild War ended! Winner: &e" + winnerTag + " &7(" + reason + ") &a+" + reward + " Emeralds to Guild Wallet."));
         } else {
-            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&eGuild War selesai seri! &7(" + reason + ") &fTidak ada reward."));
+            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&eGuild War ended in a tie! &7(" + reason + ") &fNo rewards."));
         }
         if (this.plugin.getConfig().getBoolean("guild-war.restore-location-after-war", true)) {
             for (UUID uuid : war.participants) {
@@ -456,7 +456,7 @@ implements Listener {
             if (kg != null && vg != null && !kg.equalsIgnoreCase(vg)) {
                 this.activeWar.kills.put(killer.getUniqueId(), this.activeWar.kills.getOrDefault(killer.getUniqueId(), 0) + 1);
                 if (this.plugin.getConfig().getBoolean("guild-war.announce-kills", true)) {
-                    this.broadcastWar("&e" + killer.getName() + " &7membunuh &c" + victim.getName() + " &8(&b" + kg + " &7+1&8)");
+                    this.broadcastWar("&e" + killer.getName() + " &7killed &c" + victim.getName() + " &8(&b" + kg + " &7+1&8)");
                 }
             }
         }
@@ -482,7 +482,7 @@ implements Listener {
                 p.setHealth(Math.min(p.getMaxHealth(), 20.0));
                 p.setFoodLevel(20);
                 p.setSaturation(10.0f);
-                p.sendTitle(Text.color("&cKamu mati!"), Text.color("&7Respawn ke spawn guild, lanjut main."), 5, 35, 10);
+                p.sendTitle(Text.color("&cYou died!"), Text.color("&7Respawning to guild spawn, keep playing."), 5, 35, 10);
             }
         }, 2L);
     }
@@ -511,7 +511,7 @@ implements Listener {
             return;
         }
         event.setCancelled(true);
-        Text.msg((CommandSender)player, this.pref() + this.plugin.getConfig().getString("guild-war.command-blocker.block-message", "&cKamu tidak bisa memakai command saat Guild War."));
+        Text.msg((CommandSender)player, this.pref() + this.plugin.getConfig().getString("guild-war.command-blocker.block-message", "&cYou cannot use commands during Guild War."));
     }
 
     private boolean isCommandAllowedDuringWar(String command, Player player) {
@@ -545,7 +545,7 @@ implements Listener {
 
     private void status(Player player) {
         if (this.activeWar == null) {
-            Text.msg((CommandSender)player, this.pref() + "&7Tidak ada Guild War aktif.");
+            Text.msg((CommandSender)player, this.pref() + "&7No active Guild War.");
             return;
         }
         Text.msg((CommandSender)player, "&8&m------------------------");
@@ -568,21 +568,21 @@ implements Listener {
             return;
         }
         if (this.activeWar == null) {
-            Text.msg((CommandSender)player, this.pref() + "&cTidak ada Guild War aktif.");
+            Text.msg((CommandSender)player, this.pref() + "&cNo active Guild War.");
             return;
         }
-        this.endWar("Dihentikan manual", null);
+        this.endWar("Stopped manually", null);
     }
 
     private void help(Player player) {
         Text.msg((CommandSender)player, "&8&m------------------------");
         Text.msg((CommandSender)player, "&dGuild War Commands");
-        Text.msg((CommandSender)player, "&e/guild war <tag> &7- leader/admin ajukan war ke guild lain");
+        Text.msg((CommandSender)player, "&e/guild war <tag> &7- leader/admin challenge another guild");
         Text.msg((CommandSender)player, "&e/guild war accept <tag> &7- leader/admin accept war");
-        Text.msg((CommandSender)player, "&e/guild war deny &7- leader/admin tolak war");
-        Text.msg((CommandSender)player, "&e/guild war status &7- cek war aktif");
-        Text.msg((CommandSender)player, "&e/guild wallet &7- cek wallet guild");
-        Text.msg((CommandSender)player, "&e/guild wallet withdraw <amount|all> &7- leader/admin ambil emerald");
+        Text.msg((CommandSender)player, "&e/guild war deny &7- leader/admin deny war");
+        Text.msg((CommandSender)player, "&e/guild war status &7- check active war");
+        Text.msg((CommandSender)player, "&e/guild wallet &7- check guild wallet");
+        Text.msg((CommandSender)player, "&e/guild wallet withdraw <amount|all> &7- leader/admin withdraw emeralds");
         Text.msg((CommandSender)player, "&8&m------------------------");
     }
 

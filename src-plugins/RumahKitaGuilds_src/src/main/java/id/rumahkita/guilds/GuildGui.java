@@ -53,21 +53,21 @@ implements Listener {
         Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("main", ""), (int)this.plugin.getConfig().getInt("gui.size", 27), (String)Text.color(this.plugin.getConfig().getString("gui.title", "&8RumahKita Guild")));
         Guild guild = this.guildManager.getGuild(player);
         if (guild == null) {
-            inv.setItem(11, this.item(Material.DIAMOND, "&aBuat Guild", List.of("&7Gunakan:", "&e/guild create <TAG> <Nama>")));
-            inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Klik untuk melihat semua guild.")));
-            inv.setItem(15, this.item(Material.PAPER, "&eInfo", List.of("&7Kamu belum punya guild.", "&7Join guild teman atau buat sendiri.")));
+            inv.setItem(11, this.item(Material.DIAMOND, "&aCreate Guild", List.of("&7Usage:", "&e/guild create <TAG> <Name>")));
+            inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Click to view all guilds.")));
+            inv.setItem(15, this.item(Material.PAPER, "&eInfo", List.of("&7You don't have a guild.", "&7Join a friend's guild or create your own.")));
         } else {
             GuildRole role = guild.getRole(player.getUniqueId());
-            inv.setItem(10, this.item(Material.PAPER, "&bInfo Guild", List.of("&7Nama: &f" + guild.getName(), "&7Tag: &b" + guild.getTag(), "&7Role: &e" + role.displayName(this.plugin), "&7Member: &f" + guild.size() + "/" + this.guildManager.getMaxMembers())));
-            inv.setItem(11, this.item(Material.COMPASS, "&aGuild Home", List.of("&7Klik untuk teleport.", "&e/guild home")));
-            inv.setItem(12, this.item(Material.PLAYER_HEAD, "&eMembers", List.of("&7Klik untuk lihat anggota guild.")));
-            inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Klik untuk melihat semua guild.")));
-            inv.setItem(14, this.item(Material.WRITABLE_BOOK, "&dGuild Chat", List.of("&7Klik untuk toggle guild chat.", "&e/guild chat <pesan>", "&e/guildchat")));
+            inv.setItem(10, this.item(Material.PAPER, "&bGuild Info", List.of("&7Name: &f" + guild.getName(), "&7Tag: &b" + guild.getTag(), "&7Role: &e" + role.displayName(this.plugin), "&7Member: &f" + guild.size() + "/" + this.guildManager.getMaxMembers())));
+            inv.setItem(11, this.item(Material.COMPASS, "&aGuild Home", List.of("&7Click to teleport.", "&e/guild home")));
+            inv.setItem(12, this.item(Material.PLAYER_HEAD, "&eMembers", List.of("&7Click to view guild members.")));
+            inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Click to view all guilds.")));
+            inv.setItem(14, this.item(Material.WRITABLE_BOOK, "&dGuild Chat", List.of("&7Click to toggle guild chat.", "&e/guild chat <message>", "&e/guildchat")));
             if (role.atLeast(GuildRole.ADMIN)) {
                 inv.setItem(15, this.item(Material.EMERALD, "&6Manage Guild", List.of("&e/guild invite <player>", "&e/guild sethome", "&e/guild kick <player>")));
             }
             if (role == GuildRole.LEADER) {
-                inv.setItem(16, this.item(Material.NAME_TAG, "&dRename / Tag", List.of("&e/guild rename <nama>", "&e/guild settag <tag>", "&e/guild transfer <player>")));
+                inv.setItem(16, this.item(Material.NAME_TAG, "&dRename / Tag", List.of("&e/guild rename <name>", "&e/guild settag <tag>", "&e/guild transfer <player>")));
             }
             inv.setItem(22, this.item(Material.OAK_DOOR, "&cLeave Guild", List.of("&e/guild leave")));
         }
@@ -79,9 +79,9 @@ implements Listener {
         int slot = 0;
         for (Guild guild : this.guildManager.getGuilds()) {
             if (slot >= 45) break;
-            inv.setItem(slot++, this.item(Material.WHITE_BANNER, "&b" + guild.getName() + " &8[&f" + guild.getTag() + "&8]", List.of("&7Leader: &f" + this.guildManager.getOfflineName(guild.getLeader()), "&7Members: &f" + guild.size() + "/" + this.guildManager.getMaxMembers(), "", "&eKlik untuk lihat member")));
+            inv.setItem(slot++, this.item(Material.WHITE_BANNER, "&b" + guild.getName() + " &8[&f" + guild.getTag() + "&8]", List.of("&7Leader: &f" + this.guildManager.getOfflineName(guild.getLeader()), "&7Members: &f" + guild.size() + "/" + this.guildManager.getMaxMembers(), "", "&eClick to view members")));
         }
-        inv.setItem(49, this.item(Material.ARROW, "&cKembali", List.of("&7Kembali ke menu guild.")));
+        inv.setItem(49, this.item(Material.ARROW, "&cBack", List.of("&7Back to guild menu.")));
         player.openInventory(inv);
     }
 
@@ -93,7 +93,7 @@ implements Listener {
             String name = this.guildManager.getOfflineName(entry.getKey());
             inv.setItem(slot++, this.item(Material.PLAYER_HEAD, "&f" + name, List.of("&7Role: &e" + entry.getValue().displayName(this.plugin), "&7Guild: &b" + guild.getTag())));
         }
-        inv.setItem(49, this.item(Material.ARROW, "&cKembali", List.of("&7Kembali ke menu guild.")));
+        inv.setItem(49, this.item(Material.ARROW, "&cBack", List.of("&7Back to guild menu.")));
         player.openInventory(inv);
     }
 

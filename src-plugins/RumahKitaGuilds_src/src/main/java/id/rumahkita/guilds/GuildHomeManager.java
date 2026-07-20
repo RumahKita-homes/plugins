@@ -11,6 +11,10 @@
  *  org.bukkit.event.player.PlayerMoveEvent
  *  org.bukkit.plugin.Plugin
  *  org.bukkit.scheduler.BukkitTask
+ *  org.bukkit.scheduler.BukkitRunnable
+ *  org.bukkit.Sound
+ *  org.bukkit.ChatColor
+ *  me.clip.placeholderapi.PlaceholderAPI
  */
 package id.rumahkita.guilds;
 
@@ -29,6 +33,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.Sound;
+import org.bukkit.ChatColor;
+import me.clip.placeholderapi.PlaceholderAPI;
 
 public final class GuildHomeManager
 implements Listener {
@@ -53,9 +61,21 @@ implements Listener {
             Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "teleport-cooldown"), "%seconds%", String.valueOf(seconds)));
             return;
         }
-        int delay = Math.max(0, this.plugin.getConfig().getInt("guild-home.teleport-delay-seconds", 5));
+        
+        boolean inCombat = false;
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            String combatlogx = PlaceholderAPI.setPlaceholders(player, "%combatlogx_in_combat%");
+            String deluxecombat = PlaceholderAPI.setPlaceholders(player, "%deluxecombat_in_combat%");
+            if ("true".equalsIgnoreCase(combatlogx) || "yes".equalsIgnoreCase(combatlogx)) {
+                inCombat = true;
+            } else if ("true".equalsIgnoreCase(deluxecombat) || "yes".equalsIgnoreCase(deluxecombat)) {
+                inCombat = true;
+            }
+        }
+        
+        int delay = inCombat ? this.plugin.getConfig().getInt("guild-home.teleport-delay-seconds", 5) : 0;
         if (delay <= 0) {
-            this.doTeleport(player, home);
+            this.doTeleport(player, home, guild);
             return;
         }
         PendingTeleport old = this.pending.remove(player.getUniqueId());
@@ -64,19 +84,35 @@ implements Listener {
         }
         Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "teleport-start"), "%seconds%", String.valueOf(delay)));
         Location start = player.getLocation().clone();
-        BukkitTask task = Bukkit.getScheduler().runTaskLater((Plugin)this.plugin, () -> {
-            this.pending.remove(player.getUniqueId());
-            if (player.isOnline()) {
-                this.doTeleport(player, home);
+        BukkitTask task = new BukkitRunnable() {
+            int countdown = delay;
+
+            public void run() {
+                if (!player.isOnline()) {
+                    pending.remove(player.getUniqueId());
+                    this.cancel();
+                    return;
+                }
+                if (countdown > 0) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f);
+                    player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&a&l" + countdown), ChatColor.YELLOW + "Do not move!", 0, 25, 0);
+                    countdown--;
+                } else {
+                    pending.remove(player.getUniqueId());
+                    doTeleport(player, home, guild);
+                    this.cancel();
+                }
             }
-        }, (long)delay * 20L);
+        }.runTaskTimer((Plugin)this.plugin, 0L, 20L);
         this.pending.put(player.getUniqueId(), new PendingTeleport(start, task));
     }
 
-    private void doTeleport(Player player, Location home) {
+    private void doTeleport(Player player, Location home, Guild guild) {
         player.teleport(home);
         int cooldownSeconds = Math.max(0, this.plugin.getConfig().getInt("guild-home.cooldown-seconds", 60));
         this.cooldowns.put(player.getUniqueId(), System.currentTimeMillis() + (long)cooldownSeconds * 1000L);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        player.sendTitle(ChatColor.translateAlternateColorCodes('&', "&a&l" + guild.getName()), ChatColor.YELLOW + "Teleported to Guild Home!", 5, 20, 10);
         Text.msg((CommandSender)player, Text.prefixed(this.plugin, "teleport-done"));
     }
 

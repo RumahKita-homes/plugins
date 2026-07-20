@@ -11,7 +11,7 @@ settings:
     pattern: "^[A-Za-z0-9]+$"
   name:
     min-length: 3
-    max-length: 24
+    max-length: 20
   invite-expire-seconds: 120
 
 mysql:
@@ -61,47 +61,47 @@ gui:
   size: 27
 
 messages:
-  no-permission: "&cKamu tidak punya izin."
-  only-player: "&cCommand ini hanya untuk player."
-  not-in-guild: "&cKamu belum punya guild."
-  already-in-guild: "&cKamu sudah berada di guild."
-  player-not-found: "&cPlayer tidak ditemukan."
-  guild-not-found: "&cGuild tidak ditemukan."
-  guild-created: "&aGuild &e%name% &aberhasil dibuat dengan tag &b%tag%&a."
-  create-cost-missing: "&cKamu membutuhkan &b%amount% %material% &cuntuk membuat guild."
-  invalid-tag: "&cTag guild tidak valid. Gunakan huruf/angka, maksimal 5 karakter."
-  invalid-name: "&cNama guild tidak valid atau terlalu panjang."
-  duplicate-tag: "&cTag guild itu sudah dipakai."
-  duplicate-name: "&cNama guild itu sudah dipakai."
-  invite-sent: "&aInvite guild dikirim ke &e%player%&a."
-  invite-received: "&e%player% &amengundang kamu ke guild &b%guild%&a. Gunakan &e/guild accept %tag%&a."
-  invite-expired: "&cInvite guild sudah expired."
-  joined-guild: "&aKamu berhasil join guild &b%guild%&a."
-  target-already-guild: "&cPlayer itu sudah punya guild."
-  max-members: "&cGuild ini sudah mencapai batas maksimal member."
-  kicked: "&e%player% &ctelah dikeluarkan dari guild."
-  cannot-kick-leader: "&cLeader tidak bisa dikick."
-  promoted: "&e%player% &aberhasil dipromote menjadi Admin."
-  demoted: "&e%player% &aberhasil didemote menjadi Member."
-  transfer-done: "&aLeader guild berhasil dipindahkan ke &e%player%&a."
-  rename-done: "&aNama guild berhasil diganti menjadi &e%name%&a."
-  tag-done: "&aTag guild berhasil diganti menjadi &b%tag%&a."
-  home-set: "&aGuild home berhasil diset."
-  home-deleted: "&aGuild home berhasil dihapus."
-  home-not-set: "&cGuild home belum diset."
-  teleport-start: "&aTeleport ke guild home dalam &e%seconds% &adetik. Jangan bergerak."
-  teleport-cancelled: "&cTeleport dibatalkan karena kamu bergerak."
-  teleport-cooldown: "&cTunggu &e%seconds% &cdetik lagi untuk menggunakan guild home."
-  teleport-done: "&aBerhasil teleport ke guild home."
-  disbanded: "&cGuild &e%guild% &ctelah dibubarkan."
-  leave-leader: "&cLeader tidak bisa leave sebelum transfer leader atau disband guild."
-  left-guild: "&aKamu keluar dari guild."
-  reloaded: "&aConfig dan data berhasil direload."
-  admin-saved: "&aData guild berhasil disimpan."
-  guild-chat-disabled: "&cGuild chat sedang dimatikan di config."
-  guild-chat-empty: "&cPesan guild chat tidak boleh kosong."
-  guild-chat-toggle-on: "&aGuild chat mode &eON&a. Chat biasa kamu sekarang hanya masuk ke guild. Ketik &e/guildchat &auntuk mematikan."
-  guild-chat-toggle-off: "&cGuild chat mode OFF. Chat kamu kembali ke public."
+  no-permission: "&cYou don't have permission."
+  only-player: "&cThis command is for players only."
+  not-in-guild: "&cYou are not in a guild."
+  already-in-guild: "&cYou are already in a guild."
+  player-not-found: "&cPlayer not found."
+  guild-not-found: "&cGuild not found."
+  guild-created: "&aGuild &e%name% &acreated with tag &b%tag%&a."
+  create-cost-missing: "&cYou need &b%amount% %material% &cto create a guild."
+  invalid-tag: "&cInvalid guild tag. Use alphanumeric characters, max 5 characters."
+  invalid-name: "&cInvalid or too long guild name."
+  duplicate-tag: "&cThat guild tag is already in use."
+  duplicate-name: "&cThat guild name is already in use."
+  invite-sent: "&aGuild invite sent to &e%player%&a."
+  invite-received: "&e%player% &ainvited you to guild &b%guild%&a. Type &e/guild accept %tag%&a."
+  invite-expired: "&cGuild invite expired."
+  joined-guild: "&aYou have successfully joined guild &b%guild%&a."
+  target-already-guild: "&cThat player is already in a guild."
+  max-members: "&cThis guild has reached the maximum member limit."
+  kicked: "&e%player% &chas been kicked from the guild."
+  cannot-kick-leader: "&cYou cannot kick the leader."
+  promoted: "&e%player% &ahas been promoted to Admin."
+  demoted: "&e%player% &ahas been demoted to Member."
+  transfer-done: "&aGuild leadership has been transferred to &e%player%&a."
+  rename-done: "&aGuild name has been changed to &e%name%&a."
+  tag-done: "&aGuild tag has been changed to &b%tag%&a."
+  home-set: "&aGuild home has been set."
+  home-deleted: "&aGuild home has been deleted."
+  home-not-set: "&cGuild home has not been set."
+  teleport-start: "&eTeleporting to Guild Home in &c%seconds% &eseconds... Do not move!"
+  teleport-cancelled: "&cTeleport cancelled because you moved!"
+  teleport-cooldown: "&cWait &e%seconds% seconds &cbefore using Guild Home again."
+  teleport-done: "&aSuccessfully teleported to Guild Home!"
+  disbanded: "&cGuild &e%guild% &chas been disbanded."
+  leave-leader: "&cThe leader cannot leave before transferring leadership or disbanding the guild."
+  left-guild: "&aYou have left the guild."
+  reloaded: "&aConfig and data successfully reloaded."
+  admin-saved: "&aGuild data successfully saved."
+  guild-chat-disabled: "&cGuild chat is disabled in config."
+  guild-chat-empty: "&cGuild chat message cannot be empty."
+  guild-chat-toggle-on: "&aGuild chat mode &eON&a. Your normal chat now only goes to the guild. Type &e/guildchat &ato disable."
+  guild-chat-toggle-off: "&cGuild chat mode OFF. Your chat is back to public."
 
 
 guild-war:
@@ -166,7 +166,7 @@ guild-war:
       - suicide
       - kill
 
-    block-message: "&cKamu sedang Guild War, command dibatasi supaya tidak bisa kabur. Selesaikan war dulu!"
+    block-message: "&cYou are currently in a Guild War, commands are restricted to prevent escaping. Finish the war first!"
   arena:
     world: world
     side1:
@@ -233,15 +233,67 @@ backup:
   enabled: true
   folder: "backups"
 
+
+
+# =======================================
+# Admin Tools Configuration
+# =======================================
+
+
+# File data that will be searched in plugins/RumahKitaGuilds/
+# If your guild plugin uses a different file name, add it here.
+data-files:
+  - "guilds.yml"
+  - "data.yml"
+  - "guild-data.yml"
+  - "storage.yml"
+
+# Root path where guild list is stored.
+# Example: guilds.GuildName or data.guilds.GuildName
+root-paths:
+  - "guilds"
+  - "data.guilds"
+  - "storage.guilds"
+  - ""
+
+# Guild commands that will be blocked if the guild is frozen by an admin.
+frozen-guild-command-block:
+  enabled: true
+  commands:
+    - "/guild"
+    - "/g"
+    - "/clan"
+    - "/rkgalaxy"
+    - "/rkguild"
+  blocked-subcommands:
+    - "invite"
+    - "kick"
+    - "sethome"
+    - "delhome"
+    - "home"
+    - "claim"
+    - "unclaim"
+    - "war"
+    - "rename"
+    - "prefix"
+    - "promote"
+    - "demote"
+    - "transfer"
+    - "leave"
+
+backup:
+  enabled: true
+  folder: "backups"
+
 logs:
   enabled: true
   file: "admin-actions.log"
 
 messages:
   prefix: "&8[&bGuildAdmin&8] "
-  no-permission: "&cKamu tidak punya permission."
-  need-confirm: "&eCommand ini berbahaya. Ulangi dengan &fconfirm &edi belakang."
-  not-found: "&cGuild/player tidak ditemukan di data guild."
-  backup-made: "&aBackup dibuat: &f%file%"
-  reloaded: "&aGuildAdminTools berhasil reload."
-  guild-frozen: "&cGuild kamu sedang dibekukan oleh admin, command ini diblok sementara."
+  no-permission: "&cYou do not have permission."
+  need-confirm: "&eThis is a dangerous command. Repeat with &fconfirm &eat the end."
+  not-found: "&cGuild/player not found in guild data."
+  backup-made: "&aBackup created: &f%file%"
+  reloaded: "&aGuildAdminTools successfully reloaded."
+  guild-frozen: "&cYour guild is currently frozen by an admin, this command is temporarily blocked."

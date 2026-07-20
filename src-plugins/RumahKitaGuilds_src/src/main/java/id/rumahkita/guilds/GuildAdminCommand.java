@@ -94,7 +94,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
             return;
         }
         event.setCancelled(true);
-        this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.guild-frozen", "&cGuild kamu sedang dibekukan oleh admin."));
+        this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.guild-frozen", "&cYour guild is currently frozen by an admin."));
     }
 
     private boolean isGuildCommand(String lower) {
@@ -190,7 +190,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     ref.yml.set(ref.path + ".frozen-at", (Object)this.time());
                     this.save(ref);
                     this.log(sender, "FREEZE guild=" + ref.name);
-                    this.msg(sender, this.pref() + "&cGuild &f" + ref.name + " &cdibekukan.");
+                    this.msg(sender, this.pref() + "&cGuild &f" + ref.name + " &chas been frozen.");
                     break;
                 }
                 case "unfreeze": {
@@ -210,7 +210,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     ref.yml.set(ref.path + ".freeze-reason", null);
                     this.save(ref);
                     this.log(sender, "UNFREEZE guild=" + ref.name);
-                    this.msg(sender, this.pref() + "&aGuild &f" + ref.name + " &adibuka freeze-nya.");
+                    this.msg(sender, this.pref() + "&aGuild &f" + ref.name + " &ahas been unfrozen.");
                     break;
                 }
                 case "disband": {
@@ -228,7 +228,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     ref.yml.set(ref.path, null);
                     this.save(ref);
                     this.log(sender, "DISBAND guild=" + ref.name);
-                    this.msg(sender, this.pref() + "&cGuild &f" + ref.name + " &csudah dibubarkan paksa.");
+                    this.msg(sender, this.pref() + "&cGuild &f" + ref.name + " &chas been forcefully disbanded.");
                     break;
                 }
                 case "delhome": {
@@ -246,7 +246,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.clearHome(ref);
                     this.save(ref);
                     this.log(sender, "DELHOME guild=" + ref.name);
-                    this.msg(sender, this.pref() + "&aHome guild &f" + ref.name + " &asudah dihapus.");
+                    this.msg(sender, this.pref() + "&aGuild home &f" + ref.name + " &ahas been deleted.");
                     break;
                 }
                 case "sethome": {
@@ -254,7 +254,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (!(sender instanceof Player)) {
-                        this.msg(sender, this.pref() + "&cCommand ini harus dari player.");
+                        this.msg(sender, this.pref() + "&cThis command must be run by a player.");
                         return true;
                     }
                     Player p = (Player)sender;
@@ -269,7 +269,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.setHome(ref, p.getLocation());
                     this.save(ref);
                     this.log(sender, "SETHOME guild=" + ref.name + " loc=" + this.locString(p.getLocation()));
-                    this.msg(sender, this.pref() + "&aHome guild &f" + ref.name + " &adisimpan di lokasi kamu.");
+                    this.msg(sender, this.pref() + "&aGuild home &f" + ref.name + " &ahas been saved at your location.");
                     break;
                 }
                 case "kick": {
@@ -287,7 +287,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     int removed = this.removePlayerFromSection(ref.yml, ref.path, args[2]);
                     this.save(ref);
                     this.log(sender, "KICK guild=" + ref.name + " player=" + args[2] + " removed=" + removed);
-                    this.msg(sender, this.pref() + "&aRemoved &f" + removed + " &adata player dari guild &f" + ref.name + "&a.");
+                    this.msg(sender, this.pref() + "&aRemoved &f" + removed + " &aplayer data from guild &f" + ref.name + "&a.");
                     break;
                 }
                 case "removeplayer": {
@@ -306,7 +306,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         total += removed;
                     }
                     this.log(sender, "REMOVEPLAYER player=" + args[1] + " removed=" + total);
-                    this.msg(sender, this.pref() + "&aRemoved &f" + total + " &adata milik player &f" + args[1] + "&a.");
+                    this.msg(sender, this.pref() + "&aRemoved &f" + total + " &adata belonging to player &f" + args[1] + "&a.");
                     break;
                 }
                 case "setleader": {
@@ -324,7 +324,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.setLeader(ref, args[2]);
                     this.save(ref);
                     this.log(sender, "SETLEADER guild=" + ref.name + " leader=" + args[2]);
-                    this.msg(sender, this.pref() + "&aLeader guild &f" + ref.name + " &adiubah ke &f" + args[2]);
+                    this.msg(sender, this.pref() + "&aLeader of guild &f" + ref.name + " &achanged to &f" + args[2]);
                     break;
                 }
                 case "rename": {
@@ -341,7 +341,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.backup(ref.file, sender);
                     this.renameGuild(ref, args[2]);
                     this.log(sender, "RENAME guild=" + args[1] + " new=" + args[2]);
-                    this.msg(sender, this.pref() + "&aGuild rename dicoba ke &f" + args[2] + "&a. Cek data setelah restart.");
+                    this.msg(sender, this.pref() + "&aGuild rename attempted to &f" + args[2] + "&a. Check data after restart.");
                     break;
                 }
                 case "setprefix": {
@@ -360,7 +360,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     ref.yml.set(ref.path + ".tag", (Object)args[2]);
                     this.save(ref);
                     this.log(sender, "SETPREFIX guild=" + ref.name + " prefix=" + args[2]);
-                    this.msg(sender, this.pref() + "&aPrefix guild &f" + ref.name + " &adiubah.");
+                    this.msg(sender, this.pref() + "&aPrefix of guild &f" + ref.name + " &achanged.");
                     break;
                 }
                 case "backup": {
@@ -370,7 +370,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         this.backup(f, sender);
                         ++count;
                     }
-                    this.msg(sender, this.pref() + "&aBackup manual selesai. File: &f" + count);
+                    this.msg(sender, this.pref() + "&aManual backup complete. Files: &f" + count);
                     break;
                 }
                 case "migratemysql": {
@@ -381,10 +381,10 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.confirm(sender, "/rkgadmin migratemysql confirm");
                     }
                     if (!plugin.getConfig().getBoolean("mysql.enabled", false)) {
-                        this.msg(sender, this.pref() + "&cMySQL tidak aktif di config.yml.");
+                        this.msg(sender, this.pref() + "&cMySQL is not enabled in config.yml.");
                         break;
                     }
-                    this.msg(sender, this.pref() + "&aMemulai migrasi guild ke MySQL...");
+                    this.msg(sender, this.pref() + "&aStarting guild migration to MySQL...");
                     int count = 0;
                     DatabaseManager db = new DatabaseManager(plugin);
                     for (GuildRef ref : this.allGuildRefs()) {
@@ -395,7 +395,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         }
                     }
                     db.close();
-                    this.msg(sender, this.pref() + "&aBerhasil memigrasi &e" + count + " &aguild ke MySQL. Silakan restart server.");
+                    this.msg(sender, this.pref() + "&aSuccessfully migrated &e" + count + " &aguilds to MySQL. Please restart the server.");
                     break;
                 }
                 default: {
@@ -466,12 +466,12 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
 
     private void listGuilds(CommandSender s) {
         List<GuildRef> refs = this.allGuildRefs();
-        this.msg(s, this.pref() + "&aTotal guild terdeteksi: &f" + refs.size());
+        this.msg(s, this.pref() + "&aTotal guilds detected: &f" + refs.size());
         int shown = 0;
         for (GuildRef ref : refs) {
             this.msg(s, "&e" + ++shown + ". &f" + ref.name + " &8(" + ref.file.getName() + " : " + ref.path + ")" + (this.isFrozen(ref) ? " &c[FROZEN]" : ""));
             if (shown < 20) continue;
-            this.msg(s, "&7...pakai /rkgadmin info <guild> untuk detail");
+            this.msg(s, "&7...use /rkgadmin info <guild> for details");
             break;
         }
     }
@@ -492,11 +492,11 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
     private void showMembers(CommandSender s, GuildRef ref) {
         LinkedHashSet<String> values = new LinkedHashSet<String>();
         this.collectMemberLike(ref.yml.getConfigurationSection(ref.path), values, 0);
-        this.msg(s, this.pref() + "&aMember-like data untuk &f" + ref.name + "&a:");
+        this.msg(s, this.pref() + "&aMember-like data for &f" + ref.name + "&a:");
         int i = 0;
         for (String v : values) {
             if (++i > 40) {
-                this.msg(s, "&7...terlalu banyak, dipotong.");
+                this.msg(s, "&7...too many, truncated.");
                 break;
             }
             this.msg(s, "&7- &f" + v);

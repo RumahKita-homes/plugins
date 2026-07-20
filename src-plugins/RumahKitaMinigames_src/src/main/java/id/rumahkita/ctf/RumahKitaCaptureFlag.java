@@ -531,7 +531,7 @@ TabCompleter {
                 this.loadSettings();
                 this.startParticleTask();
                 this.startScoreboardTask();
-                sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Config berhasil direload.");
+                sender.sendMessage(this.prefix + String.valueOf(ChatColor.GREEN) + "Config successfully reloaded.");
                 break;
             }
             case "list": {
@@ -664,7 +664,7 @@ TabCompleter {
             return;
         }
         if (this.state == GameState.ENDING) {
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event sedang selesai, tunggu reset.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event is ending, wait for reset.");
             return;
         }
         if (this.restoreBackupOnJoin && this.hasBackup(player.getUniqueId()) && !this.participants.containsKey(player.getUniqueId())) {

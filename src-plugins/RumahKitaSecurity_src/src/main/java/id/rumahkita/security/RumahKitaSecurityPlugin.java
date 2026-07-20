@@ -36,6 +36,16 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        // PlugManX Compatibility Cleanup
+        try {
+            for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                p.closeInventory();
+            }
+            org.bukkit.Bukkit.getServicesManager().unregisterAll((org.bukkit.plugin.Plugin)this);
+            org.bukkit.Bukkit.getScheduler().cancelTasks((org.bukkit.plugin.Plugin)this);
+            org.bukkit.event.HandlerList.unregisterAll((org.bukkit.plugin.Plugin)this);
+        } catch (Exception ignored) {}
+
         if (moduleRumahKitaAntiCheatPlugin != null) { try { moduleRumahKitaAntiCheatPlugin.onDisable(); } catch (Exception e) { e.printStackTrace(); } }
         if (moduleRumahKitaAntiXrayPlugin != null) { try { moduleRumahKitaAntiXrayPlugin.onDisable(); } catch (Exception e) { e.printStackTrace(); } }
         if (moduleRumahKitaSecurityBanPlugin != null) { try { moduleRumahKitaSecurityBanPlugin.onDisable(); } catch (Exception e) { e.printStackTrace(); } }

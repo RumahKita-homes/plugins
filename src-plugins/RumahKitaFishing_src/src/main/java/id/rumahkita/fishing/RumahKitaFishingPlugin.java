@@ -62,6 +62,16 @@ public final class RumahKitaFishingPlugin extends JavaPlugin
     }
 
     public void onDisable() {
+        // PlugManX Compatibility Cleanup
+        try {
+            for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                p.closeInventory();
+            }
+            org.bukkit.Bukkit.getServicesManager().unregisterAll((org.bukkit.plugin.Plugin)this);
+            org.bukkit.Bukkit.getScheduler().cancelTasks((org.bukkit.plugin.Plugin)this);
+            org.bukkit.event.HandlerList.unregisterAll((org.bukkit.plugin.Plugin)this);
+        } catch (Exception ignored) {}
+
         if (this.autoSaveTaskId != -1) {
             Bukkit.getScheduler().cancelTask(this.autoSaveTaskId);
         }

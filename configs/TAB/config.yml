@@ -5,11 +5,11 @@ header-footer:
       header:
         - ""
         - "&d&lRUMAHKITA &fS2"
-        - "&fSurvival &8• &fEconomy &8• &fGuild"
+        - "      &fSurvival &8• &fEconomy &8• &fGuild      "
         - ""
       footer:
         - ""
-        - "&7rumahkita.homes"
+        - "&7&nrumahkita.homes"
         - ""
 
 tablist-name-formatting:
@@ -87,10 +87,10 @@ scoreboard:
         - ""
         
     rumahkita:
-      title: "&d&lRUMAHKITA &fS2"
+      title: "&d&n&lRUMAHKITA"
       lines:
         - "%luckperms_prefix%%player%"
-        - "&a$ &f%rke_balance%"
+        - "&a$ &fRp%rke_balance_short%"
 
 layout:
   enabled: false

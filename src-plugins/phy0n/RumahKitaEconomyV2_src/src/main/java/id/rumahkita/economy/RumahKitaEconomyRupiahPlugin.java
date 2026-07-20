@@ -135,7 +135,8 @@ TabExecutor {
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private static RumahKitaEconomyRupiahPlugin instance;
-
+    private RkePlaceholderExpansion placeholderExpansion;
+    
     public static RumahKitaEconomyRupiahPlugin getInstance() {
         return instance;
     }
@@ -186,6 +187,27 @@ TabExecutor {
     }
 
     public void onDisable() {
+        // PlugManX Compatibility Cleanup
+        try {
+            for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                p.closeInventory();
+            }
+            org.bukkit.Bukkit.getServicesManager().unregisterAll((org.bukkit.plugin.Plugin)this);
+            org.bukkit.Bukkit.getScheduler().cancelTasks((org.bukkit.plugin.Plugin)this);
+            org.bukkit.event.HandlerList.unregisterAll((org.bukkit.plugin.Plugin)this);
+        } catch (Exception ignored) {}
+        instance = null;
+
+        if (this.placeholderExpansion != null) {
+            this.placeholderExpansion.unregister();
+        }
+        for (org.bukkit.entity.Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getOpenInventory() != null && p.getOpenInventory().getTopInventory() != null && p.getOpenInventory().getTopInventory().getHolder() instanceof MarketHolder) {
+                p.closeInventory();
+            }
+        }
+        getServer().getServicesManager().unregisterAll((org.bukkit.plugin.Plugin)this);
+        Bukkit.getScheduler().cancelTasks((org.bukkit.plugin.Plugin)this);
         if (this.tradeManager != null) {
             this.tradeManager.cancelAllActiveTrades();
         }
@@ -198,7 +220,8 @@ TabExecutor {
     private void hookPlaceholderAPI() {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             try {
-                new RkePlaceholderExpansion(this).register();
+                this.placeholderExpansion = new RkePlaceholderExpansion(this);
+                this.placeholderExpansion.register();
                 this.getLogger().info("PlaceholderAPI expansion rke registered.");
             }
             catch (Throwable t) {

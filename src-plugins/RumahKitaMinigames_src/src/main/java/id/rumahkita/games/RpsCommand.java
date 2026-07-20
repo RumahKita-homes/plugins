@@ -208,7 +208,7 @@ public class RpsCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 3) {
             String sub = args[0].toLowerCase();
             if (sub.equals("create") || sub.equals("join") || sub.equals("accept")) {
-                return Arrays.asList("batu", "gunting", "kertas").stream()
+                return Arrays.asList("rock", "paper", "scissors").stream()
                         .filter(s -> s.startsWith(args[2].toLowerCase()))
                         .collect(Collectors.toList());
             } else if (sub.equals("invite")) {
@@ -219,7 +219,7 @@ public class RpsCommand implements CommandExecutor, TabCompleter {
         } else if (args.length == 4) {
             String sub = args[0].toLowerCase();
             if (sub.equals("invite")) {
-                return Arrays.asList("batu", "gunting", "kertas").stream()
+                return Arrays.asList("rock", "paper", "scissors").stream()
                         .filter(s -> s.startsWith(args[3].toLowerCase()))
                         .collect(Collectors.toList());
             }

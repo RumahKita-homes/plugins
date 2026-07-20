@@ -32,13 +32,13 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
         CoinflipManager manager = plugin.getCoinflipManager();
 
         if (args.length == 0) {
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e=== &6Bantuan Coinflip &e==="));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf create <amount> <heads/tails> &7- Buat room coinflip"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf join <nama_player> &7- Lawan player yang open cf"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf invite <player> <amount> <heads/tails> &7- Ajak player tertentu adu cf"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf accept/deny <player> &7- Accept/Deny cf invite"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e=== &6Coinflip Help &e==="));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf create <amount> <heads/tails> &7- Create a coinflip room"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf join <nama_player> &7- Play against an open coinflip"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf invite <player> <amount> <heads/tails> &7- Invite a specific player to coinflip"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf accept/deny <player> &7- Accept/Deny a coinflip invite"));
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf list &7- Open active coinflip list"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf cancel &7- Batalkan room coinflip milikmu"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf cancel &7- Cancel your active coinflip"));
             return true;
         }
 
@@ -50,19 +50,19 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
         }
         
         if (sub.equals("help")) {
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e=== &6Bantuan Coinflip &e==="));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf create <amount> <heads/tails> &7- Buat room coinflip"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf join <nama_player> &7- Lawan player yang open cf"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf invite <player> <amount> <heads/tails> &7- Ajak player tertentu adu cf"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf accept/deny <player> &7- Accept/Deny cf invite"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e=== &6Coinflip Help &e==="));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf create <amount> <heads/tails> &7- Create a coinflip room"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf join <nama_player> &7- Play against an open coinflip"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf invite <player> <amount> <heads/tails> &7- Invite a specific player to coinflip"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf accept/deny <player> &7- Accept/Deny a coinflip invite"));
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf list &7- Open active coinflip list"));
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf cancel &7- Batalkan room coinflip milikmu"));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a/cf cancel &7- Cancel your active coinflip"));
             return true;
         }
 
         if (sub.equals("create")) {
             if (args.length < 3) {
-                p.sendMessage(ChatColor.RED + "Penggunaan: /cf create <jumlah> <heads/tails>");
+                p.sendMessage(ChatColor.RED + "Usage: /cf create <jumlah> <heads/tails>");
                 return true;
             }
             long amount;
@@ -91,7 +91,7 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
 
         if (sub.equals("join")) {
             if (args.length < 2) {
-                p.sendMessage(ChatColor.RED + "Penggunaan: /cf join <nama_player>");
+                p.sendMessage(ChatColor.RED + "Usage: /cf join <nama_player>");
                 return true;
             }
             Player target = Bukkit.getPlayerExact(args[1]);
@@ -111,7 +111,7 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
         
         if (sub.equals("invite")) {
             if (args.length < 4) {
-                p.sendMessage(ChatColor.RED + "Penggunaan: /cf invite <nama_player> <jumlah> <heads/tails>");
+                p.sendMessage(ChatColor.RED + "Usage: /cf invite <nama_player> <jumlah> <heads/tails>");
                 return true;
             }
             Player target = Bukkit.getPlayerExact(args[1]);
@@ -142,7 +142,7 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
 
         if (sub.equals("accept")) {
             if (args.length < 2) {
-                p.sendMessage(ChatColor.RED + "Penggunaan: /cf accept <nama_player>");
+                p.sendMessage(ChatColor.RED + "Usage: /cf accept <nama_player>");
                 return true;
             }
             Player target = Bukkit.getPlayerExact(args[1]);
@@ -156,7 +156,7 @@ public class CoinflipCommand implements CommandExecutor, TabCompleter {
         
         if (sub.equals("deny")) {
             if (args.length < 2) {
-                p.sendMessage(ChatColor.RED + "Penggunaan: /cf deny <nama_player>");
+                p.sendMessage(ChatColor.RED + "Usage: /cf deny <nama_player>");
                 return true;
             }
             Player target = Bukkit.getPlayerExact(args[1]);

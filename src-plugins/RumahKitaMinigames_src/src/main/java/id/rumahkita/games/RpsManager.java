@@ -82,19 +82,19 @@ public class RpsManager implements Listener {
         Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Choose RPS against " + target.getName());
         
         ItemStack batu = new ItemStack(Material.COBBLESTONE);
-        ItemMeta mBatu = batu.getItemMeta();
-        mBatu.setDisplayName(ChatColor.GRAY + ChatColor.BOLD.toString() + "ROCK");
-        batu.setItemMeta(mBatu);
+        ItemMeta mRock = batu.getItemMeta();
+        mRock.setDisplayName(ChatColor.GRAY + ChatColor.BOLD.toString() + "ROCK");
+        batu.setItemMeta(mRock);
         
         ItemStack gunting = new ItemStack(Material.SHEARS);
-        ItemMeta mGunting = gunting.getItemMeta();
-        mGunting.setDisplayName(ChatColor.WHITE + ChatColor.BOLD.toString() + "SCISSORS");
-        gunting.setItemMeta(mGunting);
+        ItemMeta mScissors = gunting.getItemMeta();
+        mScissors.setDisplayName(ChatColor.WHITE + ChatColor.BOLD.toString() + "SCISSORS");
+        gunting.setItemMeta(mScissors);
         
         ItemStack kertas = new ItemStack(Material.PAPER);
-        ItemMeta mKertas = kertas.getItemMeta();
-        mKertas.setDisplayName(ChatColor.WHITE + ChatColor.BOLD.toString() + "PAPER");
-        kertas.setItemMeta(mKertas);
+        ItemMeta mPaper = kertas.getItemMeta();
+        mPaper.setDisplayName(ChatColor.WHITE + ChatColor.BOLD.toString() + "PAPER");
+        kertas.setItemMeta(mPaper);
         
         inv.setItem(11, batu);
         inv.setItem(13, gunting);

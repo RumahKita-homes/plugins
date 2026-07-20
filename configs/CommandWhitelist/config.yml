@@ -26,6 +26,8 @@ groups:
     - trustlist
     - shop
     - cf
+    - sell
+    - sellall
     - login
     - register
     - rtp
@@ -87,4 +89,15 @@ groups:
     - kit
     - kits
     - help
+    - online
+    - player
+    - playerlist
+    - list
+    - tps
+    - pw
+    - playerwarp
+    - warps
+    - carry
+    - trash
+    - ignore
     subcommands: []

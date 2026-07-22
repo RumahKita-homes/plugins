@@ -68,15 +68,17 @@ public class AdminGuiManager implements Listener {
         player.openInventory(inv);
     }
 
-    public void openServerManagement(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE_SERVER);
+        public void openServerManagement(Player player) {
+        Inventory inv = Bukkit.createInventory(null, 54, TITLE_SERVER);
         ItemStack glass = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
-        for (int i = 0; i < 27; i++) inv.setItem(i, glass);
+        for (int i = 0; i < 54; i++) inv.setItem(i, glass);
 
-        inv.setItem(10, createItem(Material.REDSTONE_BLOCK, ChatColor.RED + "Toggle Maintenance", ChatColor.GRAY + "Runs: /rka maintenance"));
-        inv.setItem(12, createItem(Material.IRON_BARS, ChatColor.YELLOW + "Toggle ChatLock", ChatColor.GRAY + "Runs: /rka chatlock"));
-        inv.setItem(14, createItem(Material.PAPER, ChatColor.WHITE + "Clear Chat", ChatColor.GRAY + "Runs: /rka clearchat"));
-        inv.setItem(16, createItem(Material.BARRIER, ChatColor.DARK_RED + "Restart Server", ChatColor.GRAY + "Opens restart menu."));
+        inv.setItem(20, createItem(Material.REDSTONE_BLOCK, ChatColor.RED + "Toggle Maintenance", ChatColor.GRAY + "Runs: /rka maintenance"));
+        inv.setItem(22, createItem(Material.IRON_BARS, ChatColor.YELLOW + "Toggle ChatLock", ChatColor.GRAY + "Runs: /rka chatlock"));
+        inv.setItem(24, createItem(Material.PAPER, ChatColor.WHITE + "Clear Chat", ChatColor.GRAY + "Runs: /rka clearchat"));
+        inv.setItem(31, createItem(Material.BARRIER, ChatColor.DARK_RED + "Restart Server", ChatColor.GRAY + "Opens restart menu."));
+
+        inv.setItem(49, createItem(Material.ARROW, ChatColor.RED + "Back to Main Menu"));
 
         player.openInventory(inv);
     }
@@ -224,7 +226,11 @@ public class AdminGuiManager implements Listener {
                 player.chat("/rka jail " + target + " " + timeStr);
             }
         }
-        else if (title.equals(TITLE_SERVER)) {
+                else if (title.equals(TITLE_SERVER)) {
+            if (name.equals("Back to Main Menu")) {
+                openMainMenu(player);
+                return;
+            }
             player.closeInventory();
             if (name.equals("Toggle Maintenance")) {
                 player.chat("/rka maintenance toggle");

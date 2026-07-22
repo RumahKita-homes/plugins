@@ -173,7 +173,7 @@ TabExecutor {
     }
 
     private String pref() {
-        return this.plugin.getConfig().getString("messages.prefix", "&8[&bRumahKitaUtilities&8] ");
+        return "";
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -189,6 +189,28 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
             return handleStaffChat(sender, args);
         }
 
+                if (args.length > 0 && args[0].equalsIgnoreCase("help")) {
+            sender.sendMessage(ChatColor.DARK_RED + "RumahKitaAdmin Commands:");
+            sender.sendMessage(ChatColor.YELLOW + "/rka clearchat " + ChatColor.GRAY + "- Clear the chat");
+            sender.sendMessage(ChatColor.YELLOW + "/rka freeze <player> " + ChatColor.GRAY + "- Freeze a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka kick <player> [reason] " + ChatColor.GRAY + "- Kick a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka broadcast <msg> " + ChatColor.GRAY + "- Broadcast a message");
+            sender.sendMessage(ChatColor.YELLOW + "/rka mute <player> <time> " + ChatColor.GRAY + "- Mute a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka unmute <player> " + ChatColor.GRAY + "- Unmute a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka maintenance " + ChatColor.GRAY + "- Toggle maintenance mode");
+            sender.sendMessage(ChatColor.YELLOW + "/rka chatlock " + ChatColor.GRAY + "- Lock the chat");
+            sender.sendMessage(ChatColor.YELLOW + "/rka setjail <name> " + ChatColor.GRAY + "- Set a jail location");
+            sender.sendMessage(ChatColor.YELLOW + "/rka jail <player> <time> " + ChatColor.GRAY + "- Jail a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka unjail <player> " + ChatColor.GRAY + "- Unjail a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka warn <player> " + ChatColor.GRAY + "- Warn a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka unwarn <player> " + ChatColor.GRAY + "- Unwarn a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka inspect <player> " + ChatColor.GRAY + "- Inspect player inventory");
+            sender.sendMessage(ChatColor.YELLOW + "/rka sudo <player> <cmd> " + ChatColor.GRAY + "- Sudo a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka spectate <player> " + ChatColor.GRAY + "- Spectate a player");
+            sender.sendMessage(ChatColor.YELLOW + "/rka restart [time] " + ChatColor.GRAY + "- Restart the server");
+            sender.sendMessage(ChatColor.YELLOW + "/rka gui " + ChatColor.GRAY + "- Open Admin Dashboard");
+            return true;
+        }
         if (args.length == 0) {
             if (sender instanceof org.bukkit.entity.Player) {
                 guiManager.openMainMenu((org.bukkit.entity.Player) sender);
@@ -235,18 +257,17 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
 
         if (command.getName().equalsIgnoreCase("rka")) {
             if (args.length == 1) {
-                List<String> subs = Arrays.asList(
-                    "checkip", "checkalts", "clearchat", "freeze", "invsee", "ec", "kick", "broadcast", 
-                    "vanish", "smite", "troll", "heal", "fly", "speed", "mute", "spy", "god", "maintenance",
-                    "chatlock", "setjail", "jail", "unjail", "warn", "inspect", "sudo", "spectate", "restart", "reload", "allowalt", "blockalt", "unblockalt", "setmainaccount", "blockip", "unblockip", "vpn"
-                );
+                                  List<String> subs = Arrays.asList(
+                      "clearchat", "freeze", "kick", "broadcast", 
+                      "mute", "unmute", "maintenance",
+                      "chatlock", "setjail", "jail", "unjail", "warn", "unwarn", "inspect", "sudo", "spectate", "restart", 
+                      "reload", "gui"
+                  );
                 return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
             } else if (args.length == 2) {
                 String sub = args[0].toLowerCase();
                 if (sub.equals("restart")) {
                     return Arrays.asList("now", "time", "cancel", "reload").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
-                } else if (sub.equals("vpn")) {
-                    return Arrays.asList("check", "allow", "remove", "on", "off").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
                 } else if (sub.equals("maintenance")) {
                     return Arrays.asList("on", "off", "time", "cancel", "stop").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
                 }

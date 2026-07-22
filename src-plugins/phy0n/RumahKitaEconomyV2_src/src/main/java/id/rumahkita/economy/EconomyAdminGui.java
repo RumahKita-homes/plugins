@@ -29,7 +29,7 @@ public class EconomyAdminGui implements Listener {
         this.plugin = plugin;
     }
 
-    public void openMain(Player player) {
+        public void openMain(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, MAIN_TITLE);
         fillBorder(inv);
         
@@ -41,13 +41,12 @@ public class EconomyAdminGui implements Listener {
             }
         }
         
-        inv.setItem(13, createItem(Material.EMERALD_BLOCK, "&a&lServer Wealth Stats", "&7Total Money in Circulation:", "&e" + plugin.formatRp(totalWealth)));
-        
-        inv.setItem(29, createItem(Material.PLAYER_HEAD, "&b&lPlayer Bank Browser", "&7List of all player bank", "&7accounts on the server."));
-        inv.setItem(31, createItem(Material.GOLD_INGOT, "&6&lMarket Manager", "&7Force refresh market stock,", "&7edit prices and items."));
-        inv.setItem(33, createItem(Material.CHEST, "&d&lSellHand / SellAll", "&7Toggle global sellhand", "&7and sellall availability."));
-        
-        inv.setItem(40, createItem(Material.PAPER, "&c&lEconomy Config", "&7Economy settings,", "&7starting money, taxes, etc."));
+        inv.setItem(20, createItem(Material.PLAYER_HEAD, "&b&lPlayer Bank Browser", "&7List of all player bank", "&7accounts on the server."));
+        inv.setItem(24, createItem(Material.GOLD_INGOT, "&6&lMarket Manager", "&7Force refresh market stock,", "&7edit prices and items."));
+        inv.setItem(31, createItem(Material.EMERALD_BLOCK, "&a&lServer Wealth Stats", "&7Total Money in Circulation:", "&e" + plugin.formatRp(totalWealth)));
+        inv.setItem(38, createItem(Material.CHEST, "&d&lSellHand / SellAll", "&7Toggle global sellhand", "&7and sellall availability."));
+        inv.setItem(42, createItem(Material.PAPER, "&c&lEconomy Config", "&7Economy settings,", "&7starting money, taxes, etc."));
+        inv.setItem(49, createItem(Material.BARRIER, "&c&lClose Menu", "&7Close this dashboard."));
         
         player.openInventory(inv);
     }

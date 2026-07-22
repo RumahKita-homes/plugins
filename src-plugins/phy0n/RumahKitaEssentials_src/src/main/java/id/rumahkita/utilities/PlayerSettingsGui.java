@@ -10,45 +10,66 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PlayerSettingsGui implements Listener {
     
     public static final String TITLE = ChatColor.DARK_AQUA + "Player Settings";
 
+    private static final Set<UUID> globalChatDisabled = new HashSet<>();
+
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 36, TITLE);
         
         fillBorder(inv);
         
-        inv.setItem(10, createItem(Material.PAPER, "&e&lPrivate Messages", 
+        inv.setItem(11, createItem(Material.PAPER, "&e&lPrivate Messages", 
             "&7Toggle incoming private",
             "&7messages (Whisper).",
             "",
-            "&aLeft-Click to Toggle (/msgtoggle)"
+            "&aLeft-Click to Toggle"
         ));
         
-        inv.setItem(12, createItem(Material.ENDER_PEARL, "&b&lTeleport Requests (TPA)", 
+        inv.setItem(13, createItem(Material.ENDER_PEARL, "&b&lTeleport Requests (TPA)", 
             "&7Prevent others from sending",
             "&7teleport requests to you.",
             "",
-            "&aLeft-Click to Toggle (/tptoggle)"
+            "&aLeft-Click to Toggle"
         ));
         
-        inv.setItem(14, createItem(Material.MINECART, "&c&lCarry Feature", 
+        inv.setItem(15, createItem(Material.MINECART, "&c&lCarry Feature", 
             "&7Disable the Carry feature so",
             "&7others cannot pick you up.",
             "",
-            "&aLeft-Click to Toggle (/carry toggle)"
+            "&aLeft-Click to Toggle"
         ));
         
-        inv.setItem(16, createItem(Material.NAME_TAG, "&6&lScoreboard", 
+        inv.setItem(20, createItem(Material.NAME_TAG, "&6&lScoreboard", 
             "&7Hide the scoreboard display",
             "&7on the right side of your screen.",
             "",
-            "&aLeft-Click to Toggle (/sb toggle)"
+            "&aLeft-Click to Toggle"
+        ));
+        
+        inv.setItem(22, createItem(Material.ENDER_EYE, "&6&lNight Vision", 
+            "&7Toggle permanent Night Vision",
+            "&7to see clearly in the dark.",
+            "",
+            "&aLeft-Click to Toggle"
+        ));
+        
+        inv.setItem(24, createItem(Material.WRITABLE_BOOK, "&c&lGlobal Chat", 
+            "&7Hide global chat messages",
+            "&7if you want a quiet screen.",
+            "",
+            "&aLeft-Click to Toggle"
         ));
         
         player.openInventory(inv);
@@ -87,18 +108,42 @@ public class PlayerSettingsGui implements Listener {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
         
-        if (slot == 10) {
+        if (slot == 11) {
             player.closeInventory();
             Bukkit.dispatchCommand(player, "msgtoggle");
-        } else if (slot == 12) {
+        } else if (slot == 13) {
             player.closeInventory();
             Bukkit.dispatchCommand(player, "tptoggle");
-        } else if (slot == 14) {
+        } else if (slot == 15) {
             player.closeInventory();
             Bukkit.dispatchCommand(player, "carry toggle");
-        } else if (slot == 16) {
+        } else if (slot == 20) {
             player.closeInventory();
             Bukkit.dispatchCommand(player, "sb toggle");
+        } else if (slot == 22) {
+            player.closeInventory();
+            if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
+                player.removePotionEffect(PotionEffectType.NIGHT_VISION);
+                player.sendMessage(ChatColor.RED + "Night Vision disabled.");
+            } else {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false));
+                player.sendMessage(ChatColor.GREEN + "Night Vision enabled.");
+            }
+        } else if (slot == 24) {
+            player.closeInventory();
+            UUID uuid = player.getUniqueId();
+            if (globalChatDisabled.contains(uuid)) {
+                globalChatDisabled.remove(uuid);
+                player.sendMessage(ChatColor.GREEN + "Global Chat is now VISIBLE.");
+            } else {
+                globalChatDisabled.add(uuid);
+                player.sendMessage(ChatColor.RED + "Global Chat is now HIDDEN.");
+            }
         }
+    }
+
+    @EventHandler
+    public void onChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
+        event.getRecipients().removeIf(p -> globalChatDisabled.contains(p.getUniqueId()));
     }
 }

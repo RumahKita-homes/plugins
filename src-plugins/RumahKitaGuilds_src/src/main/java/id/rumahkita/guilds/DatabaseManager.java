@@ -268,9 +268,13 @@ public class DatabaseManager {
         plugin.getLogger().info("Successfully loaded " + loadedGuilds + " guilds from MySQL.");
     }
     
-    public void saveGuildAsync(Guild guild) {
+        public void saveGuildAsync(Guild guild) {
         if (!isEnabled) return;
-        CompletableFuture.runAsync(() -> saveGuildSync(guild));
+        if (plugin.isEnabled()) {
+            CompletableFuture.runAsync(() -> saveGuildSync(guild));
+        } else {
+            saveGuildSync(guild);
+        }
     }
 
     public void saveGuildClaimSync(String tag, String chunkKey) {

@@ -115,7 +115,7 @@ public final class GuildManager {
         save(); // For YAML, it's safer to save all since it writes to one file, but we will make it async.
     }
 
-    public void save() {
+        public void save() {
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
         }
@@ -127,7 +127,7 @@ public final class GuildManager {
             return;
         }
         
-        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+        Runnable saveLogic = () -> {
             org.bukkit.configuration.file.YamlConfiguration data = new org.bukkit.configuration.file.YamlConfiguration();
             org.bukkit.configuration.ConfigurationSection guildsSection = data.createSection("guilds");
             for (Guild guild : this.guildsByTag.values()) {
@@ -139,7 +139,13 @@ public final class GuildManager {
             catch (java.io.IOException ex) {
                 this.plugin.getLogger().severe("Could not save guilds.yml: " + ex.getMessage());
             }
-        });
+        };
+
+        if (this.plugin.isEnabled()) {
+            org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin, saveLogic);
+        } else {
+            saveLogic.run();
+        }
     }
 
     public Guild getGuildByTag(String tag) {

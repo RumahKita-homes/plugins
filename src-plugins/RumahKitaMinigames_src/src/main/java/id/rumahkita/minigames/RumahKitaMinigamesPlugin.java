@@ -35,9 +35,11 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         RkmgGuiManager adminGui = new RkmgGuiManager(this);
         getServer().getPluginManager().registerEvents(adminGui, this);
-        org.bukkit.command.PluginCommand adminCmd = getCommand("rkmg");
+                org.bukkit.command.PluginCommand adminCmd = getCommand("rkmg");
         if (adminCmd != null) {
-            adminCmd.setExecutor(new RkmgCommand(this, adminGui));
+            RkmgCommand rkmgExec = new RkmgCommand(this, adminGui);
+            adminCmd.setExecutor(rkmgExec);
+            adminCmd.setTabCompleter(rkmgExec);
         }
         
         getLogger().info("RumahKita Minigames Enabled.");

@@ -59,14 +59,6 @@ commands:
   rkcarry:
     description: RumahKita Carry admin/user command.
     usage: /rkcarry <toggle|drop|reload>
-  rkbansos:
-    description: RumahKita Friday bansos command.
-    usage: /rkbansos <status|now|reload>
-  rkvanish:
-    description: Particle-free RumahKita vanish.
-    usage: /rkvanish [player|list|reload]
-    aliases:
-    - rkv
   ping:
     description: Cek ping internet kamu
     usage: /ping [player]

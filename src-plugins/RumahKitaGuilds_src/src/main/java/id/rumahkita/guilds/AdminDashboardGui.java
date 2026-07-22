@@ -123,14 +123,14 @@ public class AdminDashboardGui implements Listener {
         
         inv.setItem(24, createItem(Material.BOOK, "&dActivity Logs", "&7(Click to print the 10", "&7latest guild logs in chat)"));
         
-        inv.setItem(29, createItem(Material.WOODEN_AXE, "&aSet Pos 1", "&7Set Pos 1 to your location", "&7currently."));
-        inv.setItem(31, createItem(Material.WOODEN_AXE, "&aSet Pos 2", "&7Set Pos 2 to your location", "&7currently."));
-        inv.setItem(33, createItem(Material.GRASS_BLOCK, "&eAdmin Claim", "&7Claim area from Pos 1 to Pos 2", "&7for this guild."));
-        inv.setItem(35, createItem(Material.WOODEN_HOE, "&cAdmin Unclaim", "&7Unclaims the chunk you are", "&7currently standing on."));
+        inv.setItem(28, createItem(Material.WOODEN_AXE, "&aSet Pos 1", "&7Set Pos 1 to your location", "&7currently."));
+        inv.setItem(30, createItem(Material.WOODEN_AXE, "&aSet Pos 2", "&7Set Pos 2 to your location", "&7currently."));
+        inv.setItem(32, createItem(Material.GRASS_BLOCK, "&eAdmin Claim", "&7Claim area from Pos 1 to Pos 2", "&7for this guild."));
+        inv.setItem(34, createItem(Material.WOODEN_HOE, "&cAdmin Unclaim", "&7Unclaims the chunk you are", "&7currently standing on."));
         
         inv.setItem(38, createItem(Material.ENDER_PEARL, "&dTeleport to Guild", "&7Teleports you to the guild's", "&7home or claimed area."));
         
-        inv.setItem(40, createItem(Material.TNT, "&c&lFORCE DISBAND", "&7Forcefully disband this guild!"));
+        inv.setItem(42, createItem(Material.TNT, "&c&lFORCE DISBAND", "&7Forcefully disband this guild!"));
         
         inv.setItem(49, createItem(Material.ARROW, "&cBack to Browser"));
         
@@ -232,11 +232,11 @@ public class AdminDashboardGui implements Listener {
                         player.sendMessage(ChatColor.GRAY + "" + ChatColor.WHITE + logs.get(i));
                     }
                 }
-            } else if (slot == 29) {
+            } else if (slot == 28) {
                 player.performCommand("rkg pos1");
-            } else if (slot == 31) {
+            } else if (slot == 30) {
                 player.performCommand("rkg pos2");
-            } else if (slot == 33) {
+            } else if (slot == 32) {
                 String cleanTag = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', guild.getTag()));
                 player.performCommand("rkg claim " + cleanTag);
             } else if (slot == 38) {
@@ -261,12 +261,12 @@ public class AdminDashboardGui implements Listener {
                 } else {
                     player.sendMessage(ChatColor.RED + "This guild does not have a claimed area or a home set yet.");
                 }
-            } else if (slot == 35) {
+            } else if (slot == 34) {
                 player.closeInventory();
                 pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.UNCLAIM, guild));
                 player.sendMessage(ChatColor.YELLOW + "Are you sure you want to UNCLAIM this guild's area (chunk)?");
                 player.sendMessage(ChatColor.YELLOW + "Type " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " to confirm, or " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " to abort.");
-            } else if (slot == 40) {
+            } else if (slot == 42) {
                 player.closeInventory();
                 pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.FORCE_DISBAND, guild));
                 player.sendMessage(ChatColor.RED + "Are you sure you want to FORCE DISBAND the guild " + guild.getName() + "?");

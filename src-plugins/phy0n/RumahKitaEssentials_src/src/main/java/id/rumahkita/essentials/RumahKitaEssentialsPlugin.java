@@ -12,7 +12,7 @@ import id.rumahkita.essentials.EssentialsAdminCommand;
 public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
     private PlayerUtilityCommands utilityCommands;
-    private RumahKitaUtilitiesPlugin utilitiesModule;
+    public RumahKitaUtilitiesPlugin utilitiesModule;
     private RumahKitaWarpsPlugin warpsModule;
     private RumahKitaSpawnPlugin spawnModule;
 
@@ -26,7 +26,9 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
         org.bukkit.Bukkit.getPluginManager().registerEvents(gui, this);
         org.bukkit.command.PluginCommand adminCmd = getCommand("rkessentials");
         if (adminCmd != null) {
-            adminCmd.setExecutor(new EssentialsAdminCommand(gui));
+            EssentialsAdminCommand adminExecutor = new EssentialsAdminCommand(this, gui);
+            adminCmd.setExecutor(adminExecutor);
+            adminCmd.setTabCompleter(adminExecutor);
         }
 
         utilityCommands = new PlayerUtilityCommands(this);

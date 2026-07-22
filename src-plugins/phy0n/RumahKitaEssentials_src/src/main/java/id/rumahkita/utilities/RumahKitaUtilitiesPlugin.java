@@ -41,9 +41,9 @@ public final class RumahKitaUtilitiesPlugin
     public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
     public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
     public java.io.File getDataFolder() { return plugin.getDataFolder(); }
-    private SleepManager sleepManager;
+    public SleepManager sleepManager;
     private CarryManager carryManager;
-    private BansosManager bansosManager;
+    public BansosManager bansosManager;
     private VanishManager vanishManager;
     private InfoManager infoManager;
     
@@ -69,16 +69,10 @@ public final class RumahKitaUtilitiesPlugin
         PlayerSettingsGui settingsGui = new PlayerSettingsGui();
         Bukkit.getPluginManager().registerEvents(settingsGui, plugin);
         
-        plugin.getCommand("rksleep").setExecutor((CommandExecutor)this.sleepManager);
-        plugin.getCommand("rksleep").setTabCompleter((TabCompleter)this.sleepManager);
         plugin.getCommand("carry").setExecutor((CommandExecutor)this.carryManager);
         plugin.getCommand("carry").setTabCompleter((TabCompleter)this.carryManager);
         plugin.getCommand("rkcarry").setExecutor((CommandExecutor)this.carryManager);
         plugin.getCommand("rkcarry").setTabCompleter((TabCompleter)this.carryManager);
-        plugin.getCommand("rkbansos").setExecutor((CommandExecutor)this.bansosManager);
-        plugin.getCommand("rkbansos").setTabCompleter((TabCompleter)this.bansosManager);
-        plugin.getCommand("rkvanish").setExecutor((CommandExecutor)this.vanishManager);
-        plugin.getCommand("rkvanish").setTabCompleter((TabCompleter)this.vanishManager);
         plugin.getCommand("ping").setExecutor(this.infoManager);
         plugin.getCommand("tps").setExecutor(this.infoManager);
         

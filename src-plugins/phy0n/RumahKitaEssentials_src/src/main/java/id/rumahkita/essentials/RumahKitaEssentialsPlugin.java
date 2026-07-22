@@ -2,7 +2,7 @@ package id.rumahkita.essentials;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import id.rumahkita.admin.RumahKitaAdminPlugin;
+import id.rumahkita.essentials.commands.PlayerUtilityCommands;
 import id.rumahkita.utilities.RumahKitaUtilitiesPlugin;
 import id.rumahkita.warps.RumahKitaWarpsPlugin;
 import id.rumahkita.spawn.RumahKitaSpawnPlugin;
@@ -11,7 +11,7 @@ import id.rumahkita.essentials.EssentialsAdminCommand;
 
 public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
-    private RumahKitaAdminPlugin adminModule;
+    private PlayerUtilityCommands utilityCommands;
     private RumahKitaUtilitiesPlugin utilitiesModule;
     private RumahKitaWarpsPlugin warpsModule;
     private RumahKitaSpawnPlugin spawnModule;
@@ -29,8 +29,11 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
             adminCmd.setExecutor(new EssentialsAdminCommand(gui));
         }
 
-        adminModule = new RumahKitaAdminPlugin(this);
-        adminModule.onEnable();
+        utilityCommands = new PlayerUtilityCommands(this);
+        String[] utils = {"heal", "fly", "speed", "god", "smite", "vanish", "spy", "invsee", "ec", "troll"};
+        for (String c : utils) {
+            if (getCommand(c) != null) getCommand(c).setExecutor(utilityCommands);
+        }
 
         utilitiesModule = new RumahKitaUtilitiesPlugin(this);
         utilitiesModule.onEnable();
@@ -54,9 +57,7 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
             org.bukkit.event.HandlerList.unregisterAll((org.bukkit.plugin.Plugin)this);
         } catch (Exception ignored) {}
 
-        if (adminModule != null) {
-            adminModule.onDisable();
-        }
+        
         if (utilitiesModule != null) {
             utilitiesModule.onDisable();
         }

@@ -14,6 +14,7 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
     private RumahKitaSecurityBanPlugin moduleRumahKitaSecurityBanPlugin;
     private RumahKitaRamGuardPlugin moduleRumahKitaRamGuardPlugin;
     private RumahKitaOreSpectatorPlugin moduleRumahKitaOreSpectatorPlugin;
+    private id.rumahkita.security.network.NetworkSecurityModule networkSecurityModule;
 
     @Override
     public void onEnable() {
@@ -30,6 +31,8 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
         try { moduleRumahKitaRamGuardPlugin.onEnable(); } catch (Exception e) { e.printStackTrace(); }
         moduleRumahKitaOreSpectatorPlugin = new RumahKitaOreSpectatorPlugin(this);
         try { moduleRumahKitaOreSpectatorPlugin.onEnable(); } catch (Exception e) { e.printStackTrace(); }
+        
+        networkSecurityModule = new id.rumahkita.security.network.NetworkSecurityModule(this);
         
         RksGuiManager guiManager = new RksGuiManager(this);
         getServer().getPluginManager().registerEvents(guiManager, this);
@@ -48,6 +51,7 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
     public RumahKitaSecurityBanPlugin getSecurityBan() { return moduleRumahKitaSecurityBanPlugin; }
     public RumahKitaRamGuardPlugin getRamGuard() { return moduleRumahKitaRamGuardPlugin; }
     public RumahKitaOreSpectatorPlugin getOreSpectator() { return moduleRumahKitaOreSpectatorPlugin; }
+    public id.rumahkita.security.network.NetworkSecurityModule getNetworkSecurity() { return networkSecurityModule; }
 
     @Override
     public void onDisable() {

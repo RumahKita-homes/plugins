@@ -85,6 +85,19 @@ public class RksCommand implements TabExecutor {
                     return plugin.getRamGuard().onCommand(sender, command, "ramguard", subArgs);
                 }
                 break;
+            case "checkip":
+            case "checkalts":
+            case "allowalt":
+            case "blockalt":
+            case "unblockalt":
+            case "setmainaccount":
+            case "blockip":
+            case "unblockip":
+            case "vpn":
+                if (plugin.getNetworkSecurity() != null) {
+                    return plugin.getNetworkSecurity().onCommand(sender, command, label, args);
+                }
+                break;
             case "spec":
                 if (plugin.getOreSpectator() != null) {
                     return plugin.getOreSpectator().onCommand(sender, command, "spec2", subArgs);

@@ -15,16 +15,6 @@ commands:
     permission-message: Unknown command. Type "/help" for help.
     aliases:
     - rkes
-  rka:
-    description: Main command for RumahKita Admin
-    permission: rumahkita.admin
-    permission-message: Unknown command. Type "/help" for help.
-    usage: /rka
-  sc:
-    description: Staff Chat
-    permission: rumahkita.admin
-    permission-message: Unknown command. Type "/help" for help.
-    usage: /sc <message>
   pwarp:
     description: Player Warp Commands
     aliases:
@@ -109,6 +99,36 @@ commands:
     - bin
     - sampah
     - buang
+  heal:
+    description: Heal player
+    permission: rumahkita.admin
+  fly:
+    description: Toggle fly
+    permission: rumahkita.admin
+  speed:
+    description: Set speed
+    permission: rumahkita.admin
+  god:
+    description: God mode
+    permission: rumahkita.admin
+  smite:
+    description: Smite player
+    permission: rumahkita.admin
+  vanish:
+    description: Vanish
+    permission: rumahkita.admin
+  spy:
+    description: Spy mode
+    permission: rumahkita.admin
+  invsee:
+    description: See inventory
+    permission: rumahkita.admin
+  ec:
+    description: See enderchest
+    permission: rumahkita.admin
+  troll:
+    description: Troll player
+    permission: rumahkita.admin
 permissions:
   rumahkita.utilities.admin:
     description: Admin access to all RumahKitaUtilities commands.

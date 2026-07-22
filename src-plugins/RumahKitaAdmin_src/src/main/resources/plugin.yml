@@ -1,0 +1,18 @@
+name: RumahKitaAdmin
+version: 1.0.0
+main: id.rumahkita.admin.RumahKitaAdmin
+api-version: 1.13
+authors: [phy0n]
+description: Core moderation plugin for RumahKita.
+
+commands:
+  rka:
+    description: Main admin moderation command.
+    aliases: [rkadmin]
+    permission: rumahkita.admin
+    usage: /rka help
+
+permissions:
+  rumahkita.admin:
+    description: Allows access to RumahKitaAdmin commands.
+    default: op

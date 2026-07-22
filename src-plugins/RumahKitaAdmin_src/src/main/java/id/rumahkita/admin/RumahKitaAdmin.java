@@ -5,6 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -53,22 +55,7 @@ import java.util.stream.Collectors;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, Listener {
-    private final id.rumahkita.essentials.RumahKitaEssentialsPlugin plugin;
-    public RumahKitaAdminPlugin(id.rumahkita.essentials.RumahKitaEssentialsPlugin plugin) {
-        this.plugin = plugin;
-    }
-
-    public org.bukkit.configuration.file.FileConfiguration getConfig() { return plugin.getConfig(); }
-    public void saveConfig() { plugin.saveConfig(); }
-    public void saveDefaultConfig() { plugin.saveDefaultConfig(); }
-    public void reloadConfig() { plugin.reloadConfig(); }
-    public java.util.logging.Logger getLogger() { return plugin.getLogger(); }
-    public org.bukkit.Server getServer() { return plugin.getServer(); }
-    public org.bukkit.command.PluginCommand getCommand(String name) { return plugin.getCommand(name); }
-    public org.bukkit.plugin.java.JavaPlugin getPlugin() { return plugin; }
-    public java.io.File getDataFolder() { return plugin.getDataFolder(); }
-
+public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCompleter, Listener {
     private final Set<UUID> frozenPlayers = new HashSet<>();
     private final Set<UUID> vanishedPlayers = new HashSet<>();
     private final Set<UUID> staffChatToggled = new HashSet<>();
@@ -103,7 +90,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         if (getCommand("sc") != null) {
             getCommand("sc").setExecutor(this);
         }
-        getServer().getPluginManager().registerEvents(this, this.getPlugin());
+        getServer().getPluginManager().registerEvents(this, this);
         createDataConfig();
         loadJailData();
         
@@ -117,7 +104,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                 tickRestart();
             }
         };
-        restartTask.runTaskTimer(this.getPlugin(), 20L, 20L);
+        restartTask.runTaskTimer(this, 20L, 20L);
 
         getLogger().info("RumahKitaAdmin successfully enabled!");
     }
@@ -151,7 +138,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
     }
 
     private void saveDataConfig() {
-        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)this.plugin, () -> {
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
                 dataConfig.save(dataFile);
             } catch (Exception e) {
@@ -206,36 +193,18 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         String sub = args[0].toLowerCase();
 
         switch (sub) {
-            case "checkip": return handleCheckIp(sender, args);
-            case "checkalts": return handleCheckAlts(sender, args);
-            case "allowalt": return handleAllowAlt(sender, args);
-            case "blockalt": return handleBlockAlt(sender, args);
-            case "unblockalt": return handleUnblockAlt(sender, args);
-            case "setmainaccount": return handleSetMain(sender, args);
-            case "blockip": return handleBlockIp(sender, args);
-            case "unblockip": return handleUnblockIp(sender, args);
-            case "vpn": return handleVpn(sender, args);
             case "clearchat": return handleClearChat(sender);
-            case "freeze": return handleFreeze(sender, args);
-            case "invsee": return handleInvsee(sender, args);
-            case "ec": return handleEc(sender, args);
             case "kick": return handleKick(sender, args);
             case "broadcast": return handleBroadcast(sender, args);
-            case "vanish": return handleVanish(sender, args);
-            case "smite": return handleSmite(sender, args);
-            case "troll": return handleTroll(sender, args);
-            case "heal": return handleHeal(sender, args);
-            case "fly": return handleFly(sender, args);
-            case "speed": return handleSpeed(sender, args);
             case "mute": return handleMute(sender, args);
-            case "spy": return handleSpy(sender);
-            case "god": return handleGod(sender, args);
             case "maintenance": return handleMaintenance(sender, args);
             case "chatlock": return handleChatLock(sender);
             case "setjail": return handleSetJail(sender);
             case "jail": return handleJail(sender, args);
             case "unjail": return handleUnjail(sender, args);
+            case "freeze": return handleFreeze(sender, args);
             case "warn": return handleWarn(sender, args);
+            case "unwarn": return handleUnwarn(sender, args);
             case "inspect": return handleInspect(sender, args);
             case "sudo": return handleSudo(sender, args);
             case "spectate": return handleSpectate(sender, args);
@@ -481,6 +450,32 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         return true;
     }
 
+    private boolean handleUnwarn(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(ChatColor.RED + "Usage: /rka unwarn <player>");
+            return true;
+        }
+        @SuppressWarnings("deprecation")
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+        if (target == null || !target.hasPlayedBefore() && !target.isOnline()) {
+            sender.sendMessage(ChatColor.RED + "Player not found.");
+            return true;
+        }
+        
+        int warnings = getConfig().getInt("warnings." + target.getUniqueId(), 0);
+        if (warnings <= 0) {
+            sender.sendMessage(ChatColor.RED + target.getName() + " has no warnings.");
+            return true;
+        }
+        
+        getConfig().set("warnings." + target.getUniqueId(), warnings - 1);
+        saveConfig();
+        
+        sender.sendMessage(ChatColor.GREEN + "Removed 1 warning from " + target.getName() + ". Total warnings: " + (warnings - 1));
+        logModeration("UNWARN: " + sender.getName() + " unwarned " + target.getName() + " (Total: " + (warnings - 1) + ")");
+        return true;
+    }
+
     private boolean handleSudo(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sender.sendMessage(ChatColor.RED + "Usage: /rka sudo <player> <message/command>");
@@ -689,7 +684,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             if (json.contains("\"proxy\":true") || json.contains("\"hosting\":true")) {
                 event.disallow(org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMsg);
                 getLogger().warning("Anti-VPN memblokir login dari: " + event.getName() + " (" + ip + ")");
-                Bukkit.getScheduler().runTask(this.getPlugin(), () -> {
+                Bukkit.getScheduler().runTask(this, () -> {
                     logModeration("ANTI-VPN: Blocked " + event.getName() + " (" + ip + ")");
                     List<String> bads = dataConfig.getStringList("vpn_cache.proxy_ips");
                     if (!bads.contains(ip)) {
@@ -699,7 +694,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                     }
                 });
             } else {
-                Bukkit.getScheduler().runTask(this.getPlugin(), () -> {
+                Bukkit.getScheduler().runTask(this, () -> {
                     List<String> ips = dataConfig.getStringList("vpn_cache.clean_ips");
                     if (!ips.contains(ip)) {
                         ips.add(ip);
@@ -745,37 +740,9 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         return true;
     }
 
-    private boolean handleSpy(CommandSender sender) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
-        UUID uuid = p.getUniqueId();
-        if (spyPlayers.contains(uuid)) {
-            spyPlayers.remove(uuid);
-            p.sendMessage(ChatColor.RED + "Command Spy disabled.");
-        } else {
-            spyPlayers.add(uuid);
-            p.sendMessage(ChatColor.GREEN + "Command Spy enabled! You will see all commands typed by other players.");
-        }
-        return true;
-    }
+    
 
-    private boolean handleGod(CommandSender sender, String[] args) {
-        Player target = null;
-        if (args.length > 1) target = Bukkit.getPlayerExact(args[1]);
-        else if (sender instanceof Player) target = (Player) sender;
-        
-        if (target != null) {
-            UUID uuid = target.getUniqueId();
-            if (godPlayers.contains(uuid)) {
-                godPlayers.remove(uuid);
-                sender.sendMessage(ChatColor.GREEN + "God Mode disabled for " + target.getName());
-            } else {
-                godPlayers.add(uuid);
-                sender.sendMessage(ChatColor.GREEN + "God Mode enabled for " + target.getName());
-            }
-        }
-        return true;
-    }
+    
 
     private boolean handleMaintenance(CommandSender sender, String[] args) {
         if (args.length >= 2 && (args[1].equalsIgnoreCase("cancel") || args[1].equalsIgnoreCase("stop") || args[1].equalsIgnoreCase("off"))) {
@@ -877,101 +844,15 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                     this.cancel();
                 }
             }
-        }.runTaskTimer(this.getPlugin(), 0L, 20L);
+        }.runTaskTimer(this, 0L, 20L);
         
         sender.sendMessage(ChatColor.GREEN + "Maintenance Mode ON. Normal players will be kicked in " + finalCountdown + "s.");
         return true;
     }
 
-    private boolean handleEc(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
-        if (args.length < 2) {
-            p.sendMessage(ChatColor.RED + "Usage: /rka ec <player>");
-            return true;
-        }
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target != null) {
-            p.openInventory(target.getEnderChest());
-            p.sendMessage(ChatColor.GREEN + "Opening Enderchest of " + target.getName());
-        } else {
-            p.sendMessage(ChatColor.RED + "Player is not online.");
-        }
-        return true;
-    }
+    
 
-    private boolean handleTroll(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka troll <player> <type>");
-            return true;
-        }
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target == null) {
-            sender.sendMessage(ChatColor.RED + "Player is not online.");
-            return true;
-        }
-
-        String type = args[2].toLowerCase();
-        switch (type) {
-            case "launch":
-                target.setVelocity(new Vector(0, 3, 0));
-                sender.sendMessage(ChatColor.GREEN + "Launching " + target.getName());
-                break;
-            case "fakeop":
-                target.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "[Server: Made " + target.getName() + " a server operator]");
-                sender.sendMessage(ChatColor.GREEN + "Sending Fake OP message to " + target.getName());
-                break;
-            case "spin":
-                Location loc = target.getLocation();
-                loc.setYaw(loc.getYaw() + 180f);
-                target.teleport(loc);
-                sender.sendMessage(ChatColor.GREEN + "Spinning " + target.getName());
-                break;
-            case "blind":
-                target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
-                sender.sendMessage(ChatColor.GREEN + "Blinding " + target.getName());
-                break;
-            case "drop":
-                if (target.getInventory().getItemInMainHand().getType() != Material.AIR) {
-                    target.getWorld().dropItemNaturally(target.getLocation(), target.getInventory().getItemInMainHand());
-                    target.getInventory().setItemInMainHand(null);
-                }
-                sender.sendMessage(ChatColor.GREEN + "Dropping items of " + target.getName());
-                break;
-            case "scare":
-                target.playSound(target.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 1.0f, 1.0f);
-                sender.sendMessage(ChatColor.GREEN + "Jumpscaring " + target.getName());
-                break;
-            case "fakeban":
-                target.kickPlayer(ChatColor.RED + "You are banned from this server.\n" + ChatColor.WHITE + "Reason: " + ChatColor.YELLOW + "Hacking / Cheating" + ChatColor.WHITE + "\n\nAppeal at our discord.");
-                sender.sendMessage(ChatColor.GREEN + "Fake Banning " + target.getName());
-                break;
-            case "cobweb":
-                target.getLocation().getBlock().setType(Material.COBWEB);
-                sender.sendMessage(ChatColor.GREEN + "Trapping " + target.getName() + " in cobweb.");
-                break;
-            case "shuffle":
-                List<ItemStack> items = new ArrayList<>();
-                for (ItemStack item : target.getInventory().getContents()) {
-                    items.add(item);
-                }
-                Collections.shuffle(items);
-                target.getInventory().setContents(items.toArray(new ItemStack[0]));
-                sender.sendMessage(ChatColor.GREEN + "Shuffled inventory of " + target.getName());
-                break;
-            case "potato":
-                for (int i = 0; i < target.getInventory().getSize(); i++) {
-                    if (target.getInventory().getItem(i) == null || target.getInventory().getItem(i).getType() == Material.AIR) {
-                        target.getInventory().setItem(i, new ItemStack(Material.POISONOUS_POTATO));
-                    }
-                }
-                sender.sendMessage(ChatColor.GREEN + "Filled empty slots of " + target.getName() + " with potatoes.");
-                break;
-            default:
-                sender.sendMessage(ChatColor.RED + "Unknown troll type.");
-        }
-        return true;
-    }
+    
 
     private boolean handleStaffChat(CommandSender sender, String[] args) {
         if (args.length == 0) {
@@ -1002,263 +883,23 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         }
     }
 
-    private boolean handleCheckIp(CommandSender sender, String[] args) {
-        if (args.length < 2) return false;
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target == null) {
-            String offlineIp = dataConfig.getString("player_ips." + args[1]);
-            if (offlineIp != null) {
-                sender.sendMessage(ChatColor.GREEN + "IP " + args[1] + " (Offline): " + ChatColor.YELLOW + offlineIp);
-                return true;
-            }
-            return true;
-        }
-        sender.sendMessage(ChatColor.GREEN + "IP " + target.getName() + " (Online): " + ChatColor.YELLOW + target.getAddress().getAddress().getHostAddress());
-        return true;
-    }
+    
 
-    private boolean handleCheckAlts(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka checkalts <player>");
-            return true;
-        }
-        
-        String targetName = args[1];
-        String targetIp = dataConfig.getString("player_ips." + targetName);
-        
-        Player targetPlayer = Bukkit.getPlayerExact(targetName);
-        if (targetPlayer != null) {
-            targetIp = targetPlayer.getAddress().getAddress().getHostAddress();
-            targetName = targetPlayer.getName();
-        }
+    
 
-        if (targetIp == null) {
-            sender.sendMessage(ChatColor.RED + "No IP data found for player: " + targetName);
-            return true;
-        }
+    
 
-        List<String> alts = new ArrayList<>();
-        String ipKey = targetIp.replace(".", "_");
-        List<String> accounts = dataConfig.getStringList("ip_players." + ipKey);
-        
-        for (String name : accounts) {
-            if (name.equalsIgnoreCase(targetName)) continue;
-            Player p = Bukkit.getPlayerExact(name);
-            if (p != null) {
-                alts.add(ChatColor.GREEN + name + ChatColor.GRAY + " (Online)");
-            } else {
-                alts.add(ChatColor.GRAY + name + " (Offline)");
-            }
-        }
+    
 
-        sender.sendMessage(ChatColor.DARK_GRAY + "--------------------------------------------------");
-        String mainAcc = dataConfig.getString("main_accounts." + ipKey);
-        if (mainAcc != null && mainAcc.equalsIgnoreCase(targetName)) {
-            sender.sendMessage(ChatColor.AQUA + "Alt Accounts for " + ChatColor.YELLOW + ChatColor.BOLD + targetName + ChatColor.AQUA + " (IP: " + targetIp + ") " + ChatColor.GOLD + "[MAIN]");
-        } else if (mainAcc != null) {
-            sender.sendMessage(ChatColor.AQUA + "Alt Accounts for " + ChatColor.YELLOW + targetName + ChatColor.AQUA + " (IP: " + targetIp + ") | " + ChatColor.GOLD + "Main Account: " + mainAcc);
-        } else {
-            sender.sendMessage(ChatColor.AQUA + "Alt Accounts for " + ChatColor.YELLOW + targetName + ChatColor.AQUA + " (IP: " + targetIp + ")");
-        }
-        if (alts.isEmpty()) {
-            sender.sendMessage(ChatColor.GRAY + "No alt accounts found on this IP.");
-        } else {
-            sender.sendMessage(ChatColor.WHITE + String.join(ChatColor.DARK_GRAY + ", ", alts));
-        }
-        sender.sendMessage(ChatColor.DARK_GRAY + "--------------------------------------------------");
+    
 
-        return true;
-    }
+    
 
-    private boolean handleAllowAlt(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka allowalt <main account> <alt account>");
-            return true;
-        }
-        String mainAcc = args[1];
-        String newAlt = args[2];
-        
-        String ip = dataConfig.getString("player_ips." + mainAcc);
-        if (ip != null) {
-            dataConfig.set("player_ips." + newAlt, ip);
-            String ipKey = ip.replace(".", "_");
-            List<String> accounts = dataConfig.getStringList("ip_players." + ipKey);
-            if (!accounts.contains(newAlt)) {
-                accounts.add(newAlt);
-                dataConfig.set("ip_players." + ipKey, accounts);
-            }
-            saveDataConfig();
-            sender.sendMessage(ChatColor.GREEN + "Successfully granted alt bypass access!");
-            sender.sendMessage(ChatColor.GRAY + "Akun " + ChatColor.YELLOW + newAlt + ChatColor.GRAY + " is now registered to the IP of " + ChatColor.YELLOW + mainAcc + ChatColor.GRAY + ".");
-        } else {
-            sender.sendMessage(ChatColor.RED + "IP Data not found for account: " + mainAcc);
-        }
-        return true;
-    }
+    
 
-    private boolean handleBlockAlt(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka blockalt <main account> <alt account>");
-            return true;
-        }
-        String mainAcc = args[1];
-        String altAcc = args[2];
-        
-        List<String> blocked = dataConfig.getStringList("blocked_alts");
-        if (!blocked.contains(altAcc.toLowerCase())) {
-            blocked.add(altAcc.toLowerCase());
-            dataConfig.set("blocked_alts", blocked);
-            saveDataConfig();
-        }
-        
-        sender.sendMessage(ChatColor.GREEN + "Successfully blocked alt!");
-        sender.sendMessage(ChatColor.GRAY + "Akun " + ChatColor.RED + altAcc + ChatColor.GRAY + " will now be permanently blocked (Suspected as 3rd alt of " + ChatColor.YELLOW + mainAcc + ChatColor.GRAY + ").");
-        
-        logModeration("BLOCKALT: " + sender.getName() + " blocked alt " + altAcc + " (Main: " + mainAcc + ")");
-        
-        Player p = Bukkit.getPlayerExact(altAcc);
-        if (p != null) {
-            p.kickPlayer(ChatColor.translateAlternateColorCodes('&', "&cLogin Failed!\n\n&fThis account is detected as your 3rd or more account.\n&7Maximum allowed is 2 accounts."));
-        }
-        
-        return true;
-    }
+    
 
-    private boolean handleUnblockAlt(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka unblockalt <alt account>");
-            return true;
-        }
-        String altAcc = args[1].toLowerCase();
-        
-        List<String> blocked = dataConfig.getStringList("blocked_alts");
-        if (blocked.contains(altAcc)) {
-            blocked.remove(altAcc);
-            dataConfig.set("blocked_alts", blocked);
-            saveDataConfig();
-            sender.sendMessage(ChatColor.GREEN + "Successfully unblocked alt!");
-            sender.sendMessage(ChatColor.GRAY + "Akun " + ChatColor.YELLOW + altAcc + ChatColor.GRAY + " has been removed from the blocklist and can now join.");
-            logModeration("UNBLOCKALT: " + sender.getName() + " unblocked alt " + altAcc);
-        } else {
-            sender.sendMessage(ChatColor.RED + "Akun " + altAcc + " was not found in the blocklist.");
-        }
-        
-        return true;
-    }
-
-    private boolean handleSetMain(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka setmainaccount <account>");
-            return true;
-        }
-        String targetName = args[1];
-        String ip = dataConfig.getString("player_ips." + targetName);
-        if (ip == null) {
-            sender.sendMessage(ChatColor.RED + "IP Data not found for account: " + targetName);
-            return true;
-        }
-        
-        String ipKey = ip.replace(".", "_");
-        dataConfig.set("main_accounts." + ipKey, targetName);
-        saveDataConfig();
-        
-        sender.sendMessage(ChatColor.GREEN + "Successfully set " + ChatColor.YELLOW + targetName + ChatColor.GREEN + " as the Main Account for IP " + ip);
-        logModeration("SETMAIN: " + sender.getName() + " set " + targetName + " as main account for " + ip);
-        return true;
-    }
-
-    private boolean handleBlockIp(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka blockip <ip>");
-            return true;
-        }
-        String ip = args[1];
-        List<String> blockedIps = dataConfig.getStringList("blocked_ips");
-        if (!blockedIps.contains(ip)) {
-            blockedIps.add(ip);
-            dataConfig.set("blocked_ips", blockedIps);
-            saveDataConfig();
-            sender.sendMessage(ChatColor.GREEN + "IP " + ip + " successfully blocked.");
-            logModeration("BLOCKIP: " + sender.getName() + " blocked IP " + ip);
-        } else {
-            sender.sendMessage(ChatColor.RED + "The IP is already in the blocklist.");
-        }
-        return true;
-    }
-
-    private boolean handleUnblockIp(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka unblockip <ip>");
-            return true;
-        }
-        String ip = args[1];
-        List<String> blockedIps = dataConfig.getStringList("blocked_ips");
-        if (blockedIps.contains(ip)) {
-            blockedIps.remove(ip);
-            dataConfig.set("blocked_ips", blockedIps);
-            saveDataConfig();
-            sender.sendMessage(ChatColor.GREEN + "IP " + ip + " successfully unblocked.");
-            logModeration("UNBLOCKIP: " + sender.getName() + " unblocked IP " + ip);
-        } else {
-            sender.sendMessage(ChatColor.RED + "The IP is not in the blocklist.");
-        }
-        return true;
-    }
-
-    private boolean handleVpn(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka vpn <on/off/allow/remove> [ip]");
-            return true;
-        }
-        String action = args[1].toLowerCase();
-        
-        if (action.equals("on")) {
-            getConfig().set("settings.anti-vpn.enabled", true);
-            saveConfig();
-            sender.sendMessage(ChatColor.GREEN + "Anti-VPN system has been ENABLED!");
-            logModeration("VPN TOGGLE: " + sender.getName() + " enabled Anti-VPN");
-            return true;
-        } else if (action.equals("off")) {
-            getConfig().set("settings.anti-vpn.enabled", false);
-            saveConfig();
-            sender.sendMessage(ChatColor.RED + "Anti-VPN system has been DISABLED!");
-            logModeration("VPN TOGGLE: " + sender.getName() + " disabled Anti-VPN");
-            return true;
-        }
-
-        if (args.length < 3) {
-            sender.sendMessage(ChatColor.RED + "Usage: /rka vpn <allow/remove> <ip>");
-            return true;
-        }
-        
-        String ip = args[2];
-        List<String> cleanIps = dataConfig.getStringList("vpn_cache.clean_ips");
-        
-        if (action.equals("allow")) {
-            if (!cleanIps.contains(ip)) {
-                cleanIps.add(ip);
-                dataConfig.set("vpn_cache.clean_ips", cleanIps);
-                saveDataConfig();
-                sender.sendMessage(ChatColor.GREEN + "IP " + ip + " added to VPN whitelist.");
-                logModeration("VPN ALLOW: " + sender.getName() + " whitelisted IP " + ip);
-            } else {
-                sender.sendMessage(ChatColor.RED + "The IP is already in the VPN whitelist.");
-            }
-        } else if (action.equals("remove")) {
-            if (cleanIps.contains(ip)) {
-                cleanIps.remove(ip);
-                dataConfig.set("vpn_cache.clean_ips", cleanIps);
-                saveDataConfig();
-                sender.sendMessage(ChatColor.GREEN + "IP " + ip + " removed from VPN whitelist.");
-                logModeration("VPN REMOVE: " + sender.getName() + " removed IP " + ip + " from VPN whitelist");
-            } else {
-                sender.sendMessage(ChatColor.RED + "The IP is not in the VPN whitelist.");
-            }
-        } else {
-            sender.sendMessage(ChatColor.RED + "Unknown action. Use: on, off, allow, or remove.");
-        }
-        return true;
-    }
+    
 
     private boolean handleClearChat(CommandSender sender) {
         for (int i = 0; i < 100; i++) Bukkit.broadcastMessage("");
@@ -1283,15 +924,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         return true;
     }
 
-    private boolean handleInvsee(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player) || args.length < 2) return false;
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target != null) {
-            ((Player) sender).openInventory(target.getInventory());
-            sender.sendMessage(ChatColor.GREEN + "Opening inventory of " + target.getName());
-        }
-        return true;
-    }
+    
 
     private boolean handleKick(CommandSender sender, String[] args) {
         if (args.length < 2) return false;
@@ -1313,87 +946,15 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         return true;
     }
 
-    private boolean handleVanish(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) return true;
-        Player target = (Player) sender;
-        UUID uuid = target.getUniqueId();
-        if (vanishedPlayers.contains(uuid)) {
-            vanishedPlayers.remove(uuid);
-            for (Player p : Bukkit.getOnlinePlayers()) p.showPlayer(this.getPlugin(), target);
-            if (target.hasMetadata("vanished")) target.removeMetadata("vanished", this.getPlugin());
-            if (vanishPerms.containsKey(uuid)) {
-                target.removeAttachment(vanishPerms.get(uuid));
-                vanishPerms.remove(uuid);
-            }
-            Bukkit.broadcastMessage(ChatColor.YELLOW + target.getName() + " joined the game");
-            sender.sendMessage(ChatColor.GREEN + "You are now visible (Unvanished).");
-        } else {
-            vanishedPlayers.add(uuid);
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (!p.hasPermission("rumahkita.admin")) p.hidePlayer(this.getPlugin(), target);
-            }
-            target.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this.getPlugin(), true));
-            org.bukkit.permissions.PermissionAttachment attachment = target.addAttachment(this.getPlugin());
-            attachment.setPermission("essentials.afk.auto", false);
-            vanishPerms.put(uuid, attachment);
-            Bukkit.broadcastMessage(ChatColor.YELLOW + target.getName() + " left the game");
-            sender.sendMessage(ChatColor.GREEN + "You are now hidden from normal players (Vanished).");
-        }
-        return true;
-    }
+    
 
-    private boolean handleHeal(CommandSender sender, String[] args) {
-        Player target = null;
-        if (args.length > 1) target = Bukkit.getPlayerExact(args[1]);
-        else if (sender instanceof Player) target = (Player) sender;
-        
-        if (target != null) {
-            target.setHealth(target.getMaxHealth());
-            target.setFoodLevel(20);
-            target.setFireTicks(0);
-            for (PotionEffect effect : target.getActivePotionEffects()) target.removePotionEffect(effect.getType());
-            sender.sendMessage(ChatColor.GREEN + target.getName() + " has been healed.");
-        }
-        return true;
-    }
+    
 
-    private boolean handleFly(CommandSender sender, String[] args) {
-        Player target = null;
-        if (args.length > 1) target = Bukkit.getPlayerExact(args[1]);
-        else if (sender instanceof Player) target = (Player) sender;
-        
-        if (target != null) {
-            target.setAllowFlight(!target.getAllowFlight());
-            sender.sendMessage(ChatColor.GREEN + "Fly " + target.getName() + " : " + target.getAllowFlight());
-        }
-        return true;
-    }
+    
 
-    private boolean handleSpeed(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player) || args.length < 2) return true;
-        Player p = (Player) sender;
-        try {
-            float speed = Float.parseFloat(args[1]) / 10f;
-            if (speed < 0.1f || speed > 1f) throw new NumberFormatException();
-            if (p.isFlying()) p.setFlySpeed(speed);
-            else p.setWalkSpeed(speed);
-            p.sendMessage(ChatColor.GREEN + "Speed changed to " + args[1]);
-        } catch (Exception e) {
-            p.sendMessage(ChatColor.RED + "Invalid number (1-10).");
-        }
-        return true;
-    }
+    
 
-    private boolean handleSmite(CommandSender sender, String[] args) {
-        if (args.length < 2) return false;
-        Player target = Bukkit.getPlayerExact(args[1]);
-        if (target != null) {
-            target.getWorld().strikeLightningEffect(target.getLocation());
-            target.setHealth(Math.max(0.5, target.getHealth() - 4.0));
-            sender.sendMessage(ChatColor.GREEN + "Smiting " + target.getName() + " with lightning!");
-        }
-        return true;
-    }
+    
 
     // --- EVENT LISTENERS ---
 
@@ -1489,37 +1050,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         }
     }
 
-    @EventHandler
-    public void onPlayerLogin(PlayerLoginEvent event) {
-        if (maintenanceMode && !event.getPlayer().hasPermission("rumahkita.admin")) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, getMsg("messages.maintenance.kick-message", "&cThe server is currently under Maintenance.\n&fPlease try again later."));
-            return;
-        }
-
-        if (event.getPlayer().hasPermission("rumahkita.admin")) return;
-
-        String playerName = event.getPlayer().getName();
-        
-        List<String> blockedAlts = dataConfig.getStringList("blocked_alts");
-        if (blockedAlts.contains(playerName.toLowerCase())) {
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, ChatColor.translateAlternateColorCodes('&', "&cConnection Refused!\n\n&fThis account is detected as a 3rd alt or more.\n&7Maximum limit is 2 accounts per player."));
-            return;
-        }
-
-        String ip = event.getAddress().getHostAddress();
-        
-        String ipKey = ip.replace(".", "_");
-        List<String> accounts = dataConfig.getStringList("ip_players." + ipKey);
-        
-        boolean isExisting = accounts.contains(playerName);
-        int accountCount = accounts.size();
-
-        if (!isExisting && accountCount >= 2) {
-            String mainAcc = dataConfig.getString("main_accounts." + ipKey);
-            String extraMsg = mainAcc != null ? "\n&7(Suspected as alt of &e" + mainAcc + "&7)" : "";
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, ChatColor.translateAlternateColorCodes('&', "&cConnection Refused!\n\n&fYou have reached the maximum limit of &e2 Accounts &fper IP.\n&7Please use your previous main account." + extraMsg));
-        }
-    }
+    
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
@@ -1568,13 +1099,13 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
 
         if (vanishedPlayers.contains(p.getUniqueId())) {
             event.setJoinMessage(null);
-            p.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this.getPlugin(), true));
+            p.setMetadata("vanished", new org.bukkit.metadata.FixedMetadataValue(this, true));
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.hasPermission("rumahkita.admin")) {
-                    online.hidePlayer(this.getPlugin(), p);
+                    online.hidePlayer(this, p);
                 }
             }
-            org.bukkit.permissions.PermissionAttachment attachment = p.addAttachment(this.getPlugin());
+            org.bukkit.permissions.PermissionAttachment attachment = p.addAttachment(this);
             attachment.setPermission("essentials.afk.auto", false);
             vanishPerms.put(p.getUniqueId(), attachment);
             p.sendMessage(ChatColor.YELLOW + "[!] " + ChatColor.GREEN + "You logged in while in VANISH mode.");
@@ -1583,7 +1114,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         if (!p.hasPermission("rumahkita.admin")) {
             for (UUID uuid : vanishedPlayers) {
                 Player vanished = Bukkit.getPlayer(uuid);
-                if (vanished != null) p.hidePlayer(this.getPlugin(), vanished);
+                if (vanished != null) p.hidePlayer(this, vanished);
             }
         }
     }

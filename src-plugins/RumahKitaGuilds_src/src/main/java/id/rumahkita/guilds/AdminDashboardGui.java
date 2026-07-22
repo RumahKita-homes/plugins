@@ -56,8 +56,8 @@ public class AdminDashboardGui implements Listener {
         
         fillBorder(inv);
         
-        inv.setItem(11, createItem(Material.COMMAND_BLOCK, "&c&lGlobal Settings", "&7Configure guild creation cost,", "&7pajak, batas maksimal,", "&7and general configurations."));
-        inv.setItem(15, createItem(Material.COMPASS, "&b&lGuild Browser", "&7View all existing guilds", "&7di server, cek log, member,", "&7dan manajemen kas guild."));
+        inv.setItem(11, createItem(Material.COMMAND_BLOCK, "&c&lGlobal Settings", "&7Configure guild creation cost,", "&7taxes, maximum limits,", "&7and general configurations."));
+        inv.setItem(15, createItem(Material.COMPASS, "&b&lGuild Browser", "&7View all existing guilds", "&7on the server, check logs, members,", "&7and manage guild balances."));
         
         player.openInventory(inv);
     }
@@ -259,18 +259,18 @@ public class AdminDashboardGui implements Listener {
                         player.sendMessage(ChatColor.RED + "World not found for the claim.");
                     }
                 } else {
-                    player.sendMessage(ChatColor.RED + "Guild ini belum memiliki area yang di-claim ataupun home.");
+                    player.sendMessage(ChatColor.RED + "This guild does not have a claimed area or a home set yet.");
                 }
             } else if (slot == 35) {
                 player.closeInventory();
                 pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.UNCLAIM, guild));
-                player.sendMessage(ChatColor.YELLOW + "Apakah Anda yakin ingin melakukan UNCLAIM pada area (chunk) guild ini?");
-                player.sendMessage(ChatColor.YELLOW + "Ketik " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " untuk konfirmasi, atau " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " untuk membatalkan.");
+                player.sendMessage(ChatColor.YELLOW + "Are you sure you want to UNCLAIM this guild's area (chunk)?");
+                player.sendMessage(ChatColor.YELLOW + "Type " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " to confirm, or " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " to abort.");
             } else if (slot == 40) {
                 player.closeInventory();
                 pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.FORCE_DISBAND, guild));
-                player.sendMessage(ChatColor.RED + "Apakah Anda yakin ingin secara PAKSA MEMBUBARKAN guild " + guild.getName() + "?");
-                player.sendMessage(ChatColor.YELLOW + "Ketik " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " untuk konfirmasi, atau " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " untuk membatalkan.");
+                player.sendMessage(ChatColor.RED + "Are you sure you want to FORCE DISBAND the guild " + guild.getName() + "?");
+                player.sendMessage(ChatColor.YELLOW + "Type " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " to confirm, or " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " to abort.");
             } else if (slot == 20) {
                 player.closeInventory();
                 player.sendMessage(ChatColor.AQUA + "=== Members " + guild.getName() + " ===");
@@ -290,7 +290,7 @@ public class AdminDashboardGui implements Listener {
             event.setCancelled(true);
             if (System.currentTimeMillis() - req.timestamp > 60000) {
                 pendingActions.remove(player.getUniqueId());
-                player.sendMessage(ChatColor.RED + "Permintaan verifikasi kedaluwarsa.");
+                player.sendMessage(ChatColor.RED + "Verification request expired.");
                 return;
             }
 
@@ -300,7 +300,7 @@ public class AdminDashboardGui implements Listener {
                 Bukkit.getScheduler().runTask(plugin, () -> {
                     if (req.action == PendingAdminAction.FORCE_DISBAND) {
                         Bukkit.dispatchCommand(player, "rkg disband " + req.guild.getTag() + " confirm");
-                        player.sendMessage(ChatColor.RED + "Guild " + req.guild.getName() + " berhasil dibubarkan.");
+                        player.sendMessage(ChatColor.RED + "Guild " + req.guild.getName() + " has been disbanded.");
                     } else if (req.action == PendingAdminAction.UNCLAIM) {
                         String cleanTag = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', req.guild.getTag()));
                         Bukkit.dispatchCommand(player, "rkg unclaim " + cleanTag);
@@ -308,9 +308,9 @@ public class AdminDashboardGui implements Listener {
                 });
             } else if (message.equals("no") || message.equals("cancel") || message.equals("tidak") || message.equals("n")) {
                 pendingActions.remove(player.getUniqueId());
-                player.sendMessage(ChatColor.YELLOW + "Aksi dibatalkan.");
+                player.sendMessage(ChatColor.YELLOW + "Action aborted.");
             } else {
-                player.sendMessage(ChatColor.RED + "Ketik 'Yes' untuk mengonfirmasi, atau 'Cancel' untuk membatalkan.");
+                player.sendMessage(ChatColor.RED + "Type 'Yes' to confirm, or 'Cancel' to abort.");
             }
         }
     }

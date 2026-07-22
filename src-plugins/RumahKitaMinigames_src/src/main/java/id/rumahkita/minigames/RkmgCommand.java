@@ -21,6 +21,10 @@ public class RkmgCommand implements CommandExecutor {
             sender.sendMessage("Only players can open the GUI.");
             return true;
         }
+        if (!sender.hasPermission("rumahkita.minigames.admin")) {
+            sender.sendMessage(org.bukkit.ChatColor.RED + "You don't have permission to use this command.");
+            return true;
+        }
         
         Player player = (Player) sender;
         if (!player.isOp() && !player.hasPermission("rumahkita.minigames.admin")) {

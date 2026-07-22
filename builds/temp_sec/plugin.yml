@@ -1,0 +1,48 @@
+name: RumahKitaSecurity
+version: 1.0.0
+main: id.rumahkita.security.RumahKitaSecurityPlugin
+api-version: '1.16'
+author: RumahKita
+description: Security module combining AntiCheat, AntiXray, Bans, and RamGuard.
+softdepend: []
+commands:
+  rks:
+    description: Main RumahKita Security command.
+    usage: /rks <ac|xray|sec|ban|ipban|unban|ramguard|spec>
+    aliases:
+    - rksecurity
+permissions:
+  rumahkita.anticheat.admin:
+    description: Allows managing RumahKitaAntiCheat.
+    default: op
+  rumahkita.anticheat.notify:
+    description: Receives AntiCheat alerts.
+    default: op
+  rumahkita.anticheat.bypass:
+    description: Bypasses AntiCheat checks.
+    default: op
+  rumahkita.antixray.admin:
+    default: op
+  rumahkita.antixray.notify:
+    default: op
+  rumahkita.antixray.bypass:
+    default: false
+  rumahkita.securityban.admin:
+    default: op
+  rumahkita.securityban.bypass:
+    default: false
+  rumahkitaramguard.admin:
+    description: Akses semua command RumahKitaRamGuard
+    default: op
+  rumahkitaramguard.notify:
+    description: Menerima notifikasi RAM guard
+    default: op
+  rumahkita.orespec.use:
+    description: Use /spec2 ore spectator mode.
+    default: op
+  rumahkita.orespec.admin:
+    description: Reload and manage OreSpectator.
+    default: op
+  rumahkita.orespec.see:
+    description: See admins in spec2 stealth and see full /online list.
+    default: op

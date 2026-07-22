@@ -19,6 +19,10 @@ public class RksCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!sender.hasPermission("rumahkita.security.admin")) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            return true;
+        }
         if (args.length == 0) {
             if (sender instanceof org.bukkit.entity.Player) {
                 guiManager.openMainGui((org.bukkit.entity.Player) sender);

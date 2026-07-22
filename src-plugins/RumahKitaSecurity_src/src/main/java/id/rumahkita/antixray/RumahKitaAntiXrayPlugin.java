@@ -288,8 +288,9 @@ TabExecutor {
             this.freezeUntil.put(player.getUniqueId(), System.currentTimeMillis() + Math.max(30L, plugin.getConfig().getLong("risk.freeze-seconds", 300L)) * 1000L);
         }
         if (mode.equals("command") && risk.score >= critical) {
+            String safeName = player.getName().replaceAll("[^A-Za-z0-9_.*]", "");
             for (String cmd : plugin.getConfig().getStringList("risk.command-on-critical")) {
-                Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd.replace("%player%", player.getName()).replace("%score%", String.valueOf(risk.score)).replace("%reason%", reason));
+                Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd.replace("%player%", safeName).replace("%score%", String.valueOf(risk.score)).replace("%reason%", reason));
             }
         }
     }

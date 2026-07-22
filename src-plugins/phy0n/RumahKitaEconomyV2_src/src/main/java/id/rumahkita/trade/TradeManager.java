@@ -187,7 +187,6 @@ public class TradeManager implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        if (!(e.getPlayer() instanceof Player)) return;
         Player p = (Player) e.getPlayer();
         
         TradeSession session = activeTrades.get(p.getUniqueId());
@@ -219,7 +218,7 @@ public class TradeManager implements Listener {
                     } else {
                         try {
                             long amount = Long.parseLong(msg);
-                            if (amount < 0) throw new NumberFormatException();
+                            if (amount < 0 || amount > Long.MAX_VALUE - 1000) throw new NumberFormatException();
                             RumahKitaEconomyRupiahPlugin eco = RumahKitaEconomyRupiahPlugin.getInstance();
                             if (eco.getBalance(p.getUniqueId()) < amount) {
                                 p.sendMessage(ChatColor.RED + "Insufficient balance!");
@@ -230,7 +229,7 @@ public class TradeManager implements Listener {
                                 p.sendMessage(ChatColor.GREEN + "Successfully set trade money to " + eco.formatRp(amount));
                             }
                         } catch (Exception ex) {
-                            p.sendMessage(ChatColor.RED + "Invalid number!");
+                            p.sendMessage(ChatColor.RED + "Invalid number or amount too large!");
                         }
                     }
                     if (activeTrades.containsKey(p.getUniqueId())) {
@@ -246,9 +245,7 @@ public class TradeManager implements Listener {
         Player p = e.getPlayer();
         TradeSession session = activeTrades.get(p.getUniqueId());
         if (session != null) {
-            if (!session.isLocked()) {
-                cancelTrade(session, p.getName() + " logged out.");
-            }
+            cancelTrade(session, p.getName() + " logged out.");
         }
     }
 

@@ -624,7 +624,8 @@ TabExecutor {
             return;
         }
         String banReason = this.getConfig().getString("securityban-integration.ban-reason", "Verify limit exceeded / suspected alt or VPN") + " (" + reason + ")";
-        Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)("rkban " + pending.name + " " + banReason));
+        String safeName = pending.name.replaceAll("[^A-Za-z0-9_.*]", "");
+        Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)("rkban " + safeName + " " + banReason));
     }
 
     private void runVerifiedCommands(Player player, String discordId) {
@@ -632,7 +633,8 @@ TabExecutor {
             return;
         }
         for (String cmd : this.getConfig().getStringList("on-verified-commands.console-commands")) {
-            cmd = cmd.replace("%player%", player.getName()).replace("%uuid%", player.getUniqueId().toString()).replace("%discord_id%", discordId);
+            String safeName = player.getName().replaceAll("[^A-Za-z0-9_.*]", "");
+            cmd = cmd.replace("%player%", safeName).replace("%uuid%", player.getUniqueId().toString()).replace("%discord_id%", discordId);
             Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd);
         }
     }

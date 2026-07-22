@@ -1,0 +1,37 @@
+enabled: true
+
+security:
+  check-uuid: true
+  check-name: true
+  check-ip: true
+  check-subnet: true
+  auto-ban-name: true
+  auto-ban-last-ip: true
+  auto-ban-subnet: true
+  ipv4-subnet-prefix: 24
+  ipv6-subnet-prefix: 64
+  name-case-insensitive: true
+  kick-online-target: true
+
+history:
+  enabled: true
+  save-ip-history: true
+  max-ips-per-player: 15
+  save-name-history: true
+  max-names-per-player: 10
+
+messages:
+  prefix: ""
+  no-permission: "&cYou don't have permission."
+  reloaded: "&aSecurityBan reloaded successfully."
+  player-not-found: "&cPlayer not found in online/history."
+  banned: "&cTarget successfully hard-banned."
+  ip-banned: "&cIP/Subnet successfully banned."
+  unbanned: "&aBan data successfully deleted."
+  not-banned: "&eTarget is not banned."
+  deny-message:
+    - "&cYou are blocked from RumahKita S2."
+    - "&7Reason: &f%reason%"
+    - "&7Type: &f%type%"
+    - ""
+    - "&eIf you think this is a mistake, contact staff."

@@ -1005,8 +1005,9 @@ TabCompleter {
             return;
         }
         List<String> commands = getConfig().getStringList("rewards.rank" + rank);
+        String safeName = player.getName().replaceAll("[^A-Za-z0-9_.*]", "");
         for (String raw : commands) {
-            String cmd = raw.replace("%player%", player.getName()).replace("%rank%", String.valueOf(rank)).replace("%points%", String.valueOf(participant.points));
+            String cmd = raw.replace("%player%", safeName).replace("%rank%", String.valueOf(rank)).replace("%points%", String.valueOf(participant.points));
             Bukkit.dispatchCommand((CommandSender)Bukkit.getConsoleSender(), (String)cmd);
         }
     }

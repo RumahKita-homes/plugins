@@ -877,6 +877,7 @@ TabExecutor {
             this.msg(sender, "&a /pay <player> <amount> &7- Transfer Money");
             return true;
         }
+
         String sub = args[0].toLowerCase(Locale.ROOT);
         if (sub.equals("reload")) {
             this.reloadAll();

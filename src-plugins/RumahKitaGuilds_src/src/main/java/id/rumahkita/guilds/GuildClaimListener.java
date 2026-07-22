@@ -81,7 +81,10 @@ public class GuildClaimListener implements Listener {
             || event.getSpawnReason() == org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
             return;
         }
-        if (event.getEntity() instanceof org.bukkit.entity.Monster || event.getEntity() instanceof org.bukkit.entity.Slime) {
+        if (event.getEntity() instanceof org.bukkit.entity.Monster 
+            || event.getEntity() instanceof org.bukkit.entity.Slime
+            || event.getEntity() instanceof org.bukkit.entity.Phantom
+            || event.getEntity() instanceof org.bukkit.entity.Ghast) {
             Location loc = event.getLocation();
             String chunkKey = loc.getWorld().getName() + ";" + loc.getChunk().getX() + ";" + loc.getChunk().getZ();
             Guild g = guildManager.getGuildByChunk(chunkKey);

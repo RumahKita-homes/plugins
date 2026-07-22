@@ -16,10 +16,10 @@ commands:
     description: Toggle or send private guild chat.
     usage: /guildchat [message]
     aliases: [gc, gchat]
-  rkgadmin:
-    description: Admin tools for RumahKita guilds.
-    usage: /rkgadmin help
-    aliases: [guildadmin, rkga]
+  rkg:
+    description: Admin tools and GUI for RumahKita guilds.
+    usage: /rkg help
+    aliases: [rkgadmin, guildadmin, rkga, rkguilds]
 
 permissions:
   rumahkitaguilds.use:

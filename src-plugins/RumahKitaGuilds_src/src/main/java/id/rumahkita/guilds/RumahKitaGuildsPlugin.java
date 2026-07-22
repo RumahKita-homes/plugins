@@ -34,16 +34,23 @@ extends JavaPlugin {
     private GuildGui gui;
     private GuildWarManager warManager;
     private GuildPlaceholderExpansion placeholderExpansion;
+    private EconomyManager economyManager;
+    private GuildConfigGui configGui;
+    private AdminDashboardGui adminDashboardGui;
+    private GuildUpgradeGui upgradeGui;
+    private GuildSettingsGui settingsGui;
 
     public void onEnable() {
         this.saveDefaultConfig();
+        this.economyManager = new EconomyManager(this);
         this.guildManager = new GuildManager(this);
         this.guildManager.load();
         this.homeManager = new GuildHomeManager(this);
         this.chatManager = new GuildChatManager(this, this.guildManager);
         this.gui = new GuildGui(this, this.guildManager);
-        this.warManager = new GuildWarManager(this, this.guildManager);
-        GuildCommand guildCommand = new GuildCommand(this, this.guildManager, this.homeManager, this.chatManager, this.gui, this.warManager);
+        this.warManager = new GuildWarManager(this, this.guildManager, this.economyManager);
+        this.settingsGui = new GuildSettingsGui(this, this.guildManager);
+        GuildCommand guildCommand = new GuildCommand(this, this.guildManager, this.homeManager, this.chatManager, this.gui, this.warManager, this.economyManager, this.settingsGui);
         this.getCommand("guild").setExecutor((CommandExecutor)guildCommand);
         this.getCommand("guild").setTabCompleter((TabCompleter)guildCommand);
         this.getCommand("guildchat").setExecutor((CommandExecutor)guildCommand);
@@ -52,6 +59,8 @@ extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents((Listener)this.gui, (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)new GuildChatListener(this, this.guildManager, this.chatManager), (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)this.warManager, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)new GuildPvPListener(this.guildManager), (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)new GuildClaimListener(this.guildManager), (Plugin)this);
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             this.placeholderExpansion = new GuildPlaceholderExpansion(this, this.guildManager);
             this.placeholderExpansion.register();
@@ -59,12 +68,59 @@ extends JavaPlugin {
         } else {
             this.getLogger().warning("PlaceholderAPI not found. Guild placeholders will not work until PlaceholderAPI is installed.");
         }
-        new GuildAdminCommand(this);
+        this.configGui = new GuildConfigGui(this);
+        this.adminDashboardGui = new AdminDashboardGui(this, this.guildManager, this.configGui);
+        this.upgradeGui = new GuildUpgradeGui(this, this.guildManager);
+        Bukkit.getPluginManager().registerEvents((Listener)this.configGui, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this.adminDashboardGui, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this.upgradeGui, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)this.settingsGui, (Plugin)this);
+        Bukkit.getPluginManager().registerEvents((Listener)new GuildVaultListener(this.guildManager), (Plugin)this);
+        new GuildAdminCommand(this, this.adminDashboardGui, this.guildManager);
+        
+        startUpkeepTask();
+        
         this.getLogger().info("RumahKitaGuilds v2.3.3 GuildWar enabled.");
+    }
+    
+    private void startUpkeepTask() {
+        new org.bukkit.scheduler.BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!getConfig().getBoolean("settings.upkeep.enabled", true)) return;
+                
+                long lastUpkeep = getConfig().getLong("data.last-upkeep", 0);
+                long now = System.currentTimeMillis();
+
+                if (now - lastUpkeep >= 86400000) {
+                    double amount = getConfig().getDouble("settings.upkeep.amount", 500.0);
+                    int processed = 0;
+                    
+                    for (Guild guild : guildManager.getGuilds()) {
+                        double oldBalance = guild.getBalance();
+                        guild.setBalance(oldBalance - amount);
+                        
+                        if (oldBalance >= amount) {
+                            guild.addLog("Paid daily upkeep tax: $" + economyManager.format(amount));
+                        } else {
+                            guild.addLog("Guild is in debt! Failed to fully pay daily upkeep of $" + economyManager.format(amount));
+                        }
+                        processed++;
+                    }
+                    
+                    if (processed > 0) {
+                        guildManager.save();
+                    }
+                    
+                    getConfig().set("data.last-upkeep", now);
+                    saveConfig();
+                    getLogger().info("Processed daily upkeep tax for " + processed + " guilds.");
+                }
+            }
+        }.runTaskTimer((Plugin)this, 1200L, 36000L); 
     }
 
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();
@@ -96,6 +152,17 @@ extends JavaPlugin {
         if (this.warManager != null) {
             this.warManager.reload();
         }
+    }
+    public EconomyManager getEconomyManager() {
+        return this.economyManager;
+    }
+
+    public GuildConfigGui getConfigGui() {
+        return this.configGui;
+    }
+
+    public GuildUpgradeGui getUpgradeGui() {
+        return this.upgradeGui;
     }
 }
 

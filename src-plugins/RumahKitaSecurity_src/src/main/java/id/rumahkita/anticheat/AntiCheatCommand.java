@@ -133,7 +133,7 @@ implements TabExecutor {
             seconds = Long.parseLong(args[2]);
         }
         catch (NumberFormatException ex) {
-            Text.msg(sender, "&cSeconds harus angka.");
+            Text.msg(sender, "&cSeconds must be a number.");
             return;
         }
         String reason = args.length >= 4 ? String.join((CharSequence)" ", Arrays.copyOfRange(args, 3, args.length)) : "manual";

@@ -116,7 +116,7 @@ implements TabExecutor {
         Rarity rarity = Rarity.fromString(args[3]);
         List<FishDefinition> definitions = this.plugin.fishManager().fishes().stream().filter(fish -> fish.rarity() == rarity).toList();
         if (definitions.isEmpty()) {
-            sender.sendMessage(Text.color("&cTidak ada ikan dengan rarity itu."));
+            sender.sendMessage(Text.color("&cThere are no fish with that rarity."));
             return;
         }
         FishDefinition definition = definitions.get(ThreadLocalRandom.current().nextInt(definitions.size()));

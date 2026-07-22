@@ -48,8 +48,6 @@ public class RumahKitaSpawnPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        // We let Vanilla/Essentials handle first join, so they spawn at the spawnpoint.
-        // Returning players will naturally stay where they left off.
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

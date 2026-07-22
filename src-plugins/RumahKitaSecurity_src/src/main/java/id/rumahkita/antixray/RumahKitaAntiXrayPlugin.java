@@ -175,7 +175,7 @@ TabExecutor {
         }
         if (event.getFrom().getBlockX() != event.getTo().getBlockX() || event.getFrom().getBlockY() != event.getTo().getBlockY() || event.getFrom().getBlockZ() != event.getTo().getBlockZ()) {
             event.setTo(event.getFrom());
-            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.frozen", "&cKamu sedang dibekukan sementara."));
+            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.frozen", "&cYou are temporarily frozen."));
         }
     }
 
@@ -264,7 +264,7 @@ TabExecutor {
                 this.http.send(req, HttpResponse.BodyHandlers.discarding());
             }
             catch (Exception e) {
-                plugin.getLogger().warning("Discord AntiXray alert gagal: " + e.getMessage());
+                plugin.getLogger().warning("Discord AntiXray alert failed: " + e.getMessage());
             }
         });
     }
@@ -413,7 +413,7 @@ TabExecutor {
             fw.write(line);
         }
         catch (Exception e) {
-            plugin.getLogger().warning("Gagal tulis log antixray: " + e.getMessage());
+            plugin.getLogger().warning("Failed to write antixray log: " + e.getMessage());
         }
     }
 
@@ -467,7 +467,7 @@ TabExecutor {
             this.data.save(this.dataFile);
         }
         catch (Exception ex) {
-            plugin.getLogger().warning("Gagal save data AntiXray: " + ex.getMessage());
+            plugin.getLogger().warning("Failed to save AntiXray data: " + ex.getMessage());
         }
     }
 
@@ -528,7 +528,7 @@ TabExecutor {
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("rumahkita.antixray.admin")) {
-            this.msg(sender, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            this.msg(sender, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
@@ -543,7 +543,7 @@ TabExecutor {
                 plugin.reloadConfig();
                 this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
                 this.loadData();
-                this.msg(sender, this.pref() + plugin.getConfig().getString("messages.reloaded", "&aAntiXray berhasil direload."));
+                this.msg(sender, this.pref() + plugin.getConfig().getString("messages.reloaded", "&aAntiXray successfully reloaded."));
                 break;
             }
             case "on": {
@@ -565,7 +565,7 @@ TabExecutor {
                 }
                 RiskData r2 = this.findRisk(args[1]);
                 if (r2 == null) {
-                    this.msg(sender, this.pref() + "&ePlayer belum punya data AntiXray.");
+                    this.msg(sender, this.pref() + "&ePlayer has no AntiXray data yet.");
                     return true;
                 }
                 this.msg(sender, "&8&m-----------------------------");
@@ -597,7 +597,7 @@ TabExecutor {
                     return true;
                 }
                 this.resetRisk(args[1]);
-                this.msg(sender, this.pref() + plugin.getConfig().getString("messages.reset", "&aRisk player berhasil direset."));
+                this.msg(sender, this.pref() + plugin.getConfig().getString("messages.reset", "&aRisk player successfully reset."));
                 break;
             }
             case "freeze": {
@@ -607,7 +607,7 @@ TabExecutor {
                 }
                 Player p = this.findPlayer(args[1]);
                 if (p == null) {
-                    this.msg(sender, this.pref() + "&cPlayer tidak online.");
+                    this.msg(sender, this.pref() + "&cPlayer is not online.");
                     return true;
                 }
                 this.freezeUntil.put(p.getUniqueId(), System.currentTimeMillis() + Math.max(30L, plugin.getConfig().getLong("risk.freeze-seconds", 300L)) * 1000L);

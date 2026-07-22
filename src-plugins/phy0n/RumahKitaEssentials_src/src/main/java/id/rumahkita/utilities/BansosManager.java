@@ -168,9 +168,9 @@ implements TabExecutor {
             this.plugin.getLogger().warning("Bansos webhook URL is not configured in config.yml.");
             return;
         }
-        String content = this.plugin.getConfig().getString("bansos.discord.content", "Bansos sudah dibagikan!");
+        String content = this.plugin.getConfig().getString("bansos.discord.content", "Bansos has already been distributed!");
         String title = this.plugin.getConfig().getString("bansos.discord.embed-title", "Bansos Jumat RumahKita S2");
-        String desc = this.plugin.getConfig().getString("bansos.discord.embed-description", "Bansos sudah dibagikan.");
+        String desc = this.plugin.getConfig().getString("bansos.discord.embed-description", "Bansos has already been distributed.");
         int color = this.plugin.getConfig().getInt("bansos.discord.embed-color", 5763719);
         String username = this.plugin.getConfig().getString("bansos.discord.username", "RumahKita Bansos");
         String avatar = this.plugin.getConfig().getString("bansos.discord.avatar-url", "");

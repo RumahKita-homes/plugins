@@ -63,6 +63,12 @@ public final class RumahKitaUtilitiesPlugin
         Bukkit.getPluginManager().registerEvents((Listener)this.carryManager, plugin);
         Bukkit.getPluginManager().registerEvents((Listener)this.vanishManager, plugin);
         Bukkit.getPluginManager().registerEvents(new ServerLinksManager(this), plugin);
+        StatsCommand statsCommand = new StatsCommand(this);
+        Bukkit.getPluginManager().registerEvents(statsCommand, plugin);
+        
+        PlayerSettingsGui settingsGui = new PlayerSettingsGui();
+        Bukkit.getPluginManager().registerEvents(settingsGui, plugin);
+        
         plugin.getCommand("rksleep").setExecutor((CommandExecutor)this.sleepManager);
         plugin.getCommand("rksleep").setTabCompleter((TabCompleter)this.sleepManager);
         plugin.getCommand("carry").setExecutor((CommandExecutor)this.carryManager);
@@ -78,6 +84,18 @@ public final class RumahKitaUtilitiesPlugin
         
         if (plugin.getCommand("online") != null) {
             plugin.getCommand("online").setExecutor(new OnlineCommand(this));
+        }
+        
+        if (plugin.getCommand("stat") != null) {
+            plugin.getCommand("stat").setExecutor(statsCommand);
+        }
+        
+        if (plugin.getCommand("settings") != null) {
+            plugin.getCommand("settings").setExecutor(new SettingsCommand(settingsGui));
+        }
+        
+        if (plugin.getCommand("trash") != null) {
+            plugin.getCommand("trash").setExecutor(new TrashCommand());
         }
         
         this.bansosManager.startScheduler();

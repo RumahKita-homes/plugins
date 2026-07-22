@@ -457,7 +457,7 @@ extends JavaPlugin {
             case "reload": {
                 this.loadSettings();
                 this.startScanner();
-                sender.sendMessage(this.prefix + this.color("&aConfig berhasil direload."));
+                sender.sendMessage(this.prefix + this.color("&aConfig successfully reloaded."));
                 return true;
             }
             case "status": {
@@ -495,25 +495,25 @@ extends JavaPlugin {
     private void handleZoneHere(CommandSender sender, String[] args) {
         double radius;
         if (!(sender instanceof Player)) {
-            sender.sendMessage(this.prefix + this.color("&cCommand ini harus dari player."));
+            sender.sendMessage(this.prefix + this.color("&cThis command must be run by a player."));
             return;
         }
         Player player = (Player)sender;
         if (args.length < 3) {
-            sender.sendMessage(this.prefix + this.color("&eGunakan: /rkfarmai zonehere <nama> <radius>"));
+            sender.sendMessage(this.prefix + this.color("&eUsage: /rkfarmai zonehere <name> <radius>"));
             sender.sendMessage(this.prefix + this.color("&7Contoh: /rkfarmai zonehere mobfarm1 80"));
             return;
         }
         String rawName = args[1].replaceAll("[^A-Za-z0-9_-]", "");
         if (rawName.isEmpty()) {
-            sender.sendMessage(this.prefix + this.color("&cNama zone tidak valid."));
+            sender.sendMessage(this.prefix + this.color("&cInvalid zone name."));
             return;
         }
         try {
             radius = Math.max(8.0, Double.parseDouble(args[2]));
         }
         catch (NumberFormatException exception) {
-            sender.sendMessage(this.prefix + this.color("&cRadius harus angka."));
+            sender.sendMessage(this.prefix + this.color("&cRadius must be a number."));
             return;
         }
         Location location = player.getLocation();
@@ -528,7 +528,7 @@ extends JavaPlugin {
         this.getConfig().set(path + ".radius-z", (Object)radius);
         this.saveConfig();
         this.loadSettings();
-        sender.sendMessage(this.prefix + this.color("&aZone &f" + rawName + " &adibuat di lokasi kamu dengan radius &f" + radius + "&a."));
+        sender.sendMessage(this.prefix + this.color("&aZone &f" + rawName + " &acreated at your location with radius &f" + radius + "&a."));
     }
 
     private void sendStatus(CommandSender sender) {
@@ -545,7 +545,7 @@ extends JavaPlugin {
         sender.sendMessage(this.color("&a/rkfarmai scan &7- scan manual sekarang"));
         sender.sendMessage(this.color("&a/rkfarmai reload &7- reload config"));
         sender.sendMessage(this.color("&a/rkfarmai on/off &7- aktifkan/matikan plugin"));
-        sender.sendMessage(this.color("&a/rkfarmai zonehere <nama> <radius> &7- buat zone mob farm di lokasi kamu"));
+        sender.sendMessage(this.color("&a/rkfarmai zonehere <name> <radius> &7- create a mob farm zone at your location"));
     }
 
     private String color(String message) {

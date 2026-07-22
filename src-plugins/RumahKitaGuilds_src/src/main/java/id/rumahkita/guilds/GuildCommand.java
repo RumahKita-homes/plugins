@@ -18,6 +18,7 @@ import id.rumahkita.guilds.GuildManager;
 import id.rumahkita.guilds.GuildRole;
 import id.rumahkita.guilds.GuildWarManager;
 import id.rumahkita.guilds.RumahKitaGuildsPlugin;
+import id.rumahkita.guilds.EconomyManager;
 import id.rumahkita.guilds.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,15 +42,20 @@ implements TabExecutor {
     private final GuildChatManager chatManager;
     private final GuildGui gui;
     private final GuildWarManager warManager;
+    private final EconomyManager economyManager;
+    private final GuildSettingsGui settingsGui;
     private final Map<UUID, Invite> invites = new HashMap<UUID, Invite>();
+    private final Map<String, Long> allyRequests = new HashMap<String, Long>();
 
-    public GuildCommand(RumahKitaGuildsPlugin plugin, GuildManager guildManager, GuildHomeManager homeManager, GuildChatManager chatManager, GuildGui gui, GuildWarManager warManager) {
+    public GuildCommand(RumahKitaGuildsPlugin plugin, GuildManager guildManager, GuildHomeManager homeManager, GuildChatManager chatManager, GuildGui gui, GuildWarManager warManager, EconomyManager economyManager, GuildSettingsGui settingsGui) {
         this.plugin = plugin;
         this.guildManager = guildManager;
         this.homeManager = homeManager;
         this.chatManager = chatManager;
         this.gui = gui;
         this.warManager = warManager;
+        this.economyManager = economyManager;
+        this.settingsGui = settingsGui;
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -148,8 +154,55 @@ implements TabExecutor {
                 this.warManager.handleCommand(sender, args);
                 break;
             }
-            case "wallet": {
-                this.warManager.handleWallet(sender, args);
+            case "deposit": {
+                this.deposit(sender, args);
+                break;
+            }
+            case "withdraw": {
+                this.withdraw(sender, args);
+                break;
+            }
+            case "bank": {
+                this.bank(sender);
+                break;
+            }
+            case "bal":
+            case "balance": {
+                this.balance(sender);
+                break;
+            }
+            case "pvp": {
+                this.pvp(sender);
+                break;
+            }
+            case "ally": {
+                this.ally(sender, args);
+                break;
+            }
+            case "neutral": {
+                this.neutral(sender, args);
+                break;
+            }
+            case "allies": {
+                this.allies(sender);
+                break;
+            }
+            case "upgrade": {
+                this.upgrade(sender);
+                break;
+            }
+            case "settings": {
+                this.settings(sender);
+                break;
+            }
+            case "v":
+            case "vault": {
+                this.vault(sender);
+                break;
+            }
+            case "log":
+            case "logs": {
+                this.log(sender);
                 break;
             }
             case "disband": {
@@ -251,7 +304,8 @@ implements TabExecutor {
                 break;
             }
             case NOT_ENOUGH_COST: {
-                Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "create-cost-missing"), "%amount%", String.valueOf(this.plugin.getConfig().getInt("settings.create-cost.amount", 5)), "%material%", this.plugin.getConfig().getString("settings.create-cost.material", "DIAMOND")));
+                double cost = this.plugin.getConfig().getDouble("settings.create-cost.money", 1000.0);
+                Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "create-cost-missing"), "%amount%", this.economyManager.format(cost)));
             }
         }
     }
@@ -283,11 +337,12 @@ implements TabExecutor {
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "target-already-guild"));
             return;
         }
-        if (guild.size() >= this.guildManager.getMaxMembers()) {
+        if (guild.size() >= this.guildManager.getMaxMembers(guild)) {
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "max-members"));
             return;
         }
         long expireAt = System.currentTimeMillis() + (long)this.plugin.getConfig().getInt("settings.invite-expire-seconds", 120) * 1000L;
+        guild.addLog(player.getName() + " invited " + target.getName() + ".");
         this.invites.put(target.getUniqueId(), new Invite(guild.getTag(), expireAt, player.getUniqueId()));
         Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "invite-sent"), "%player%", target.getName()));
         Text.msg((CommandSender)target, Text.replace(Text.prefixed(this.plugin, "invite-received"), "%player%", player.getName(), "%guild%", guild.getName(), "%tag%", guild.getTag()));
@@ -307,7 +362,7 @@ implements TabExecutor {
             return;
         }
         Invite invite = this.invites.get(player.getUniqueId());
-        if (invite == null || !invite.guildTag.equalsIgnoreCase(args[1]) || invite.expireAt < System.currentTimeMillis()) {
+        if (invite == null || !this.guildManager.normalizeTag(invite.guildTag).equals(this.guildManager.normalizeTag(args[1])) || invite.expireAt < System.currentTimeMillis()) {
             this.invites.remove(player.getUniqueId());
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "invite-expired"));
             return;
@@ -317,13 +372,57 @@ implements TabExecutor {
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "guild-not-found"));
             return;
         }
-        if (guild.size() >= this.guildManager.getMaxMembers()) {
+        if (guild.size() >= this.guildManager.getMaxMembers(guild)) {
             Text.msg((CommandSender)player, Text.prefixed(this.plugin, "max-members"));
             return;
         }
+        guild.addLog(player.getName() + " joined the guild.");
         this.guildManager.addMember(guild, player);
         this.invites.remove(player.getUniqueId());
         Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "joined-guild"), "%guild%", guild.getName()));
+    }
+
+    private void upgrade(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) {
+            Text.msg(sender, Text.prefixed(this.plugin, "not-in-guild"));
+            return;
+        }
+        this.plugin.getUpgradeGui().open(player, guild);
+    }
+
+    private void vault(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) {
+            Text.msg(sender, Text.prefixed(this.plugin, "not-in-guild"));
+            return;
+        }
+        int minMembers = this.plugin.getConfig().getInt("settings.upgrades.min-members", 3);
+        if (guild.size() < minMembers) {
+            Text.msg(sender, "&cYou need at least &e" + minMembers + " &cmembers to use the Guild Vault.");
+            return;
+        }
+        if (guild.getBalance() < 0) {
+            Text.msg(sender, "&cVault locked! Guild in debt: &e" + this.plugin.getEconomyManager().format(guild.getBalance()));
+            Text.msg(sender, "&cDeposit money to unlock it.");
+            return;
+        }
+
+        int vaultLvl = guild.getVaultLevel();
+        if (vaultLvl <= 0) {
+            Text.msg(sender, Text.prefixed(this.plugin, "prefix") + "&cYour guild has not unlocked the vault yet. Use &e/guild upgrade &cto unlock it.");
+            return;
+        }
+        
+        int slots = vaultLvl * 9;
+        org.bukkit.inventory.Inventory inv = guild.getVaultInventory(slots, Text.color("&8" + guild.getName() + " Vault"));
+        
+        player.openInventory(inv);
+        Text.msg(sender, "&aOpened Guild Vault.");
     }
 
     private void members(CommandSender sender) {
@@ -500,6 +599,7 @@ implements TabExecutor {
             return;
         }
         guild.setRole(targetUuid, GuildRole.LEADER);
+        guild.addLog(player.getName() + " transferred leadership to " + this.guildManager.getOfflineName(targetUuid) + ".");
         guild.setRole(player.getUniqueId(), GuildRole.ADMIN);
         this.guildManager.save();
         Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "transfer-done"), "%player%", this.guildManager.getOfflineName(targetUuid)));
@@ -624,6 +724,174 @@ implements TabExecutor {
         Bukkit.broadcastMessage((String)Text.color(Text.replace(Text.prefixed(this.plugin, "disbanded"), "%guild%", name)));
     }
 
+    private void deposit(CommandSender sender, String[] args) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        if (args.length < 2) { Text.msg((CommandSender)player, "&eUsage: /guild deposit <amount>"); return; }
+        double amount;
+        try { amount = Double.parseDouble(args[1]); } catch (NumberFormatException e) { Text.msg((CommandSender)player, "&cInvalid amount."); return; }
+        if (amount <= 0) { Text.msg((CommandSender)player, "&cAmount must be greater than 0."); return; }
+        if (!this.economyManager.has((org.bukkit.OfflinePlayer)player, amount)) { Text.msg((CommandSender)player, "&cYou don't have enough money."); return; }
+        this.economyManager.withdraw((org.bukkit.OfflinePlayer)player, amount);
+        guild.addBalance(amount);
+        guild.addLog(player.getName() + " deposited $" + this.economyManager.format(amount));
+        this.guildManager.save();
+        Text.msg((CommandSender)player, "&aYou deposited &e" + this.economyManager.format(amount) + " &ainto the guild bank.");
+    }
+
+    private void balance(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) {
+            return;
+        }
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) {
+            Text.msg(sender, Text.prefixed(this.plugin, "not-in-guild"));
+            return;
+        }
+        Text.msg(sender, "&aYour guild balance is &e$" + this.economyManager.format(guild.getBalance()) + "&a.");
+    }
+
+    private void withdraw(CommandSender sender, String[] args) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        if (!guild.getRole(player.getUniqueId()).atLeast(GuildRole.ADMIN)) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission")); return; }
+        if (args.length < 2) { Text.msg((CommandSender)player, "&eUsage: /guild withdraw <amount>"); return; }
+        double amount;
+        try { amount = Double.parseDouble(args[1]); } catch (NumberFormatException e) { Text.msg((CommandSender)player, "&cInvalid amount."); return; }
+        if (amount <= 0) { Text.msg((CommandSender)player, "&cAmount must be greater than 0."); return; }
+        if (guild.getBalance() < amount) { Text.msg((CommandSender)player, "&cThe guild doesn't have enough money in the bank."); return; }
+        guild.withdrawBalance(amount);
+        this.economyManager.deposit((org.bukkit.OfflinePlayer)player, amount);
+        guild.addLog(player.getName() + " withdrew $" + this.economyManager.format(amount));
+        this.guildManager.save();
+        Text.msg((CommandSender)player, "&aYou withdrew &e" + this.economyManager.format(amount) + " &afrom the guild bank.");
+    }
+
+    private void pvp(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        if (!guild.getRole(player.getUniqueId()).atLeast(GuildRole.ADMIN)) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission")); return; }
+        guild.setFriendlyFire(!guild.isFriendlyFire());
+        this.guildManager.save();
+        Text.msg((CommandSender)player, "&aGuild and Ally Friendly Fire is now " + (guild.isFriendlyFire() ? "&eON" : "&cOFF") + "&a.");
+    }
+    
+    private void bank(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        this.gui.openBank(player, guild);
+    }
+    
+    private void settings(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) {
+            Text.msg(sender, Text.prefixed(this.plugin, "not-in-guild"));
+            return;
+        }
+        GuildRole role = guild.getRole(player.getUniqueId());
+        if (!player.hasPermission("rumahkitaguilds.admin") && !role.atLeast(GuildRole.ADMIN)) {
+            Text.msg(sender, Text.prefixed(this.plugin, "no-permission"));
+            return;
+        }
+        this.settingsGui.open(player, guild);
+    }
+
+    private void ally(CommandSender sender, String[] args) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        if (!guild.getRole(player.getUniqueId()).atLeast(GuildRole.ADMIN)) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission")); return; }
+        
+        if (args.length < 2) { Text.msg((CommandSender)player, "&eUsage: /guild ally <tag> [accept]"); return; }
+        
+        if (args[1].equalsIgnoreCase("accept")) {
+            if (args.length < 3) { Text.msg((CommandSender)player, "&eUsage: /guild ally accept <tag>"); return; }
+            String targetTag = args[2].toUpperCase(Locale.ROOT);
+            String key = targetTag + ":" + guild.getTag().toUpperCase(Locale.ROOT);
+            Long expire = allyRequests.get(key);
+            if (expire == null || expire < System.currentTimeMillis()) {
+                allyRequests.remove(key);
+                Text.msg((CommandSender)player, "&cAlly request not found or has expired.");
+                return;
+            }
+            Guild target = this.guildManager.getGuildByTag(targetTag);
+            if (target == null) { Text.msg((CommandSender)player, "&cGuild not found."); return; }
+            
+            guild.addAlly(target.getTag());
+            target.addAlly(guild.getTag());
+            this.guildManager.save();
+            allyRequests.remove(key);
+            
+            Bukkit.broadcastMessage((String)Text.color(this.plugin.getConfig().getString("settings.prefix", "&8[&bRumahKitaGuilds&8] ") + "&dGuild &f" + guild.getName() + " &dand &f" + target.getName() + " &dare now ALLIES!"));
+            return;
+        }
+        
+        String targetTag = args[1].toUpperCase(Locale.ROOT);
+        if (guild.getTag().equalsIgnoreCase(targetTag)) { Text.msg((CommandSender)player, "&cYou cannot ally with your own guild."); return; }
+        Guild target = this.guildManager.getGuildByTag(targetTag);
+        if (target == null) { Text.msg((CommandSender)player, "&cGuild not found."); return; }
+        if (guild.isAlly(target.getTag())) { Text.msg((CommandSender)player, "&cYou are already allied with that guild."); return; }
+        
+        String key = guild.getTag().toUpperCase(Locale.ROOT) + ":" + target.getTag().toUpperCase(Locale.ROOT);
+        allyRequests.put(key, System.currentTimeMillis() + 120000L);
+        Text.msg((CommandSender)player, "&aAlly request sent to guild &e" + target.getTag() + "&a.");
+        
+        for (Player p : target.getMembers().keySet().stream().map(Bukkit::getPlayer).filter(p -> p != null).collect(Collectors.toList())) {
+            if (target.getRole(p.getUniqueId()).atLeast(GuildRole.ADMIN)) {
+                Text.msg((CommandSender)p, "&eGuild &b" + guild.getTag() + " &ewants to form an Alliance! Type &a/guild ally accept " + guild.getTag());
+            }
+        }
+    }
+
+    private void neutral(CommandSender sender, String[] args) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        if (!guild.getRole(player.getUniqueId()).atLeast(GuildRole.ADMIN)) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission")); return; }
+        if (args.length < 2) { Text.msg((CommandSender)player, "&eUsage: /guild neutral <target tag>"); return; }
+        
+        String targetTag = args[1].toUpperCase(Locale.ROOT);
+        Guild target = this.guildManager.getGuildByTag(targetTag);
+        if (target == null) { Text.msg((CommandSender)player, "&cGuild not found."); return; }
+        
+        if (!guild.isAlly(target.getTag())) {
+            Text.msg((CommandSender)player, "&cYou are not allied with that guild.");
+            return;
+        }
+        
+        guild.removeAlly(target.getTag());
+        target.removeAlly(guild.getTag());
+        this.guildManager.save();
+        
+        Bukkit.broadcastMessage((String)Text.color(this.plugin.getConfig().getString("settings.prefix", "&8[&bRumahKitaGuilds&8] ") + "&cGuild &f" + guild.getName() + " &cand &f" + target.getName() + " &care no longer allies."));
+    }
+
+    private void allies(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        
+        if (guild.getAllies().isEmpty()) {
+            Text.msg((CommandSender)player, "&cYour guild has no allies.");
+            return;
+        }
+        Text.msg((CommandSender)player, "&dAllied Guilds: &f" + String.join("&7, &f", guild.getAllies()));
+    }
+
     private void adminReload(CommandSender sender) {
         if (!sender.hasPermission("rumahkitaguilds.admin")) {
             Text.msg(sender, Text.prefixed(this.plugin, "no-permission"));
@@ -661,6 +929,24 @@ implements TabExecutor {
         Text.msg(sender, "&7Members: &f" + guild.size());
         Text.msg(sender, "&7Home: &f" + (guild.getHome() == null ? "Not set" : "Set"));
     }
+    
+    private void log(CommandSender sender) {
+        Player player = this.requirePlayer(sender);
+        if (player == null || !this.hasUse(sender)) return;
+        Guild guild = this.guildManager.getGuild(player);
+        if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
+        
+        java.util.List<String> logs = guild.getLogs();
+        if (logs.isEmpty()) {
+            Text.msg(sender, "&cNo logs found for this guild.");
+            return;
+        }
+        
+        Text.msg(sender, "&8[&b" + guild.getName() + " Logs&8]");
+        for (String log : logs) {
+            Text.msg(sender, "&7" + log);
+        }
+    }
 
     private void adminForceDisband(CommandSender sender, String[] args) {
         if (!sender.hasPermission("rumahkitaguilds.admin")) {
@@ -684,14 +970,35 @@ implements TabExecutor {
     private void help(CommandSender sender) {
         Text.msg(sender, "&8&m----------------------------");
         Text.msg(sender, "&bRumahKitaGuilds Commands");
-        Text.msg(sender, "&e/guild &7- open GUI");
-        Text.msg(sender, "&e/guild create <TAG> <Name>");
-        Text.msg(sender, "&e/guild list &7- list guilds");
-        Text.msg(sender, "&e/guild chat <message>");
-        Text.msg(sender, "&e/guildchat &7- toggle guild chat");
-        Text.msg(sender, "&e/guild war <tag> &7- challenge to Guild War");
-        Text.msg(sender, "&e/guild wallet &7- guild wallet");
-        Text.msg(sender, "&e/guild home / sethome / delhome");
+        Text.msg(sender, "&e/guild &7- Open GUI");
+        Text.msg(sender, "&e/guild create <TAG> <Name> &7- Create a guild");
+        Text.msg(sender, "&e/guild disband &7- Disband your guild");
+        Text.msg(sender, "&e/guild invite <player> &7- Invite a player");
+        Text.msg(sender, "&e/guild accept <tag> &7- Accept an invite");
+        Text.msg(sender, "&e/guild leave &7- Leave current guild");
+        Text.msg(sender, "&e/guild kick <player> &7- Kick a member");
+        Text.msg(sender, "&e/guild members &7- View member list");
+        Text.msg(sender, "&e/guild list &7- View all guilds");
+        Text.msg(sender, "&e/guild settings &7- Guild Claim Settings (Admin/Leader only)");
+        Text.msg(sender, "&e/guild chat (or /guildchat) &7- Toggle guild chat");
+        Text.msg(sender, "&e/guild home &7- Teleport to guild home");
+        Text.msg(sender, "&e/guild sethome &7- Set guild home");
+        Text.msg(sender, "&e/guild delhome &7- Delete guild home");
+        Text.msg(sender, "&e/guild deposit <amount> &7- Deposit to bank");
+        Text.msg(sender, "&e/guild withdraw <amount> &7- Withdraw from bank");
+        Text.msg(sender, "&e/guild bal &7- Check guild balance");
+        Text.msg(sender, "&e/guild vault &7- Open guild vault");
+        Text.msg(sender, "&e/guild bank &7- Open guild bank");
+        Text.msg(sender, "&e/guild upgrade &7- Open upgrade menu");
+        Text.msg(sender, "&e/guild pvp &7- Toggle friendly fire");
+        Text.msg(sender, "&e/guild war <tag> <bet> &7- Challenge a guild");
+        Text.msg(sender, "&e/guild ally <tag> &7- Form an alliance");
+        Text.msg(sender, "&e/guild neutral <tag> &7- Break an alliance");
+        Text.msg(sender, "&e/guild allies &7- View alliances");
+        Text.msg(sender, "&e/guild promote <player> &7- Promote member");
+        Text.msg(sender, "&e/guild demote <player> &7- Demote admin");
+        Text.msg(sender, "&e/guild rename <name> &7- Rename guild");
+        Text.msg(sender, "&e/guild settag <tag> &7- Change guild tag");
         Text.msg(sender, "&8&m----------------------------");
     }
 
@@ -704,7 +1011,7 @@ implements TabExecutor {
             return List.of();
         }
         if (args.length == 1) {
-            ArrayList<String> subs = new ArrayList<String>(List.of("create", "invite", "accept", "members", "list", "leave", "kick", "promote", "demote", "role", "transfer", "rename", "settag", "sethome", "home", "delhome", "chat", "war", "wallet", "disband"));
+            ArrayList<String> subs = new ArrayList<String>(List.of("create", "invite", "accept", "members", "list", "leave", "kick", "promote", "demote", "role", "transfer", "rename", "settag", "sethome", "home", "delhome", "chat", "war", "deposit", "withdraw", "bank", "bal", "balance", "pvp", "ally", "neutral", "allies", "disband", "upgrade", "vault", "log", "help", "settings"));
             if (sender.hasPermission("rumahkitaguilds.admin")) {
                 subs.addAll(List.of("adminreload", "save", "info", "forcedisband"));
             }
@@ -714,10 +1021,13 @@ implements TabExecutor {
             return this.filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), args[1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("war")) {
-            return this.filter(this.guildManager.getGuilds().stream().map(Guild::getTag).collect(Collectors.toList()), args[1]);
+            return this.filter(this.guildManager.getGuilds().stream().map(g -> this.guildManager.normalizeTag(g.getTag())).collect(Collectors.toList()), args[1]);
         }
-        if (args.length == 2 && List.of("accept", "info", "forcedisband").contains(args[0].toLowerCase())) {
-            return this.filter(this.guildManager.getGuilds().stream().map(Guild::getTag).collect(Collectors.toList()), args[1]);
+        if (args.length == 2 && List.of("accept", "info", "forcedisband", "ally", "neutral").contains(args[0].toLowerCase())) {
+            return this.filter(this.guildManager.getGuilds().stream().map(g -> this.guildManager.normalizeTag(g.getTag())).collect(Collectors.toList()), args[1]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("ally") && args[1].equalsIgnoreCase("accept")) {
+            return this.filter(this.guildManager.getGuilds().stream().map(g -> this.guildManager.normalizeTag(g.getTag())).collect(Collectors.toList()), args[2]);
         }
         return List.of();
     }

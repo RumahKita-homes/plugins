@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import org.bukkit.Bukkit;
@@ -38,6 +40,8 @@ public final class GuildManager {
     private final RumahKitaGuildsPlugin plugin;
     private final Map<String, Guild> guildsByTag = new LinkedHashMap<String, Guild>();
     private final Map<UUID, String> playerGuild = new HashMap<UUID, String>();
+    private final Map<String, Guild> chunkOwnerMap = new HashMap<String, Guild>();
+    private final Set<UUID> bypassPlayers = new HashSet<UUID>();
     private final File dataFile;
     private final DatabaseManager dbManager;
 
@@ -53,6 +57,7 @@ public final class GuildManager {
         
         if (dbManager.isEnabled()) {
             dbManager.loadAllGuilds(this);
+            this.refreshClaimsMap();
             return;
         }
         
@@ -75,6 +80,24 @@ public final class GuildManager {
             this.guildsByTag.put(normalized, guild);
             for (UUID member : guild.getMembers().keySet()) {
                 this.playerGuild.put(member, normalized);
+            }
+        }
+        this.refreshClaimsMap();
+    }
+    
+    public void registerClaim(String chunkKey, Guild guild) {
+        this.chunkOwnerMap.put(chunkKey, guild);
+    }
+    
+    public void unregisterClaim(String chunkKey) {
+        this.chunkOwnerMap.remove(chunkKey);
+    }
+    
+    public void refreshClaimsMap() {
+        this.chunkOwnerMap.clear();
+        for (Guild guild : this.guildsByTag.values()) {
+            for (String chunkKey : guild.getClaimedChunks()) {
+                this.chunkOwnerMap.put(chunkKey, guild);
             }
         }
     }
@@ -128,6 +151,14 @@ public final class GuildManager {
         return null;
     }
 
+    public Guild getGuildByChunk(String chunkKey) {
+        return this.chunkOwnerMap.get(chunkKey);
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return this.dbManager;
+    }
+
     public boolean hasGuild(UUID uuid) {
         return this.playerGuild.containsKey(uuid);
     }
@@ -153,15 +184,13 @@ public final class GuildManager {
             return CreateResult.DUPLICATE_NAME;
         }
         if (this.plugin.getConfig().getBoolean("settings.create-cost.enabled", true)) {
-            Material material = Material.matchMaterial((String)this.plugin.getConfig().getString("settings.create-cost.material", "DIAMOND"));
-            int amount = Math.max(0, this.plugin.getConfig().getInt("settings.create-cost.amount", 5));
-            if (material == null) {
-                material = Material.DIAMOND;
+            double amount = this.plugin.getConfig().getDouble("settings.create-cost.money", 1000.0);
+            if (amount > 0) {
+                if (!this.plugin.getEconomyManager().has((OfflinePlayer)player, amount)) {
+                    return CreateResult.NOT_ENOUGH_COST;
+                }
+                this.plugin.getEconomyManager().withdraw((OfflinePlayer)player, amount);
             }
-            if (this.countItem(player, material) < amount) {
-                return CreateResult.NOT_ENOUGH_COST;
-            }
-            this.removeItem(player, material, amount);
         }
         Guild guild = new Guild(tag, name, player.getUniqueId(), player.getName(), System.currentTimeMillis());
         this.guildsByTag.put(this.normalizeTag(tag), guild);
@@ -183,6 +212,7 @@ public final class GuildManager {
     }
 
     public void disband(Guild guild) {
+        guild.closeVaultInventory();
         for (UUID member : new ArrayList<UUID>(guild.getMembers().keySet())) {
             this.playerGuild.remove(member);
         }
@@ -231,8 +261,10 @@ public final class GuildManager {
         return true;
     }
 
-    public int getMaxMembers() {
-        return Math.max(1, this.plugin.getConfig().getInt("settings.max-members-per-guild", 25));
+    public int getMaxMembers(Guild guild) {
+        int level = guild != null ? guild.getMemberLevel() : 0;
+        if (level == 0) return Math.max(1, this.plugin.getConfig().getInt("settings.max-members.default", 10));
+        return Math.max(1, this.plugin.getConfig().getInt("settings.max-members.level-" + level, 10 + (level * 5)));
     }
 
     public boolean isValidTag(String tag) {
@@ -304,9 +336,7 @@ public final class GuildManager {
         player.updateInventory();
     }
 
-    public DatabaseManager getDatabaseManager() {
-        return this.dbManager;
-    }
+
 
     public Map<String, Guild> getRawGuildsMap() {
         return this.guildsByTag;
@@ -325,6 +355,10 @@ public final class GuildManager {
         DUPLICATE_NAME,
         NOT_ENOUGH_COST;
 
+    }
+    
+    public Set<UUID> getBypassPlayers() {
+        return this.bypassPlayers;
     }
 }
 

@@ -196,7 +196,7 @@ TabExecutor {
             return;
         }
         event.setCancelled(true);
-        this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.locked-command", "&cKamu harus verifikasi Discord dulu. Ketik &e/verify&c."));
+        this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.locked-command", "&cYou must verify your Discord first. Type &e/verify&c."));
         this.sendPendingReminder(player, false);
     }
 
@@ -238,7 +238,7 @@ TabExecutor {
             return;
         }
         event.setCancelled(true);
-        this.msg((CommandSender)p, this.pref() + this.getConfig().getString("messages.locked-action", "&cKamu belum verifikasi Discord. Ketik &e/verify&c."));
+        this.msg((CommandSender)p, this.pref() + this.getConfig().getString("messages.locked-action", "&cYou are not verified with Discord. Type &e/verify&c."));
     }
 
     @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
@@ -311,7 +311,7 @@ TabExecutor {
         if (this.isVerified(player) || this.hasBypass(player)) {
             return true;
         }
-        this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.locked-action", "&cKamu belum verifikasi Discord. Ketik &e/verify&c."));
+        this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.locked-action", "&cYou are not verified with Discord. Type &e/verify&c."));
         this.sendPendingReminder(player, false);
         return false;
     }
@@ -352,7 +352,7 @@ TabExecutor {
 
     private void handleVerifyCommand(Player player) {
         if (this.isVerified(player)) {
-            this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.already-verified", "&aAkun Minecraft kamu sudah terverifikasi dengan Discord."));
+            this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.already-verified", "&aYour Minecraft account is already verified with Discord."));
             return;
         }
         PendingVerify existing = this.pendingByUuid.get(player.getUniqueId());
@@ -503,7 +503,7 @@ TabExecutor {
             this.saveData();
             Player p = Bukkit.getPlayer((UUID)uuid);
             if (p != null) {
-                this.msg((CommandSender)p, this.pref() + this.getConfig().getString("messages.code-expired", "&cKode kamu sudah expired. Ketik /verify lagi."));
+                this.msg((CommandSender)p, this.pref() + this.getConfig().getString("messages.code-expired", "&cYour code has expired. Type /verify again."));
             }
             return;
         }
@@ -514,7 +514,7 @@ TabExecutor {
                 this.msg((CommandSender)p, this.pref() + this.getConfig().getString("messages.limit-exceeded", "&cVerifikasi ditolak. Limit akun/IP terdeteksi, hubungi staff."));
                 p.kickPlayer(this.color(this.getConfig().getString("messages.limit-exceeded", "&cVerifikasi ditolak. Limit akun/IP terdeteksi, hubungi staff.")));
             }
-            this.sendDiscordMessageAsync(this.getConfig().getString("discord.failed-limit-message", "\u274c Verifikasi gagal untuk <@%discord_id%>.").replace("%discord_id%", discordId));
+            this.sendDiscordMessageAsync(this.getConfig().getString("discord.failed-limit-message", "\u274c Verification failed for <@%discord_id%>.").replace("%discord_id%", discordId));
             this.alertStaff("&cVerify limit blocked: &f" + pending.name + " &7Discord=&f" + discordId + " &7Reason=&e" + limit.reason);
             this.maybeRunRkban(pending, limit.reason);
             this.removePending(pending);
@@ -541,11 +541,11 @@ TabExecutor {
         this.saveData();
         Player player = Bukkit.getPlayer((UUID)pending.uuid);
         if (player != null) {
-            this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.verified-success", "&aVerifikasi berhasil! Selamat bermain di RumahKita S2."));
+            this.msg((CommandSender)player, this.pref() + this.getConfig().getString("messages.verified-success", "&aVerification successful! Enjoy playing on RumahKita S2."));
             this.updateVerifiedLoginInfo(player);
             this.runVerifiedCommands(player, discordId);
         }
-        String discordMsg = this.getConfig().getString("discord.success-message", "\u2705 Selamat <@%discord_id%>, kamu sudah terverifikasi sebagai **%player%**.").replace("%discord_id%", discordId).replace("%player%", pending.name);
+        String discordMsg = this.getConfig().getString("discord.success-message", "\u2705 Congratulations <@%discord_id%>, you are verified as **%player%**.").replace("%discord_id%", discordId).replace("%player%", pending.name);
         this.sendDiscordMessageAsync(discordMsg);
         this.alertStaff("&aVerify success: &f" + pending.name + " &7Discord=&f" + discordId);
     }
@@ -1001,7 +1001,7 @@ TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (label.equalsIgnoreCase("verify")) {
             if (!(sender instanceof Player)) {
-                this.msg(sender, this.pref() + "&cCommand ini hanya untuk player.");
+                this.msg(sender, this.pref() + "&cThis command is only for players.");
                 return true;
             }
             Player player = (Player)sender;
@@ -1009,7 +1009,7 @@ TabExecutor {
             return true;
         }
         if (!sender.hasPermission("rumahkita.verify.admin")) {
-            this.msg(sender, this.pref() + this.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            this.msg(sender, this.pref() + this.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
@@ -1027,7 +1027,7 @@ TabExecutor {
                 this.loadPending();
                 this.loadProcessedMessages();
                 this.startDiscordPoller();
-                this.msg(sender, this.pref() + this.getConfig().getString("messages.reloaded", "&aDiscordVerify berhasil direload."));
+                this.msg(sender, this.pref() + this.getConfig().getString("messages.reloaded", "&aDiscordVerify successfully reloaded."));
                 break;
             }
             case "check": {
@@ -1045,14 +1045,14 @@ TabExecutor {
                 }
                 UUID uuid = this.findUuid(args[1]);
                 if (uuid == null) {
-                    this.msg(sender, this.pref() + "&cPlayer tidak ditemukan.");
+                    this.msg(sender, this.pref() + "&cPlayer not found.");
                     return true;
                 }
                 this.data.set("verified." + this.key(uuid), null);
                 this.saveData();
                 Player p = Bukkit.getPlayer((UUID)uuid);
                 if (p != null) {
-                    this.msg((CommandSender)p, this.pref() + "&cStatus verifikasi kamu dihapus staff. Ketik /verify lagi.");
+                    this.msg((CommandSender)p, this.pref() + "&cYour verification status was removed by staff. Type /verify again.");
                 }
                 this.msg(sender, this.pref() + "&aVerifikasi dihapus.");
                 break;
@@ -1064,12 +1064,12 @@ TabExecutor {
                 }
                 Player p = Bukkit.getPlayerExact((String)args[1]);
                 if (p == null) {
-                    this.msg(sender, this.pref() + "&cPlayer harus online untuk forceverify.");
+                    this.msg(sender, this.pref() + "&cPlayer must be online to forceverify.");
                     return true;
                 }
                 PendingVerify fake = new PendingVerify(p.getUniqueId(), p.getName(), this.getIp(p), this.subnetOf(this.getIp(p)), this.getFloodgateXuid(p), "00000", System.currentTimeMillis() + 10000L);
                 this.verifyPlayer(fake, args[2]);
-                this.msg(sender, this.pref() + "&aForce verify berhasil.");
+                this.msg(sender, this.pref() + "&aForce verify successful.");
                 break;
             }
             case "clearpending": {
@@ -1085,7 +1085,7 @@ TabExecutor {
                 this.data.set("processed-discord-messages", new ArrayList());
                 this.saveData();
                 Bukkit.getScheduler().runTaskAsynchronously((Plugin)this, this::primeDiscordMessages);
-                this.msg(sender, this.pref() + "&aDiscord messages di-resync. Pesan lama akan diabaikan.");
+                this.msg(sender, this.pref() + "&aDiscord messages resynced. Old messages will be ignored.");
                 break;
             }
             default: {
@@ -1104,7 +1104,7 @@ TabExecutor {
         PendingVerify p;
         UUID uuid = this.findUuid(name);
         if (uuid == null) {
-            this.msg(sender, this.pref() + "&cPlayer tidak ditemukan online/data.");
+            this.msg(sender, this.pref() + "&cPlayer not found online/data.");
             return;
         }
         String path = "verified." + this.key(uuid);

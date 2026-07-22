@@ -5,12 +5,24 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.CompletableFuture;
 
 public class DatabaseManager {
@@ -28,6 +40,7 @@ public class DatabaseManager {
         if (isEnabled) {
             setupPool(config);
             createTables();
+            updateSchema();
         }
     }
 
@@ -46,10 +59,6 @@ public class DatabaseManager {
         hikariConfig.setConnectionTimeout(config.getLong("mysql.pool.connection-timeout", 30000));
         hikariConfig.setIdleTimeout(config.getLong("mysql.pool.idle-timeout", 600000));
         hikariConfig.setMaxLifetime(config.getLong("mysql.pool.max-lifetime", 1800000));
-
-        hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-        hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
         this.dataSource = new HikariDataSource(hikariConfig);
         plugin.getLogger().info("Successfully connected to MySQL database: " + database);
@@ -79,14 +88,45 @@ public class DatabaseManager {
                 "joined_at BIGINT, " +
                 "FOREIGN KEY (guild_tag) REFERENCES " + tablePrefix + "guilds(tag) ON DELETE CASCADE ON UPDATE CASCADE" +
                 ");";
+                
+        String sqlClaims = "CREATE TABLE IF NOT EXISTS " + tablePrefix + "guild_claims (" +
+                "guild_tag VARCHAR(16), " +
+                "chunk_key VARCHAR(64) PRIMARY KEY, " +
+                "FOREIGN KEY (guild_tag) REFERENCES " + tablePrefix + "guilds(tag) ON DELETE CASCADE ON UPDATE CASCADE" +
+                ");";
         
         try (Connection conn = getConnection();
-             PreparedStatement stmt1 = conn.prepareStatement(sqlGuilds);
-             PreparedStatement stmt2 = conn.prepareStatement(sqlMembers)) {
-            stmt1.executeUpdate();
-            stmt2.executeUpdate();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sqlGuilds);
+            stmt.execute(sqlMembers);
+            stmt.execute(sqlClaims);
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
+        }
+    }
+    
+    private void updateSchema() {
+        String[] updates = {
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN balance DOUBLE DEFAULT 0.0;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN vault_level INT DEFAULT 1;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN member_level INT DEFAULT 1;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN friendly_fire BOOLEAN DEFAULT FALSE;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN vault_items LONGTEXT;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN logs LONGTEXT;",
+            "ALTER TABLE " + tablePrefix + "guilds ADD COLUMN allies LONGTEXT;"
+        };
+        
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            for (String sql : updates) {
+                try {
+                    stmt.execute(sql);
+                } catch (SQLException ignore) {
+                    // Column already exists
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to update schema: " + e.getMessage());
         }
     }
 
@@ -112,72 +152,146 @@ public class DatabaseManager {
         
         String sqlGuilds = "SELECT * FROM " + tablePrefix + "guilds";
         String sqlMembers = "SELECT * FROM " + tablePrefix + "guild_members";
+        String sqlClaims = "SELECT * FROM " + tablePrefix + "guild_claims";
+        
+        int loadedGuilds = 0;
         
         try (Connection conn = getConnection();
              PreparedStatement stmtGuilds = conn.prepareStatement(sqlGuilds);
-             ResultSet rsGuilds = stmtGuilds.executeQuery();
-             PreparedStatement stmtMembers = conn.prepareStatement(sqlMembers);
-             ResultSet rsMembers = stmtMembers.executeQuery()) {
+             ResultSet rsGuilds = stmtGuilds.executeQuery()) {
             
             while (rsGuilds.next()) {
-                String tag = rsGuilds.getString("tag");
-                String name = rsGuilds.getString("name");
-                UUID leader = UUID.fromString(rsGuilds.getString("leader_uuid"));
-                String leaderName = rsGuilds.getString("leader_name");
-                long createdAt = rsGuilds.getLong("created_at");
-                
-                Guild guild = new Guild(tag, name, leader, leaderName, createdAt);
-                guild.getMembers().clear(); // Clear initial leader member added in constructor
-                
-                int wallet = rsGuilds.getInt("emerald_wallet");
-                guild.addEmeraldWallet(wallet);
-                
-                String world = rsGuilds.getString("home_world");
-                if (world != null && !world.isEmpty() && Bukkit.getWorld(world) != null) {
-                    Location home = new Location(
-                            Bukkit.getWorld(world),
-                            rsGuilds.getDouble("home_x"),
-                            rsGuilds.getDouble("home_y"),
-                            rsGuilds.getDouble("home_z"),
-                            rsGuilds.getFloat("home_yaw"),
-                            rsGuilds.getFloat("home_pitch")
-                    );
-                    guild.setHome(home);
-                }
-                
-                manager.getRawGuildsMap().put(tag, guild);
-            }
-            
-            while (rsMembers.next()) {
-                String tag = rsMembers.getString("guild_tag");
-                Guild guild = manager.getRawGuildsMap().get(tag);
-                if (guild != null) {
-                    UUID uuid = UUID.fromString(rsMembers.getString("uuid"));
-                    String name = rsMembers.getString("name");
-                    GuildRole role = GuildRole.fromString(rsMembers.getString("role"));
-                    long joinedAt = rsMembers.getLong("joined_at");
+                try {
+                    String tag = rsGuilds.getString("tag");
+                    String name = rsGuilds.getString("name");
+                    UUID leader = null;
+                    try { leader = UUID.fromString(rsGuilds.getString("leader_uuid")); } catch (Exception e) {}
+                    String leaderName = rsGuilds.getString("leader_name");
+                    long createdAt = rsGuilds.getLong("created_at");
                     
-                    guild.addMember(uuid, name, role, joinedAt);
-                    manager.getRawPlayerGuildMap().put(uuid, tag);
+                    Guild guild = new Guild(tag, name, leader, leaderName, createdAt);
+                    guild.getMembers().clear();
+                    
+                    try { guild.addEmeraldWallet(rsGuilds.getInt("emerald_wallet")); } catch (Exception e) {}
+                    try { guild.setBalance(rsGuilds.getDouble("balance")); } catch (Exception ignored) {}
+                    try { guild.setVaultLevel(rsGuilds.getInt("vault_level")); } catch (Exception ignored) { guild.setVaultLevel(1); }
+                    try { guild.setMemberLevel(rsGuilds.getInt("member_level")); } catch (Exception ignored) { guild.setMemberLevel(1); }
+                    try { guild.setFriendlyFire(rsGuilds.getBoolean("friendly_fire")); } catch (Exception ignored) { guild.setFriendlyFire(false); }
+                    
+                    try {
+                        String vaultRaw = rsGuilds.getString("vault_items");
+                        if (vaultRaw != null && !vaultRaw.isEmpty()) {
+                            guild.setVaultItems(itemStackArrayFromBase64(vaultRaw));
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    try {
+                        String logsRaw = rsGuilds.getString("logs");
+                        if (logsRaw != null && !logsRaw.isEmpty()) {
+                            String[] arr = logsRaw.split(";;");
+                            for (String l : arr) {
+                                if (!l.isEmpty()) guild.addLog(l);
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    try {
+                        String alliesRaw = rsGuilds.getString("allies");
+                        if (alliesRaw != null && !alliesRaw.isEmpty()) {
+                            String[] arr = alliesRaw.split(",");
+                            for (String a : arr) {
+                                if (!a.isEmpty()) guild.addAlly(a);
+                            }
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    manager.getRawGuildsMap().put(manager.normalizeTag(tag), guild);
+                    loadedGuilds++;
+                } catch (Exception ex) {
+                    plugin.getLogger().warning("Failed to parse a guild: " + ex.getMessage());
                 }
             }
-            
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to load guilds from MySQL: " + e.getMessage());
         }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmtMembers = conn.prepareStatement(sqlMembers);
+             ResultSet rsMembers = stmtMembers.executeQuery()) {
+             while (rsMembers.next()) {
+                try {
+                    String tag = rsMembers.getString("guild_tag");
+                    Guild guild = manager.getRawGuildsMap().get(manager.normalizeTag(tag));
+                    if (guild != null) {
+                        UUID uuid = UUID.fromString(rsMembers.getString("uuid"));
+                        String name = rsMembers.getString("name");
+                        GuildRole role = GuildRole.fromString(rsMembers.getString("role"));
+                        long joinedAt = rsMembers.getLong("joined_at");
+                        
+                        guild.addMember(uuid, name, role, joinedAt);
+                        manager.getRawPlayerGuildMap().put(uuid, manager.normalizeTag(tag));
+                    }
+                } catch (Exception ex) {}
+             }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to load guild members from MySQL: " + e.getMessage());
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmtClaims = conn.prepareStatement(sqlClaims);
+             ResultSet rsClaims = stmtClaims.executeQuery()) {
+             while (rsClaims.next()) {
+                try {
+                    String tag = rsClaims.getString("guild_tag");
+                    Guild guild = manager.getRawGuildsMap().get(manager.normalizeTag(tag));
+                    if (guild != null) {
+                        guild.addClaim(rsClaims.getString("chunk_key"));
+                    }
+                } catch (Exception ex) {}
+             }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to load guild claims from MySQL: " + e.getMessage());
+        }
+        
+        plugin.getLogger().info("Successfully loaded " + loadedGuilds + " guilds from MySQL.");
     }
-
+    
     public void saveGuildAsync(Guild guild) {
         if (!isEnabled) return;
         CompletableFuture.runAsync(() -> saveGuildSync(guild));
     }
 
+    public void saveGuildClaimSync(String tag, String chunkKey) {
+        if (!isEnabled) return;
+        String sql = "INSERT IGNORE INTO " + tablePrefix + "guild_claims (guild_tag, chunk_key) VALUES (?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, tag);
+            stmt.setString(2, chunkKey);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to save guild claim: " + e.getMessage());
+        }
+    }
+
+    public void removeGuildClaimSync(String chunkKey) {
+        if (!isEnabled) return;
+        String sql = "DELETE FROM " + tablePrefix + "guild_claims WHERE chunk_key = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, chunkKey);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to remove guild claim: " + e.getMessage());
+        }
+    }
+
     public void saveGuildSync(Guild guild) {
         if (!isEnabled) return;
         
-        String sqlGuild = "INSERT INTO " + tablePrefix + "guilds (tag, name, leader_uuid, leader_name, created_at, emerald_wallet, home_world, home_x, home_y, home_z, home_yaw, home_pitch) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
-                "ON DUPLICATE KEY UPDATE name=?, leader_uuid=?, leader_name=?, emerald_wallet=?, home_world=?, home_x=?, home_y=?, home_z=?, home_yaw=?, home_pitch=?";
+        String sqlGuild = "INSERT INTO " + tablePrefix + "guilds (tag, name, leader_uuid, leader_name, created_at, emerald_wallet, home_world, home_x, home_y, home_z, home_yaw, home_pitch, balance, vault_level, member_level, friendly_fire, vault_items, logs, allies) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE name=?, leader_uuid=?, leader_name=?, emerald_wallet=?, home_world=?, home_x=?, home_y=?, home_z=?, home_yaw=?, home_pitch=?, balance=?, vault_level=?, member_level=?, friendly_fire=?, vault_items=?, logs=?, allies=?";
         
         String sqlDeleteMembers = "DELETE FROM " + tablePrefix + "guild_members WHERE guild_tag = ?";
         String sqlInsertMember = "INSERT INTO " + tablePrefix + "guild_members (guild_tag, uuid, name, role, joined_at) VALUES (?, ?, ?, ?, ?)";
@@ -190,7 +304,7 @@ public class DatabaseManager {
                 stmtGuild.setString(2, guild.getName());
                 stmtGuild.setString(3, guild.getLeader().toString());
                 stmtGuild.setString(4, guild.getStoredName(guild.getLeader()) != null ? guild.getStoredName(guild.getLeader()) : "");
-                stmtGuild.setLong(5, guild.getMembers().get(guild.getLeader()) != null ? System.currentTimeMillis() : System.currentTimeMillis());
+                stmtGuild.setLong(5, guild.getCreatedAt());
                 stmtGuild.setInt(6, guild.getEmeraldWallet());
                 
                 Location home = guild.getHome();
@@ -210,26 +324,42 @@ public class DatabaseManager {
                     stmtGuild.setFloat(12, 0);
                 }
                 
-                // Update part
-                stmtGuild.setString(13, guild.getName());
-                stmtGuild.setString(14, guild.getLeader().toString());
-                stmtGuild.setString(15, guild.getStoredName(guild.getLeader()) != null ? guild.getStoredName(guild.getLeader()) : "");
-                stmtGuild.setInt(16, guild.getEmeraldWallet());
+                stmtGuild.setDouble(13, guild.getBalance());
+                stmtGuild.setInt(14, guild.getVaultLevel());
+                stmtGuild.setInt(15, guild.getMemberLevel());
+                stmtGuild.setBoolean(16, guild.isFriendlyFire());
+                stmtGuild.setString(17, itemStackArrayToBase64(guild.getVaultInventory(guild.getVaultLevel() * 9, "").getContents()));
+                stmtGuild.setString(18, String.join(";;", guild.getLogs()));
+                stmtGuild.setString(19, String.join(",", guild.getAllies()));
+
+                stmtGuild.setString(20, guild.getName());
+                stmtGuild.setString(21, guild.getLeader().toString());
+                stmtGuild.setString(22, guild.getStoredName(guild.getLeader()) != null ? guild.getStoredName(guild.getLeader()) : "");
+                stmtGuild.setInt(23, guild.getEmeraldWallet());
                 if (home != null && home.getWorld() != null) {
-                    stmtGuild.setString(17, home.getWorld().getName());
-                    stmtGuild.setDouble(18, home.getX());
-                    stmtGuild.setDouble(19, home.getY());
-                    stmtGuild.setDouble(20, home.getZ());
-                    stmtGuild.setFloat(21, home.getYaw());
-                    stmtGuild.setFloat(22, home.getPitch());
+                    stmtGuild.setString(24, home.getWorld().getName());
+                    stmtGuild.setDouble(25, home.getX());
+                    stmtGuild.setDouble(26, home.getY());
+                    stmtGuild.setDouble(27, home.getZ());
+                    stmtGuild.setFloat(28, home.getYaw());
+                    stmtGuild.setFloat(29, home.getPitch());
                 } else {
-                    stmtGuild.setString(17, null);
-                    stmtGuild.setDouble(18, 0);
-                    stmtGuild.setDouble(19, 0);
-                    stmtGuild.setDouble(20, 0);
-                    stmtGuild.setFloat(21, 0);
-                    stmtGuild.setFloat(22, 0);
+                    stmtGuild.setString(24, null);
+                    stmtGuild.setDouble(25, 0);
+                    stmtGuild.setDouble(26, 0);
+                    stmtGuild.setDouble(27, 0);
+                    stmtGuild.setFloat(28, 0);
+                    stmtGuild.setFloat(29, 0);
                 }
+                
+                stmtGuild.setDouble(30, guild.getBalance());
+                stmtGuild.setInt(31, guild.getVaultLevel());
+                stmtGuild.setInt(32, guild.getMemberLevel());
+                stmtGuild.setBoolean(33, guild.isFriendlyFire());
+                stmtGuild.setString(34, itemStackArrayToBase64(guild.getVaultInventory(guild.getVaultLevel() * 9, "").getContents()));
+                stmtGuild.setString(35, String.join(";;", guild.getLogs()));
+                stmtGuild.setString(36, String.join(",", guild.getAllies()));
+
                 stmtGuild.executeUpdate();
             }
             
@@ -244,7 +374,7 @@ public class DatabaseManager {
                     stmtIns.setString(2, member.toString());
                     stmtIns.setString(3, guild.getStoredName(member) != null ? guild.getStoredName(member) : "");
                     stmtIns.setString(4, guild.getRole(member).name());
-                    stmtIns.setLong(5, System.currentTimeMillis()); // Temporary joined_at fix since it's not publicly exposed easily, wait actually we can just pass current time or add a method.
+                    stmtIns.setLong(5, guild.getJoinedAt(member));
                     stmtIns.addBatch();
                 }
                 stmtIns.executeBatch();
@@ -268,5 +398,37 @@ public class DatabaseManager {
                 plugin.getLogger().warning("Error deleting guild " + tag + ": " + e.getMessage());
             }
         });
+    }
+    
+    public static String itemStackArrayToBase64(ItemStack[] items) {
+        if (items == null) return "";
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
+            dataOutput.writeInt(items.length);
+            for (ItemStack item : items) {
+                dataOutput.writeObject(item);
+            }
+            dataOutput.close();
+            return Base64Coder.encodeLines(outputStream.toByteArray());
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    public static ItemStack[] itemStackArrayFromBase64(String data) {
+        if (data == null || data.isEmpty()) return new ItemStack[54];
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
+            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+            ItemStack[] items = new ItemStack[dataInput.readInt()];
+            for (int i = 0; i < items.length; i++) {
+                items[i] = (ItemStack) dataInput.readObject();
+            }
+            dataInput.close();
+            return items;
+        } catch (Exception e) {
+            return new ItemStack[54];
+        }
     }
 }

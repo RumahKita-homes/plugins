@@ -284,12 +284,12 @@ TabCompleter {
 
     private void registerPlaceholderExpansion() {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            plugin.getLogger().warning("PlaceholderAPI tidak ditemukan. Placeholder %rumahkitactf_*% tidak aktif.");
+            plugin.getLogger().warning("PlaceholderAPI not found. Placeholder %rumahkitactf_*% is inactive.");
             return;
         }
         this.placeholderExpansion = new CtfPlaceholderExpansion(this);
         this.placeholderExpansion.register();
-        plugin.getLogger().info("PlaceholderAPI hooked. Placeholders %rumahkitactf_*% aktif.");
+        plugin.getLogger().info("PlaceholderAPI hooked. Placeholders %rumahkitactf_*% are active.");
     }
 
     private void stopAllTasks() {
@@ -490,7 +490,7 @@ TabCompleter {
         }
         if (sub.equals("join")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(this.prefix + "Command ini hanya untuk player.");
+                sender.sendMessage(this.prefix + "This command is only for players.");
                 return true;
             }
             Player player = (Player)sender;
@@ -499,7 +499,7 @@ TabCompleter {
         }
         if (sub.equals("leave")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(this.prefix + "Command ini hanya untuk player.");
+                sender.sendMessage(this.prefix + "This command is only for players.");
                 return true;
             }
             Player player = (Player)sender;
@@ -511,7 +511,7 @@ TabCompleter {
             return true;
         }
         if (!sender.hasPermission("rumahkita.ctf.admin")) {
-            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Kamu tidak punya permission admin CTF.");
+            sender.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "You do not have CTF admin permission.");
             return true;
         }
         switch (sub) {
@@ -644,11 +644,11 @@ TabCompleter {
 
     private void joinEvent(Player player) {
         if (!this.enabled) {
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event sedang disabled.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event is currently disabled.");
             return;
         }
         if (!player.hasPermission("rumahkita.ctf.use")) {
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Kamu tidak punya permission untuk join event.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "You do not have permission to join the event.");
             return;
         }
         if (this.participants.containsKey(player.getUniqueId())) {
@@ -656,11 +656,11 @@ TabCompleter {
             return;
         }
         if (this.state == GameState.RUNNING && !this.allowJoinWhileRunning) {
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event sudah berjalan, tidak bisa join sekarang.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event is already running, cannot join right now.");
             return;
         }
         if (this.state == GameState.COUNTDOWN && !this.allowJoinWhileCountdown) {
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event sedang countdown, tidak bisa join sekarang.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.RED) + "Event is in countdown, cannot join right now.");
             return;
         }
         if (this.state == GameState.ENDING) {
@@ -669,7 +669,7 @@ TabCompleter {
         }
         if (this.restoreBackupOnJoin && this.hasBackup(player.getUniqueId()) && !this.participants.containsKey(player.getUniqueId())) {
             this.restoreInventoryBackup(player, true, false);
-            player.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Item backup event lama ditemukan dan sudah direstore dulu sebelum join.");
+            player.sendMessage(this.prefix + String.valueOf(ChatColor.YELLOW) + "Old event backup items found and restored before joining.");
         }
         String team = this.chooseTeam();
         Participant participant = new Participant(player, team);
@@ -1293,7 +1293,7 @@ TabCompleter {
         sender.sendMessage(this.color("&d&lCTF Capture Points"));
         int i = 0;
         for (CapturePoint point : this.capturePoints) {
-            String active = i == this.activeCaptureIndex ? " &a(AKTIF)" : "";
+            String active = i == this.activeCaptureIndex ? " &a(ACTIVE)" : "";
             sender.sendMessage(this.color("&7- &e" + point.name + active + " &8| &f" + point.world + " X " + this.round(point.x) + " Z " + this.round(point.z) + " R " + this.round(point.radius) + " Y " + this.round(point.minY) + "-" + this.round(point.maxY)));
             ++i;
         }
@@ -1590,7 +1590,7 @@ TabCompleter {
         sender.sendMessage(this.color("&7Alive: &a" + this.getAliveCount()));
         sender.sendMessage(this.color("&7Time left: &e" + this.formatTime(this.timeLeft)));
         sender.sendMessage(this.color("&7Inventory backup: &e" + this.getBackupFolder().getAbsolutePath()));
-        sender.sendMessage(this.color("&7Capture aktif: &d" + this.getActiveCaptureName() + " &8| &f" + this.getActiveCaptureCoordText()));
+        sender.sendMessage(this.color("&7Capture active: &d" + this.getActiveCaptureName() + " &8| &f" + this.getActiveCaptureCoordText()));
         sender.sendMessage(this.color("&7Rotasi: &e" + (String)(this.captureRotationEnabled ? this.captureRotateSeconds + "s" : "OFF") + " &8| &7Next: &e" + Math.max(0, this.captureNextRotateSeconds) + "s"));
         sender.sendMessage(this.color("&8&m------------------------------"));
     }

@@ -132,7 +132,7 @@ TabExecutor {
     private void enableSession(Player player) {
         if (this.sessions.containsKey(player.getUniqueId())) {
             Session session = this.sessions.get(player.getUniqueId());
-            this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.already-enabled", "&eSpec2 sudah aktif. Marker: &f%count%&e.")));
+            this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.already-enabled", "&eSpec2 is already active. Markers: &f%count%&e.")));
             return;
         }
         Session session = new Session();
@@ -148,9 +148,9 @@ TabExecutor {
         this.applyStealthToAll(player);
         this.sendFakeQuit(player);
         this.refreshMarkers(player, true);
-        this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.enabled", "&aSpec2 aktif. Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%")));
+        this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.enabled", "&aSpec2 active. Markers: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%")));
         if (session.lastMarkerCount <= 0) {
-            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-markers-tip", "&eMarker 0. Terbang lebih dekat ke tanah/underground, atau pakai &f/spec2 filter all &edan &f/spec2 radius 96&e."));
+            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-markers-tip", "&eMarkers 0. Fly closer to the ground/underground, or use &f/spec2 filter all &eand &f/spec2 radius 96&e."));
         }
     }
 
@@ -168,7 +168,7 @@ TabExecutor {
             if (sendJoin) {
                 this.sendFakeJoin(player);
             }
-            this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.disabled", "&cSpec2 nonaktif. Kamu muncul kembali.")));
+            this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.disabled", "&cSpec2 deactivated. You have reappeared.")));
         }
     }
 
@@ -252,7 +252,7 @@ TabExecutor {
             return display;
         }
         catch (Throwable t) {
-            plugin.getLogger().warning("Gagal spawn ore marker: " + t.getMessage());
+            plugin.getLogger().warning("Failed to spawn ore marker: " + t.getMessage());
             return null;
         }
     }
@@ -522,7 +522,7 @@ TabExecutor {
         String header = plugin.getConfig().getString("stealth.online-message-header", "&6Online Players &7(&e%online%&7/&e%max%&7):").replace("%online%", String.valueOf(names.size())).replace("%max%", String.valueOf(Bukkit.getMaxPlayers()));
         this.msg((CommandSender)sender, header);
         if (names.isEmpty()) {
-            this.msg((CommandSender)sender, plugin.getConfig().getString("stealth.online-message-empty", "&7Tidak ada player online yang terlihat."));
+            this.msg((CommandSender)sender, plugin.getConfig().getString("stealth.online-message-empty", "&7No online players are visible."));
             return;
         }
         String nameColor = plugin.getConfig().getString("stealth.online-name-color", "&f");
@@ -542,7 +542,7 @@ TabExecutor {
                 result.add(Material.valueOf((String)name.toUpperCase(Locale.ROOT)));
             }
             catch (IllegalArgumentException ignored) {
-                plugin.getLogger().warning("Material ore tidak dikenal di config: " + name);
+                plugin.getLogger().warning("Unknown ore material in config: " + name);
             }
         }
         return result;
@@ -565,12 +565,12 @@ TabExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         String sub;
         if (!(sender instanceof Player)) {
-            this.msg(sender, "&cCommand ini hanya untuk player admin in-game.");
+            this.msg(sender, "&cThis command is only for in-game admin players.");
             return true;
         }
         Player player = (Player)sender;
         if (!player.hasPermission("rumahkita.orespec.use")) {
-            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("toggle")) {
@@ -610,7 +610,7 @@ TabExecutor {
                     radius = this.clampRadius(Integer.parseInt(args[1]));
                 }
                 catch (NumberFormatException e) {
-                    this.msg((CommandSender)player, this.pref() + "&cRadius harus angka.");
+                    this.msg((CommandSender)player, this.pref() + "&cRadius must be a number.");
                     return true;
                 }
                 if (!this.sessions.containsKey(player.getUniqueId())) {
@@ -621,7 +621,7 @@ TabExecutor {
                 }
                 session.radius = radius;
                 this.refreshMarkers(player, true);
-                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.radius-set", "&aRadius diubah ke &f%radius%&a. Marker: &f%count%")));
+                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.radius-set", "&aRadius changed to &f%radius%&a. Markers: &f%count%")));
                 break;
             }
             case "vradius": 
@@ -637,7 +637,7 @@ TabExecutor {
                     radius = this.clampVerticalRadius(Integer.parseInt(args[1]));
                 }
                 catch (NumberFormatException e) {
-                    this.msg((CommandSender)player, this.pref() + "&cVertical radius harus angka.");
+                    this.msg((CommandSender)player, this.pref() + "&cVertical radius must be a number.");
                     return true;
                 }
                 if (!this.sessions.containsKey(player.getUniqueId())) {
@@ -648,7 +648,7 @@ TabExecutor {
                 }
                 session.verticalRadius = radius;
                 this.refreshMarkers(player, true);
-                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.vradius-set", "&aVertical radius diubah ke &f%vradius%&a. Marker: &f%count%")));
+                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.vradius-set", "&aVertical radius changed to &f%vradius%&a. Markers: &f%count%")));
                 break;
             }
             case "filter": {
@@ -659,7 +659,7 @@ TabExecutor {
                 }
                 String filter = args[1].toLowerCase(Locale.ROOT);
                 if (!this.isValidFilter(filter)) {
-                    this.msg((CommandSender)player, this.pref() + "&cFilter tidak ada. Coba: all, valuable, diamond, netherite, emerald");
+                    this.msg((CommandSender)player, this.pref() + "&cFilter not found. Try: all, valuable, diamond, netherite, emerald");
                     return true;
                 }
                 if (!this.sessions.containsKey(player.getUniqueId())) {
@@ -670,7 +670,7 @@ TabExecutor {
                 }
                 session.filter = filter;
                 this.refreshMarkers(player, true);
-                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.filter-set", "&aFilter diubah ke &f%filter%&a. Marker: &f%count%")));
+                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.filter-set", "&aFilter changed to &f%filter%&a. Markers: &f%count%")));
                 break;
             }
             case "deep": {
@@ -688,19 +688,19 @@ TabExecutor {
                     session.filter = "valuable";
                 }
                 this.refreshMarkers(player, true);
-                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.deep-set", "&aMode deep aktif. Marker: &f%count% &7| Radius: &f%radius%/%vradius%")));
+                this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.deep-set", "&aDeep mode active. Markers: &f%count% &7| Radius: &f%radius%/%vradius%")));
                 break;
             }
             case "list": {
                 if (!player.hasPermission("rumahkita.orespec.admin") && !player.hasPermission("rumahkita.orespec.see")) {
-                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
                     return true;
                 }
                 if (this.sessions.isEmpty()) {
-                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-empty", "&7Tidak ada admin yang sedang /spec2."));
+                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-empty", "&7No admins are currently in /spec2."));
                     return true;
                 }
-                this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-header", "&bAdmin yang sedang /spec2:"));
+                this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-header", "&bAdmins currently in /spec2:"));
                 for (UUID uuid : this.sessions.keySet()) {
                     Player p = Bukkit.getPlayer((UUID)uuid);
                     Session s = this.sessions.get(uuid);
@@ -711,13 +711,13 @@ TabExecutor {
             }
             case "status": {
                 Session session = this.sessions.get(player.getUniqueId());
-                String text = plugin.getConfig().getString("messages.status", "&7Spec2 kamu: &f%active% &7| Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius% &7| Semua session: &f%sessions%");
+                String text = plugin.getConfig().getString("messages.status", "&7Your Spec2: &f%active% &7| Markers: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius% &7| All sessions: &f%sessions%");
                 this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, text));
                 break;
             }
             case "reload": {
                 if (!player.hasPermission("rumahkita.orespec.admin")) {
-                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
                     return true;
                 }
                 plugin.reloadConfig();
@@ -746,7 +746,7 @@ TabExecutor {
         this.msg((CommandSender)player, "&e/spec2 filter all/valuable/diamond/netherite/emerald");
         this.msg((CommandSender)player, "&e/spec2 radius <4-128> &7- jarak horizontal");
         this.msg((CommandSender)player, "&e/spec2 vradius <8-192> &7- jarak atas/bawah");
-        this.msg((CommandSender)player, "&e/spec2 deep &7- mode cari ore lebih jauh ke bawah");
+        this.msg((CommandSender)player, "&e/spec2 deep &7- mode to search ores deeper down");
         this.msg((CommandSender)player, "&e/spec2 status");
         this.msg((CommandSender)player, "&8&m-----------------------------");
     }

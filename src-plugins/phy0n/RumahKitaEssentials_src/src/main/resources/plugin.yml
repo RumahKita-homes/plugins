@@ -9,6 +9,12 @@ softdepend:
 - Vault
 - RumahKitaEconomyV2
 commands:
+  rkessentials:
+    description: Main GUI command for RumahKita Essentials Admin
+    permission: rumahkita.essentials.admin
+    permission-message: Unknown command. Type "/help" for help.
+    aliases:
+    - rkes
   rka:
     description: Main command for RumahKita Admin
     permission: rumahkita.admin
@@ -84,6 +90,25 @@ commands:
     - player
     - playerlist
     - list
+  stat:
+    description: Lihat semua detail statistik mu.
+    usage: /stat
+    aliases:
+    - stats
+  settings:
+    description: Buka menu pengaturan preferensi player.
+    usage: /settings
+    aliases:
+    - setting
+    - options
+    - pengaturan
+  trash:
+    description: Buka tempat sampah untuk membuang item.
+    usage: /trash
+    aliases:
+    - bin
+    - sampah
+    - buang
 permissions:
   rumahkita.utilities.admin:
     description: Admin access to all RumahKitaUtilities commands.

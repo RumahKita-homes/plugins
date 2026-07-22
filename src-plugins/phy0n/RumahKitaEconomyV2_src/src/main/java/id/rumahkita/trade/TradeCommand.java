@@ -22,7 +22,7 @@ public class TradeCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Hanya pemain yang bisa menggunakan command ini.");
+            sender.sendMessage(ChatColor.RED + "Only players can use this command.");
             return true;
         }
 

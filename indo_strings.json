@@ -1,0 +1,177 @@
+{
+    "src-plugins\\phy0n\\RumahKitaEconomyV2_src\\src\\main\\java\\id\\rumahkita\\economy\\RumahKitaEconomyRupiahPlugin.java": [
+        "&8Bisa diberikan ke player lain.",
+        "&a /rke migratemysql &7- Pindah data balances ke MySQL",
+        "&7Klik untuk menutup menu.",
+        "&7Klik untuk ke halaman selanjutnya.",
+        "&7Klik untuk menjalankan /market stats.",
+        "&cRefund migration gagal: ",
+        "&7Lihat item aktif/nonaktif.",
+        "&7Klik untuk reload market config.",
+        "&7Klik untuk update demand sekarang.",
+        "&7Klik untuk migrasi/refund Player Shop lama.",
+        "&aMemulai migrasi balances ke MySQL. Harap tunggu...",
+        "&eInventory penuh! Sisa item dijatuhkan ke lantai.",
+        "&aVoucher diberikan ke semua player online.",
+        "&7Pakai voucher ini lewat GUI /market.",
+        " &adata player ke MySQL!",
+        "&bEconomy Info",
+        "&7Klik untuk ke halaman sebelumnya.",
+        "Gagal membaca balances JSON lama: ",
+        "&eKlik untuk claim."
+    ],
+    "src-plugins\\phy0n\\RumahKitaEconomyV2_src\\src\\main\\java\\id\\rumahkita\\trade\\TradeCommand.java": [
+        "Hanya pemain yang bisa menggunakan command ini."
+    ],
+    "src-plugins\\phy0n\\RumahKitaEconomyV2_src\\src\\main\\java\\id\\rumahkita\\trade\\TradeSession.java": [
+        "Klik untuk mengubah nominal!"
+    ],
+    "src-plugins\\phy0n\\RumahKitaEssentials_src\\src\\main\\java\\id\\rumahkita\\admin\\RumahKitaAdminPlugin.java": [
+        "Anti-VPN API Timeout untuk IP: ",
+        "Network Info",
+        "Tolong jangan mengirim pesan yang sama berulang kali!",
+        " masuk. "
+    ],
+    "src-plugins\\phy0n\\RumahKitaEssentials_src\\src\\main\\java\\id\\rumahkita\\utilities\\BansosManager.java": [
+        "Bansos sudah dibagikan.",
+        "Bansos sudah dibagikan!"
+    ],
+    "src-plugins\\phy0n\\RumahKitaEssentials_src\\src\\main\\java\\id\\rumahkita\\utilities\\SleepManager.java": [
+        "&cKamu tidak punya permission.",
+        "&aConfig berhasil direload."
+    ],
+    "src-plugins\\phy0n\\RumahKitaEssentials_src\\src\\main\\java\\id\\rumahkita\\warps\\ServerWarpCommand.java": [
+        "Usage: /editwarp <nama> <icon/slot/lore> <value>",
+        "Usage: /setwarp <nama>",
+        "Usage: /delwarp <nama>"
+    ],
+    "src-plugins\\phy0n\\RumahKitaEssentials_src\\src\\main\\java\\id\\rumahkita\\warps\\WarpManager.java": [
+        "Pwarp Info"
+    ],
+    "src-plugins\\RumahKitaDiscordVerify_src\\src\\main\\java\\id\\rumahkita\\discordverify\\RumahKitaDiscordVerifyPlugin.java": [
+        "&aAkun Minecraft kamu sudah terverifikasi dengan Discord.",
+        "&cKamu belum verifikasi Discord. Ketik &e/verify&c.",
+        "&cKamu tidak punya permission.",
+        "&aVerifikasi berhasil! Selamat bermain di RumahKita S2.",
+        "&aDiscordVerify berhasil direload.",
+        "\\u274c Verifikasi gagal untuk <@%discord_id%>.",
+        "&cKamu harus verifikasi Discord dulu. Ketik &e/verify&c.",
+        "&cPlayer tidak ditemukan.",
+        "&cCommand ini hanya untuk player.",
+        "\\u2705 Selamat <@%discord_id%>, kamu sudah terverifikasi sebagai **%player%**.",
+        "&cPlayer harus online untuk forceverify.",
+        "&cStatus verifikasi kamu dihapus staff. Ketik /verify lagi.",
+        "&aDiscord messages di-resync. Pesan lama akan diabaikan.",
+        "&aForce verify berhasil.",
+        "&cPlayer tidak ditemukan online/data.",
+        "&cKode kamu sudah expired. Ketik /verify lagi."
+    ],
+    "src-plugins\\RumahKitaFarmAI_src\\src\\main\\java\\id\\rumahkita\\farmai\\RumahKitaFarmAI.java": [
+        "&cCommand ini harus dari player.",
+        "&cNama zone tidak valid.",
+        "&eGunakan: /rkfarmai zonehere <nama> <radius>",
+        "&aConfig berhasil direload.",
+        " &adibuat di lokasi kamu dengan radius &f",
+        "&cRadius harus angka.",
+        "&a/rkfarmai zonehere <nama> <radius> &7- buat zone mob farm di lokasi kamu"
+    ],
+    "src-plugins\\RumahKitaFishing_src\\src\\main\\java\\id\\rumahkita\\fishing\\command\\FishAdminCommand.java": [
+        "&cTidak ada ikan dengan rarity itu."
+    ],
+    "src-plugins\\RumahKitaGuilds_src\\src\\main\\java\\id\\rumahkita\\guilds\\AdminDashboardGui.java": [
+        "&7Set Pos 1 ke lokasimu",
+        "Berhasil menarik 1000 dari kas ",
+        "Tidak ada catatan aktivitas.",
+        "&7(Klik untuk melihat semua anggota)",
+        "&7Set Pos 2 ke lokasimu",
+        "Untuk memanajemen spesifik member, gunakan command /rkg members",
+        "Kas guild tidak mencukupi!",
+        "Guild berhasil dibubarkan.",
+        "&7Claim area dari Pos 1 ke Pos 2",
+        "&7untuk guild ini.",
+        "&7terakhir guild ini di chat)",
+        "&7Membubarkan guild ini secara paksa!",
+        "=== Anggota ",
+        "&aKlik untuk memantau guild ini!",
+        "&7Mengatur harga buat guild,",
+        "&bInformasi Umum",
+        "&7saat ini.",
+        "&7Melihat semua guild yang ada",
+        "&7(Klik untuk mencetak 10 log",
+        "Berhasil menambah 1000 ke kas ",
+        "&7dan konfigurasi umum."
+    ],
+    "src-plugins\\RumahKitaGuilds_src\\src\\main\\java\\id\\rumahkita\\guilds\\GuildAdminCommand.java": [
+        "/rkg info <guild>",
+        "&bGuild Info: &f",
+        "&7...use /rkgadmin info <guild> for details",
+        "Gagal tulis log: ",
+        "&e/rkg info <guild>"
+    ],
+    "src-plugins\\RumahKitaGuilds_src\\src\\main\\java\\id\\rumahkita\\guilds\\GuildClaimListener.java": [
+        "Kamu dilarang berinteraksi di wilayah guild "
+    ],
+    "src-plugins\\RumahKitaGuilds_src\\src\\main\\java\\id\\rumahkita\\guilds\\GuildCommand.java": [
+        "&eUsage: /guild info <tag>"
+    ],
+    "src-plugins\\RumahKitaGuilds_src\\src\\main\\java\\id\\rumahkita\\guilds\\GuildGui.java": [
+        "&7Klik untuk menarik uang",
+        "&7yang bisa menarik uang",
+        "&7Kembali ke menu guild.",
+        "&7Klik untuk menyetor uang",
+        "&b&lGuild Info"
+    ],
+    "src-plugins\\RumahKitaMinigames_src\\src\\main\\java\\id\\rumahkita\\ctf\\RumahKitaCaptureFlag.java": [
+        "Kamu tidak punya permission admin CTF.",
+        " &a(AKTIF)",
+        "Item backup event lama ditemukan dan sudah direstore dulu sebelum join.",
+        "Kamu tidak punya permission untuk join event.",
+        "Command ini hanya untuk player.",
+        "PlaceholderAPI tidak ditemukan. Placeholder %rumahkitactf_*% tidak aktif.",
+        "PlaceholderAPI hooked. Placeholders %rumahkitactf_*% aktif.",
+        "&7Capture aktif: &d",
+        "Event sedang countdown, tidak bisa join sekarang.",
+        "Event sudah berjalan, tidak bisa join sekarang.",
+        "Event sedang disabled."
+    ],
+    "src-plugins\\RumahKitaSecurity_src\\src\\main\\java\\id\\rumahkita\\anticheat\\AntiCheatCommand.java": [
+        "&cSeconds harus angka."
+    ],
+    "src-plugins\\RumahKitaSecurity_src\\src\\main\\java\\id\\rumahkita\\antixray\\RumahKitaAntiXrayPlugin.java": [
+        "&cKamu tidak punya permission.",
+        "Gagal tulis log antixray: ",
+        "&ePlayer belum punya data AntiXray.",
+        "&aAntiXray berhasil direload.",
+        "&cKamu sedang dibekukan sementara.",
+        "&aRisk player berhasil direset.",
+        "Discord AntiXray alert gagal: ",
+        "Gagal save data AntiXray: ",
+        "&cPlayer tidak online."
+    ],
+    "src-plugins\\RumahKitaSecurity_src\\src\\main\\java\\id\\rumahkita\\orespec\\RumahKitaOreSpectatorPlugin.java": [
+        "&aVertical radius diubah ke &f%vradius%&a. Marker: &f%count%",
+        "&cKamu tidak punya permission.",
+        "&cVertical radius harus angka.",
+        "&aSpec2 aktif. Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%",
+        "&bAdmin yang sedang /spec2:",
+        "&cFilter tidak ada. Coba: all, valuable, diamond, netherite, emerald",
+        "&cSpec2 nonaktif. Kamu muncul kembali.",
+        "&aFilter diubah ke &f%filter%&a. Marker: &f%count%",
+        "Material ore tidak dikenal di config: ",
+        "Gagal spawn ore marker: ",
+        "&eSpec2 sudah aktif. Marker: &f%count%&e.",
+        "&e/spec2 deep &7- mode cari ore lebih jauh ke bawah",
+        "&7Spec2 kamu: &f%active% &7| Marker: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius% &7| Semua session: &f%sessions%",
+        "&7Tidak ada player online yang terlihat.",
+        "&cCommand ini hanya untuk player admin in-game.",
+        "&aRadius diubah ke &f%radius%&a. Marker: &f%count%",
+        "&aMode deep aktif. Marker: &f%count% &7| Radius: &f%radius%/%vradius%",
+        "&cRadius harus angka.",
+        "&eMarker 0. Terbang lebih dekat ke tanah/underground, atau pakai &f/spec2 filter all &edan &f/spec2 radius 96&e.",
+        "&7Tidak ada admin yang sedang /spec2."
+    ],
+    "src-plugins\\RumahKitaSecurity_src\\src\\main\\java\\id\\rumahkita\\ramguard\\RumahKitaRamGuardPlugin.java": [
+        "RumahKitaRamGuard aktif. Gunakan /ramguard status untuk cek RAM.",
+        "&aView distance dan simulation distance dikembalikan ke config normal."
+    ]
+}

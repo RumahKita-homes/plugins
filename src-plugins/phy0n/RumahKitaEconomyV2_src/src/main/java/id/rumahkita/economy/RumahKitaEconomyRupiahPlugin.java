@@ -141,6 +141,10 @@ TabExecutor {
         return instance;
     }
 
+    public FileConfiguration getBalancesCfg() {
+        return this.balancesCfg;
+    }
+
     public void onEnable() {
         instance = this;
         this.saveDefaultConfig();
@@ -154,6 +158,13 @@ TabExecutor {
         this.dbManager = new DatabaseManager(this);
         this.reloadAll();
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
+        
+        EconomyAdminGui adminGui = new EconomyAdminGui(this);
+        Bukkit.getPluginManager().registerEvents(adminGui, this);
+        org.bukkit.command.PluginCommand adminCmd = getCommand("rkeconomy");
+        if (adminCmd != null) {
+            adminCmd.setExecutor(new EconomyAdminCommand(adminGui));
+        }
         for (String cmd : Arrays.asList("market", "sellhand", "sellall", "bal", "pay", "payall", "rke", "baltop", "hidebal")) {
             if (this.getCommand(cmd) != null) {
                 this.getCommand(cmd).setExecutor((CommandExecutor)this);
@@ -409,7 +420,7 @@ TabExecutor {
             }
         }
         catch (Exception e) {
-            this.getLogger().warning("Gagal membaca balances JSON lama: " + e.getMessage());
+            this.getLogger().warning("Failed to read old JSON balances: " + e.getMessage());
         }
         return migrated;
     }
@@ -839,6 +850,11 @@ TabExecutor {
             return this.noPerm(sender);
         }
         if (args.length == 0) {
+            org.bukkit.command.PluginCommand adminCmd = getCommand("rkeconomy");
+            if (sender instanceof Player && adminCmd != null && adminCmd.getExecutor() != null) {
+                adminCmd.getExecutor().onCommand(sender, adminCmd, "rke", new String[0]);
+                return true;
+            }
             this.msg(sender, "&cType /rke help for help.");
             return true;
         }
@@ -850,7 +866,7 @@ TabExecutor {
             this.msg(sender, "&a /rke voucher giveall <percent> <amount>");
             this.msg(sender, "&a /rke reload | save | placeholders | demandupdate");
             this.msg(sender, "&a /rke migratebalances");
-            this.msg(sender, "&a /rke migratemysql &7- Pindah data balances ke MySQL");
+            this.msg(sender, "&a /rke migratemysql &7- Migrate balances data to MySQL");
             this.msg(sender, "&a /rke baltop &7- Lihat baltop (bypass hidebal)");
             this.msg(sender, "&e--- Player Commands ---");
             this.msg(sender, "&a /market atau /shop &7- Buka Menu Toko");
@@ -895,7 +911,7 @@ TabExecutor {
                 this.msg(sender, "&cMySQL is not enabled in config.yml.");
                 return true;
             }
-            this.msg(sender, "&aMemulai migrasi balances ke MySQL. Harap tunggu...");
+            this.msg(sender, "&aStarting balances migration to MySQL. Please wait...");
             Bukkit.getScheduler().runTaskAsynchronously((Plugin)this, () -> {
                 int count = 0;
                 ConfigurationSection players = this.balancesCfg.getConfigurationSection("balances");
@@ -911,7 +927,7 @@ TabExecutor {
                 }
                 final int finalCount = count;
                 Bukkit.getScheduler().runTask((Plugin)this, () -> {
-                    this.msg(sender, "&aBerhasil memigrasi &e" + finalCount + " &adata player ke MySQL!");
+                    this.msg(sender, "&aBerhasil memigrasi &e" + finalCount + " &aplayer data to MySQL!");
                 });
             });
             return true;
@@ -985,7 +1001,7 @@ TabExecutor {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.getInventory().addItem(new ItemStack[]{this.createVoucher(percent, amount)});
             }
-            this.msg(sender, "&aVoucher diberikan ke semua player online.");
+            this.msg(sender, "&aVouchers given to all online players.");
             return true;
         }
         this.msg(sender, "&c/rke voucher give <player> <percent> <amount>");
@@ -1051,15 +1067,15 @@ TabExecutor {
         }
         
         if (page > 0) {
-            inv.setItem(45, this.icon(Material.ARROW, "&aSebelumnya", Collections.singletonList("&7Klik untuk ke halaman sebelumnya.")));
+            inv.setItem(45, this.icon(Material.ARROW, "&aSebelumnya", Collections.singletonList("&7Click for previous page.")));
         } else {
             inv.setItem(45, this.icon(Material.CHEST, "&eKe Menu Utama", Collections.singletonList("&7Click to return to category.")));
         }
         
-        inv.setItem(49, this.icon(Material.BARRIER, "&cTutup", Collections.singletonList("&7Klik untuk menutup menu.")));
+        inv.setItem(49, this.icon(Material.BARRIER, "&cTutup", Collections.singletonList("&7Click to close menu.")));
         
         if (page < maxPages && maxPages > 1 && page < maxPages - 1) {
-            inv.setItem(53, this.icon(Material.ARROW, "&aSelanjutnya", Collections.singletonList("&7Klik untuk ke halaman selanjutnya.")));
+            inv.setItem(53, this.icon(Material.ARROW, "&aSelanjutnya", Collections.singletonList("&7Click for next page.")));
         }
         
         p.openInventory(inv);
@@ -1107,13 +1123,13 @@ TabExecutor {
 
     private void openAdmin(Player p) {
         Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("admin", null), (int)27, (String)this.color("&8Market Admin"));
-        inv.setItem(10, this.icon(Material.CHEST, "&eKelola Item", Arrays.asList("&7Lihat item aktif/nonaktif.", "&7Edit detail lewat market.yml.")));
+        inv.setItem(10, this.icon(Material.CHEST, "&eKelola Item", Arrays.asList("&7View active/inactive items.", "&7Edit detail lewat market.yml.")));
         inv.setItem(11, this.icon(Material.HOPPER, "&eKelola Stock", Arrays.asList("&7Stock otomatis tersimpan.", "&7Gunakan market.yml + /market reload.")));
         inv.setItem(12, this.icon(Material.GOLD_INGOT, "&eManage Prices", Arrays.asList("&7Current price is in data/prices.yml.", "&7Base price is in market.yml.")));
-        inv.setItem(13, this.icon(Material.COMPARATOR, "&eDemand Pricing", Arrays.asList("&7HYBRID/AUTO_DEMAND aman dibatasi.", "&7Klik untuk update demand sekarang.")));
-        inv.setItem(14, this.icon(Material.PAPER, "&eLihat Statistik", Arrays.asList("&7Klik untuk menjalankan /market stats.")));
-        inv.setItem(15, this.icon(Material.ENDER_CHEST, "&eRefund Pending", Arrays.asList("&7Klik untuk migrasi/refund Player Shop lama.")));
-        inv.setItem(16, this.icon(Material.REDSTONE_TORCH, "&aReload Config", Arrays.asList("&7Klik untuk reload market config.")));
+        inv.setItem(13, this.icon(Material.COMPARATOR, "&eDemand Pricing", Arrays.asList("&7HYBRID/AUTO_DEMAND aman dibatasi.", "&7Click to update demand now.")));
+        inv.setItem(14, this.icon(Material.PAPER, "&eLihat Statistik", Arrays.asList("&7Click to execute /market stats.")));
+        inv.setItem(15, this.icon(Material.ENDER_CHEST, "&eRefund Pending", Arrays.asList("&7Click to migrate/refund old Player Shop.")));
+        inv.setItem(16, this.icon(Material.REDSTONE_TORCH, "&aReload Config", Arrays.asList("&7Click to reload market config.")));
         p.openInventory(inv);
     }
 
@@ -1134,7 +1150,7 @@ TabExecutor {
                 if ((meta = item.getItemMeta()) != null) {
                     ArrayList<String> lore = meta.hasLore() ? new ArrayList<String>(meta.getLore()) : new ArrayList();
                     lore.add(this.color("&8Refund ID: " + id));
-                    lore.add(this.color("&eKlik untuk claim."));
+                    lore.add(this.color("&eClick to claim."));
                     meta.setLore(lore);
                     meta.getPersistentDataContainer().set(this.keyRefundId, PersistentDataType.STRING, id);
                     item.setItemMeta(meta);
@@ -1431,7 +1447,7 @@ TabExecutor {
             for (ItemStack leftover : left.values()) {
                 p.getWorld().dropItem(p.getLocation(), leftover);
             }
-            this.msg((CommandSender)p, "&eInventory penuh! Sisa item dijatuhkan ke lantai.");
+            this.msg((CommandSender)p, "&eInventory full! Remaining items dropped on the floor.");
         }
         long before = mi.stockCurrent;
         if (mi.stockEnabled && mi.stockCurrent >= 0L) {
@@ -1485,7 +1501,7 @@ TabExecutor {
         ItemMeta meta = it.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(this.color("&dVoucher Diskon " + percent + "%"));
-            meta.setLore(Arrays.asList(this.color("&7Pakai voucher ini lewat GUI /market."), this.color("&7Diskon: &d" + percent + "%"), this.color("&8Bisa diberikan ke player lain.")));
+            meta.setLore(Arrays.asList(this.color("&7Use this voucher via /market GUI."), this.color("&7Diskon: &d" + percent + "%"), this.color("&8Can be given to other players.")));
             meta.getPersistentDataContainer().set(this.keyVoucherId, PersistentDataType.STRING, UUID.randomUUID().toString().replace("-", ""));
             meta.getPersistentDataContainer().set(this.keyVoucherPercent, PersistentDataType.INTEGER, percent);
             it.setItemMeta(meta);
@@ -1599,7 +1615,7 @@ TabExecutor {
             this.msg(sender, "&aRefund migration selesai. Pending baru: &f" + created);
         }
         catch (Exception e) {
-            this.msg(sender, "&cRefund migration gagal: " + e.getMessage());
+            this.msg(sender, "&cRefund migration failed: " + e.getMessage());
             this.getLogger().warning("Refund migration failed: " + e.getMessage());
         }
     }

@@ -73,10 +73,12 @@ implements Listener {
     private final Map<String, Challenge> challenges = new HashMap<String, Challenge>();
     private War activeWar;
     private BukkitTask ticker;
+    private final EconomyManager economyManager;
 
-    public GuildWarManager(RumahKitaGuildsPlugin plugin, GuildManager guildManager) {
+    public GuildWarManager(RumahKitaGuildsPlugin plugin, GuildManager guildManager, EconomyManager economyManager) {
         this.plugin = plugin;
         this.guildManager = guildManager;
+        this.economyManager = economyManager;
     }
 
     public void reload() {
@@ -125,67 +127,27 @@ implements Listener {
                 break;
             }
             default: {
-                this.challenge(player, args[1]);
-            }
-        }
-    }
-
-    public void handleWallet(CommandSender sender, String[] args) {
-        Player player = this.requirePlayer(sender);
-        if (player == null) {
-            return;
-        }
-        Guild guild = this.guildManager.getGuild(player);
-        if (guild == null) {
-            Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild"));
-            return;
-        }
-        GuildRole role = guild.getRole(player.getUniqueId());
-        if (args.length >= 2 && args[1].equalsIgnoreCase("withdraw")) {
-            int amount;
-            if (!role.atLeast(GuildRole.ADMIN)) {
-                Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission"));
-                return;
-            }
-            if (args.length < 3) {
-                Text.msg((CommandSender)player, "&eUsage: /guild wallet withdraw <amount|all>");
-                return;
-            }
-            if (args[2].equalsIgnoreCase("all")) {
-                amount = guild.getEmeraldWallet();
-            } else {
-                try {
-                    amount = Integer.parseInt(args[2]);
-                }
-                catch (NumberFormatException ex) {
-                    Text.msg((CommandSender)player, "&cAmount must be a number or 'all'.");
+                if (args.length < 3) {
+                    Text.msg((CommandSender)player, "&eUsage: /guild war <target> <bet_amount>");
                     return;
                 }
+                this.challenge(player, args[1], args[2]);
             }
-            if (amount <= 0) {
-                Text.msg((CommandSender)player, "&cGuild wallet does not have any emeralds to withdraw.");
-                return;
-            }
-            if (!guild.withdrawEmeraldWallet(amount)) {
-                Text.msg((CommandSender)player, "&cNot enough emeralds in guild wallet.");
-                return;
-            }
-            HashMap<Integer, ItemStack> left = player.getInventory().addItem(new ItemStack[]{new ItemStack(Material.EMERALD, amount)});
-            for (ItemStack item : left.values()) {
-                player.getWorld().dropItemNaturally(player.getLocation(), item);
-            }
-            this.guildManager.save();
-            Text.msg((CommandSender)player, this.pref() + "&aYou withdrew &e" + amount + " Emeralds &afrom the Guild Wallet.");
-        } else {
-            Text.msg((CommandSender)player, "&8&m------------------------");
-            Text.msg((CommandSender)player, "&bGuild Wallet &8[&f" + guild.getTag() + "&8]");
-            Text.msg((CommandSender)player, "&7Emeralds: &a" + guild.getEmeraldWallet());
-            Text.msg((CommandSender)player, "&7Leader/Admin can use: &e/guild wallet withdraw <amount|all>");
-            Text.msg((CommandSender)player, "&8&m------------------------");
         }
     }
 
-    private void challenge(Player player, String enemyTag) {
+    private void cancelChallenge(String targetTag) {
+        Challenge ch = this.challenges.remove(targetTag.toUpperCase(Locale.ROOT));
+        if (ch != null) {
+            Guild g = this.guildManager.getGuildByTag(ch.challengerTag);
+            if (g != null) {
+                g.addBalance(ch.betAmount);
+                this.guildManager.save();
+            }
+        }
+    }
+
+    private void challenge(Player player, String enemyTag, String betStr) {
         if (this.activeWar != null) {
             Text.msg((CommandSender)player, this.pref() + "&cThere is an ongoing Guild War.");
             return;
@@ -213,10 +175,31 @@ implements Listener {
             Text.msg((CommandSender)player, this.pref() + "&cEach guild must have at least &e" + minOnline + " &conline players.");
             return;
         }
+        if (this.challenges.containsKey(enemy.getTag().toUpperCase(Locale.ROOT))) {
+            Text.msg((CommandSender)player, this.pref() + "&cThat guild already has a pending challenge.");
+            return;
+        }
+        double bet = 0;
+        try {
+            bet = Double.parseDouble(betStr);
+        } catch (NumberFormatException e) {
+            Text.msg((CommandSender)player, "&cInvalid bet amount.");
+            return;
+        }
+        if (bet < 0) {
+            Text.msg((CommandSender)player, "&cBet cannot be negative.");
+            return;
+        }
+        if (guild.getBalance() < bet) {
+            Text.msg((CommandSender)player, "&cYour guild bank does not have enough money to place this bet. Bank: " + this.economyManager.format(guild.getBalance()));
+            return;
+        }
+        guild.withdrawBalance(bet);
+        this.guildManager.save();
         long expire = System.currentTimeMillis() + (long)this.plugin.getConfig().getInt("guild-war.challenge-expire-seconds", 120) * 1000L;
-        Challenge challenge = new Challenge(guild.getTag(), enemy.getTag(), player.getUniqueId(), expire);
+        Challenge challenge = new Challenge(guild.getTag(), enemy.getTag(), player.getUniqueId(), expire, bet);
         this.challenges.put(enemy.getTag().toUpperCase(Locale.ROOT), challenge);
-        Text.msg((CommandSender)player, this.pref() + "&aGuild War challenge sent to guild &e" + enemy.getTag() + "&a.");
+        Text.msg((CommandSender)player, this.pref() + "&aGuild War challenge sent to guild &e" + enemy.getTag() + " &awith a bet of &e" + this.economyManager.format(bet) + "&a.");
         for (Player p : this.onlineMembers(enemy)) {
             GuildRole role = enemy.getRole(p.getUniqueId());
             if (!role.atLeast(GuildRole.ADMIN)) continue;
@@ -245,17 +228,27 @@ implements Listener {
         }
         Challenge ch = this.challenges.get(guild.getTag().toUpperCase(Locale.ROOT));
         if (ch == null || !ch.challengerTag.equalsIgnoreCase(args[2]) || ch.expireAt < System.currentTimeMillis()) {
-            this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
+            if (ch != null && ch.expireAt < System.currentTimeMillis()) {
+                this.cancelChallenge(guild.getTag());
+            }
             Text.msg((CommandSender)player, this.pref() + "&cChallenge not found or has expired.");
             return;
         }
         Guild challenger = this.guildManager.getGuildByTag(ch.challengerTag);
         if (challenger == null) {
+            this.cancelChallenge(guild.getTag());
             Text.msg((CommandSender)player, this.pref() + "&cChallenger guild not found.");
             return;
         }
+        if (guild.getBalance() < ch.betAmount) {
+            Text.msg((CommandSender)player, "&cYour guild bank does not have enough money to accept this bet. Bank: " + this.economyManager.format(guild.getBalance()));
+            return;
+        }
+        guild.withdrawBalance(ch.betAmount);
+        this.guildManager.save();
+        
         this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
-        this.startCountdown(challenger, guild);
+        this.startCountdown(challenger, guild, ch.betAmount);
     }
 
     private void deny(Player player) {
@@ -268,11 +261,16 @@ implements Listener {
             Text.msg((CommandSender)player, this.pref() + "&cOnly Guild Leader or Admin can deny Guild War challenges.");
             return;
         }
-        this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
-        Text.msg((CommandSender)player, this.pref() + "&cGuild War challenge denied.");
+        Challenge ch = this.challenges.get(guild.getTag().toUpperCase(Locale.ROOT));
+        if (ch != null) {
+            this.cancelChallenge(guild.getTag());
+            Text.msg((CommandSender)player, this.pref() + "&cGuild War challenge denied.");
+        } else {
+            Text.msg((CommandSender)player, this.pref() + "&cNo pending challenge.");
+        }
     }
 
-    private void startCountdown(Guild g1, Guild g2) {
+    private void startCountdown(Guild g1, Guild g2, double betAmount) {
         int countdown;
         List<Player> side1 = this.onlineMembers(g1);
         List<Player> side2 = this.onlineMembers(g2);
@@ -280,7 +278,7 @@ implements Listener {
             Bukkit.broadcastMessage((String)Text.color(this.pref() + "&cGuild War cancelled because one of the guilds has no online members."));
             return;
         }
-        this.activeWar = new War(g1.getTag(), g2.getTag());
+        this.activeWar = new War(g1.getTag(), g2.getTag(), betAmount);
         Location loc1 = this.sideLocation("side1");
         Location loc2 = this.sideLocation("side2");
         for (Player p : side1) {
@@ -366,16 +364,21 @@ implements Listener {
         }
         War war = this.activeWar;
         this.activeWar = null;
-        int reward = this.plugin.getConfig().getInt("guild-war.reward-emerald", 2);
+        double bet = war.betAmount;
         if (winnerTag != null) {
             Guild winner = this.guildManager.getGuildByTag(winnerTag);
             if (winner != null) {
-                winner.addEmeraldWallet(reward);
+                winner.addBalance(bet * 2);
                 this.guildManager.save();
             }
-            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&aGuild War ended! Winner: &e" + winnerTag + " &7(" + reason + ") &a+" + reward + " Emeralds to Guild Wallet."));
+            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&aGuild War ended! Winner: &e" + winnerTag + " &7(" + reason + ") &a+" + this.economyManager.format(bet * 2) + " to Guild Bank."));
         } else {
-            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&eGuild War ended in a tie! &7(" + reason + ") &fNo rewards."));
+            Guild g1 = this.guildManager.getGuildByTag(war.guild1);
+            if (g1 != null) g1.addBalance(bet);
+            Guild g2 = this.guildManager.getGuildByTag(war.guild2);
+            if (g2 != null) g2.addBalance(bet);
+            this.guildManager.save();
+            Bukkit.broadcastMessage((String)Text.color(this.pref() + "&eGuild War ended in a tie! &7(" + reason + ") &fBets refunded."));
         }
         if (this.plugin.getConfig().getBoolean("guild-war.restore-location-after-war", true)) {
             for (UUID uuid : war.participants) {
@@ -458,6 +461,31 @@ implements Listener {
                 if (this.plugin.getConfig().getBoolean("guild-war.announce-kills", true)) {
                     this.broadcastWar("&e" + killer.getName() + " &7killed &c" + victim.getName() + " &8(&b" + kg + " &7+1&8)");
                 }
+            }
+        }
+        
+        if (!this.plugin.getConfig().getBoolean("guild-war.respawn-continue", true)) {
+            this.activeWar.deadPlayers.add(victim.getUniqueId());
+            
+            // Check if a team is completely wiped out
+            boolean team1Wiped = true;
+            boolean team2Wiped = true;
+            
+            for (UUID pId : this.activeWar.participants) {
+                if (this.activeWar.deadPlayers.contains(pId)) continue;
+                String g = this.activeWar.playerGuild.get(pId);
+                if (g != null) {
+                    if (g.equalsIgnoreCase(this.activeWar.guild1)) team1Wiped = false;
+                    if (g.equalsIgnoreCase(this.activeWar.guild2)) team2Wiped = false;
+                }
+            }
+            
+            if (team1Wiped && !team2Wiped) {
+                this.endWar("Enemy team wiped out", this.activeWar.guild2);
+            } else if (team2Wiped && !team1Wiped) {
+                this.endWar("Enemy team wiped out", this.activeWar.guild1);
+            } else if (team1Wiped && team2Wiped) {
+                this.endWar("Both teams wiped out", null);
             }
         }
     }
@@ -577,12 +605,12 @@ implements Listener {
     private void help(Player player) {
         Text.msg((CommandSender)player, "&8&m------------------------");
         Text.msg((CommandSender)player, "&dGuild War Commands");
-        Text.msg((CommandSender)player, "&e/guild war <tag> &7- leader/admin challenge another guild");
+        Text.msg((CommandSender)player, "&e/guild war <tag> <bet_amount> &7- leader/admin challenge another guild");
         Text.msg((CommandSender)player, "&e/guild war accept <tag> &7- leader/admin accept war");
         Text.msg((CommandSender)player, "&e/guild war deny &7- leader/admin deny war");
         Text.msg((CommandSender)player, "&e/guild war status &7- check active war");
-        Text.msg((CommandSender)player, "&e/guild wallet &7- check guild wallet");
-        Text.msg((CommandSender)player, "&e/guild wallet withdraw <amount|all> &7- leader/admin withdraw emeralds");
+        Text.msg((CommandSender)player, "&e/guild deposit <amount> &7- deposit to guild bank");
+        Text.msg((CommandSender)player, "&e/guild withdraw <amount> &7- withdraw from guild bank");
         Text.msg((CommandSender)player, "&8&m------------------------");
     }
 
@@ -641,13 +669,16 @@ implements Listener {
         final Map<UUID, String> playerGuild = new HashMap<UUID, String>();
         final Map<UUID, Location> returnLocations = new HashMap<UUID, Location>();
         final Map<UUID, Integer> kills = new HashMap<UUID, Integer>();
+        final Set<UUID> deadPlayers = new HashSet<UUID>();
         boolean running;
         int countdownLeft;
         long endsAt;
+        double betAmount;
 
-        War(String guild1, String guild2) {
+        War(String guild1, String guild2, double betAmount) {
             this.guild1 = guild1.toUpperCase(Locale.ROOT);
             this.guild2 = guild2.toUpperCase(Locale.ROOT);
+            this.betAmount = betAmount;
         }
 
         int score(String guildTag) {
@@ -661,7 +692,7 @@ implements Listener {
         }
     }
 
-    private record Challenge(String challengerTag, String targetTag, UUID sender, long expireAt) {
+    private record Challenge(String challengerTag, String targetTag, UUID sender, long expireAt, double betAmount) {
     }
 }
 

@@ -47,7 +47,7 @@ public class ServerWarpCommand implements CommandExecutor, TabCompleter {
 
         if (cmd.equals("setwarp")) {
             if (args.length == 0) {
-                p.sendMessage(ChatColor.RED + "Usage: /setwarp <nama>");
+                p.sendMessage(ChatColor.RED + "Usage: /setwarp <name>");
                 return true;
             }
             manager.setWarp(args[0], p.getLocation());
@@ -57,7 +57,7 @@ public class ServerWarpCommand implements CommandExecutor, TabCompleter {
 
         if (cmd.equals("delwarp")) {
             if (args.length == 0) {
-                p.sendMessage(ChatColor.RED + "Usage: /delwarp <nama>");
+                p.sendMessage(ChatColor.RED + "Usage: /delwarp <name>");
                 return true;
             }
             if (manager.delWarp(args[0])) {
@@ -70,7 +70,7 @@ public class ServerWarpCommand implements CommandExecutor, TabCompleter {
 
         if (cmd.equals("editwarp")) {
             if (args.length < 3) {
-                p.sendMessage(ChatColor.RED + "Usage: /editwarp <nama> <icon/slot/lore> <value>");
+                p.sendMessage(ChatColor.RED + "Usage: /editwarp <name> <icon/slot/lore> <value>");
                 return true;
             }
             ServerWarpManager.ServerWarp w = manager.getWarp(args[0]);

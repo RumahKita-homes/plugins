@@ -269,7 +269,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                 } else if (sub.equals("vpn")) {
                     return Arrays.asList("check", "allow", "remove", "on", "off").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
                 } else if (sub.equals("maintenance")) {
-                    return Arrays.asList("time", "cancel").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
+                    return Arrays.asList("on", "off", "time", "cancel", "stop").stream().filter(s -> s.startsWith(args[1].toLowerCase())).collect(Collectors.toList());
                 }
                 List<String> targetCommands = Arrays.asList("checkip", "checkalts", "allowalt", "blockalt", "unblockalt", "setmainaccount", "freeze", "invsee", "ec", "kick", "smite", "troll", "heal", "fly", "mute", "jail", "unjail", "warn", "inspect", "sudo", "spectate");
                 if (targetCommands.contains(sub)) {
@@ -707,7 +707,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
                 });
             }
         } catch (Exception e) {
-            getLogger().warning("Anti-VPN API Timeout untuk IP: " + ip);
+            getLogger().warning("Anti-VPN API Timeout for IP: " + ip);
         }
     }
 
@@ -776,29 +776,34 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
     }
 
     private boolean handleMaintenance(CommandSender sender, String[] args) {
-        if (args.length >= 2 && args[1].equalsIgnoreCase("cancel")) {
+        if (args.length >= 2 && (args[1].equalsIgnoreCase("cancel") || args[1].equalsIgnoreCase("stop") || args[1].equalsIgnoreCase("off"))) {
             if (!maintenanceMode) {
                 sender.sendMessage(ChatColor.RED + "Maintenance mode is not active.");
                 return true;
             }
             maintenanceMode = false;
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendTitle(ChatColor.GREEN + "MAINTENANCE CANCELED", ChatColor.YELLOW + "Server remains open!", 10, 70, 20);
+                p.sendTitle(ChatColor.GREEN + "MAINTENANCE OFF", ChatColor.YELLOW + "Server remains open!", 10, 70, 20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             }
             Bukkit.broadcastMessage(getMsg("messages.maintenance.disable-broadcast", "&a&lMAINTENANCE COMPLETE/CANCELED!"));
-            sender.sendMessage(ChatColor.GREEN + "Maintenance Mode CANCELED.");
+            sender.sendMessage(ChatColor.GREEN + "Maintenance Mode OFF.");
             return true;
         }
 
-        if (maintenanceMode) {
+        if (args.length >= 2 && args[1].equalsIgnoreCase("on")) {
+            if (maintenanceMode) {
+                sender.sendMessage(ChatColor.RED + "Maintenance mode is already active.");
+                return true;
+            }
+        } else if (maintenanceMode) {
             maintenanceMode = false;
             for (Player p : Bukkit.getOnlinePlayers()) {
-                p.sendTitle(ChatColor.GREEN + "MAINTENANCE COMPLETE", ChatColor.YELLOW + "Server is now open!", 10, 70, 20);
+                p.sendTitle(ChatColor.GREEN + "MAINTENANCE OFF", ChatColor.YELLOW + "Server is now open!", 10, 70, 20);
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             }
             Bukkit.broadcastMessage(getMsg("messages.maintenance.disable-broadcast", "&a&lMAINTENANCE COMPLETE!"));
-            sender.sendMessage(ChatColor.GREEN + "Maintenance Mode OFF (and any pending countdowns stopped).");
+            sender.sendMessage(ChatColor.GREEN + "Maintenance Mode OFF.");
             return true;
         }
 
@@ -806,7 +811,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         String inputTime = null;
         if (args.length >= 3 && args[1].equalsIgnoreCase("time")) {
             inputTime = args[2];
-        } else if (args.length == 2 && !args[1].equalsIgnoreCase("cancel")) {
+        } else if (args.length == 2 && !args[1].equalsIgnoreCase("cancel") && !args[1].equalsIgnoreCase("stop") && !args[1].equalsIgnoreCase("off") && !args[1].equalsIgnoreCase("on")) {
             inputTime = args[1];
         }
 
@@ -1426,7 +1431,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             String msg = event.getMessage();
             if (msg.equalsIgnoreCase(lastMessages.get(p.getUniqueId()))) {
                 event.setCancelled(true);
-                p.sendMessage(ChatColor.RED + "Tolong jangan mengirim pesan yang sama berulang kali!");
+                p.sendMessage(ChatColor.RED + "Please do not send the same message repeatedly!");
                 return;
             }
             
@@ -1544,7 +1549,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
             alts.remove(p.getName());
             if (!alts.isEmpty()) {
                 String alertMsg = ChatColor.GRAY + "[" + ChatColor.RED + "Keamanan" + ChatColor.GRAY + "] " 
-                                + ChatColor.YELLOW + p.getName() + ChatColor.WHITE + " masuk. "
+                                + ChatColor.YELLOW + p.getName() + ChatColor.WHITE + " joined. "
                                 + ChatColor.GRAY + "Terkait alt: " + ChatColor.RED + String.join(", ", alts);
                 for (Player admin : Bukkit.getOnlinePlayers()) {
                     if (admin.hasPermission("rumahkita.admin")) {
@@ -1871,6 +1876,7 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         }
     }
 
+
     private String formatTimeLength(int totalSeconds) {
         if (totalSeconds < 60) return totalSeconds + " seconds";
         int hours = totalSeconds / 3600;
@@ -1883,4 +1889,6 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
         if (seconds > 0) sb.append(seconds).append(" sec");
         return sb.toString().trim();
     }
+
+
 }

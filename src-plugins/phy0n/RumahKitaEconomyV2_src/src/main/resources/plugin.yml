@@ -35,6 +35,10 @@ commands:
   rke:
     description: Admin Economy RumahKita
     usage: /rke
+  rkeconomy:
+    description: Economy Admin Dashboard
+    permission: rumahkita.economy.admin
+    aliases: [rkeco]
 
 permissions:
   market.use:

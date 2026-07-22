@@ -6,6 +6,8 @@ import id.rumahkita.admin.RumahKitaAdminPlugin;
 import id.rumahkita.utilities.RumahKitaUtilitiesPlugin;
 import id.rumahkita.warps.RumahKitaWarpsPlugin;
 import id.rumahkita.spawn.RumahKitaSpawnPlugin;
+import id.rumahkita.essentials.EssentialsAdminGui;
+import id.rumahkita.essentials.EssentialsAdminCommand;
 
 public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
@@ -15,12 +17,18 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
     private RumahKitaSpawnPlugin spawnModule;
 
     public void onEnable() {
-        // Save default config from all modules if needed, or handle in modules
-
 
         getLogger().info("Initializing RumahKita Essentials Modules...");
 
-        // Initialize modules
+        org.bukkit.Bukkit.getPluginManager().registerEvents(new AnvilColorListener(), this);
+
+        EssentialsAdminGui gui = new EssentialsAdminGui(this);
+        org.bukkit.Bukkit.getPluginManager().registerEvents(gui, this);
+        org.bukkit.command.PluginCommand adminCmd = getCommand("rkessentials");
+        if (adminCmd != null) {
+            adminCmd.setExecutor(new EssentialsAdminCommand(gui));
+        }
+
         adminModule = new RumahKitaAdminPlugin(this);
         adminModule.onEnable();
 
@@ -37,7 +45,6 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
     }
 
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();

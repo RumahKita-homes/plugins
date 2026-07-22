@@ -109,7 +109,7 @@ public class TradeSession {
             lore.add(ChatColor.GRAY + "Milik: " + ChatColor.WHITE + owner);
             lore.add(ChatColor.GRAY + "Nominal: " + ChatColor.YELLOW + "Rp " + amount);
             lore.add("");
-            lore.add(ChatColor.GREEN + "Klik untuk mengubah nominal!");
+            lore.add(ChatColor.GREEN + "Click to change nominal amount!");
             meta.setLore(lore);
             item.setItemMeta(meta);
         }

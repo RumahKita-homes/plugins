@@ -50,48 +50,166 @@ implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("main", ""), (int)this.plugin.getConfig().getInt("gui.size", 27), (String)Text.color(this.plugin.getConfig().getString("gui.title", "&8RumahKita Guild")));
         Guild guild = this.guildManager.getGuild(player);
         if (guild == null) {
+            Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("main", ""), 27, (String)Text.color(this.plugin.getConfig().getString("gui.title", "&8RumahKita Guild")));
             inv.setItem(11, this.item(Material.DIAMOND, "&aCreate Guild", List.of("&7Usage:", "&e/guild create <TAG> <Name>")));
             inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Click to view all guilds.")));
             inv.setItem(15, this.item(Material.PAPER, "&eInfo", List.of("&7You don't have a guild.", "&7Join a friend's guild or create your own.")));
-        } else {
-            GuildRole role = guild.getRole(player.getUniqueId());
-            inv.setItem(10, this.item(Material.PAPER, "&bGuild Info", List.of("&7Name: &f" + guild.getName(), "&7Tag: &b" + guild.getTag(), "&7Role: &e" + role.displayName(this.plugin), "&7Member: &f" + guild.size() + "/" + this.guildManager.getMaxMembers())));
-            inv.setItem(11, this.item(Material.COMPASS, "&aGuild Home", List.of("&7Click to teleport.", "&e/guild home")));
-            inv.setItem(12, this.item(Material.PLAYER_HEAD, "&eMembers", List.of("&7Click to view guild members.")));
-            inv.setItem(13, this.item(Material.BOOK, "&bGuild List", List.of("&7Click to view all guilds.")));
-            inv.setItem(14, this.item(Material.WRITABLE_BOOK, "&dGuild Chat", List.of("&7Click to toggle guild chat.", "&e/guild chat <message>", "&e/guildchat")));
-            if (role.atLeast(GuildRole.ADMIN)) {
-                inv.setItem(15, this.item(Material.EMERALD, "&6Manage Guild", List.of("&e/guild invite <player>", "&e/guild sethome", "&e/guild kick <player>")));
-            }
-            if (role == GuildRole.LEADER) {
-                inv.setItem(16, this.item(Material.NAME_TAG, "&dRename / Tag", List.of("&e/guild rename <name>", "&e/guild settag <tag>", "&e/guild transfer <player>")));
-            }
-            inv.setItem(22, this.item(Material.OAK_DOOR, "&cLeave Guild", List.of("&e/guild leave")));
+            player.openInventory(inv);
+            return;
         }
+
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("main", ""), 27, (String)Text.color(this.plugin.getConfig().getString("gui.title", "&8Guild Menu")));
+        GuildRole role = guild.getRole(player.getUniqueId());
+        
+        int totalKills = 0;
+        int totalDeaths = 0;
+        for (UUID memberUuid : guild.getMembers().keySet()) {
+            org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(memberUuid);
+            try {
+                totalKills += op.getStatistic(org.bukkit.Statistic.PLAYER_KILLS);
+                totalDeaths += op.getStatistic(org.bukkit.Statistic.DEATHS);
+            } catch (Exception ex) {}
+        }
+        double guildKda = totalDeaths == 0 ? totalKills : (double) totalKills / totalDeaths;
+        
+        // Slot 10: Info
+        inv.setItem(10, this.item(Material.PAPER, "&b&lGuild Info", List.of(
+            "&7Name: &f" + guild.getName(), 
+            "&7Tag: &b" + guild.getTag(), 
+            "&7Role: &e" + role.displayName(this.plugin), 
+            "&7Members: &f" + guild.size() + "/" + this.guildManager.getMaxMembers(guild),
+            "&7Balance: &e$" + this.plugin.getEconomyManager().format(guild.getBalance()),
+            "&7Guild KDA: &e" + String.format(java.util.Locale.US, "%.2f", guildKda),
+            "&7Vault Level: &f" + guild.getVaultLevel()
+        )));
+        
+        // Slot 11: Members
+        inv.setItem(11, this.item(Material.PLAYER_HEAD, "&e&lMembers", List.of("&7Click to view guild members.")));
+        
+        // Slot 12: Home
+        inv.setItem(12, this.item(Material.COMPASS, "&a&lGuild Home", List.of("&7Click to teleport to guild home.")));
+        
+        // Slot 13: Bank
+        inv.setItem(13, this.item(Material.GOLD_INGOT, "&e&lGuild Bank", List.of("&7Click to open Guild Bank.")));
+        
+        // Slot 14: Vault
+        inv.setItem(14, this.item(Material.CHEST, "&6&lGuild Vault", List.of("&7Click to open vault.")));
+        
+        // Slot 15: Upgrades
+        inv.setItem(15, this.item(Material.ENCHANTING_TABLE, "&d&lGuild Upgrades", List.of("&7Click to open upgrades.")));
+        
+        // Slot 16: Guild List
+        inv.setItem(16, this.item(Material.BOOK, "&b&lGuild List", List.of("&7Click to view all guilds on server.")));
+        
+        if (role == GuildRole.LEADER) {
+            inv.setItem(21, this.item(Material.EMERALD, "&2&lManage Guild", List.of(
+                "&7Admin Commands:",
+                "&e/guild invite <player>",
+                "&e/guild kick <player>",
+                "&e/guild deposit <amount>",
+                "&e/guild withdraw <amount>"
+            )));
+            inv.setItem(23, this.item(Material.NAME_TAG, "&c&lLeader Actions", List.of(
+                "&7Leader Commands:",
+                "&e/guild rename <name>",
+                "&e/guild settag <tag>",
+                "&e/guild disband"
+            )));
+        } else if (role.atLeast(GuildRole.ADMIN)) {
+            inv.setItem(22, this.item(Material.EMERALD, "&2&lManage Guild", List.of(
+                "&7Admin Commands:",
+                "&e/guild invite <player>",
+                "&e/guild kick <player>",
+                "&e/guild deposit <amount>",
+                "&e/guild withdraw <amount>"
+            )));
+        }
+
         player.openInventory(inv);
     }
 
     public void openGuildList(Player player) {
         Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("list", ""), (int)54, (String)Text.color(this.plugin.getConfig().getString("gui.list-title", "&8Guild List")));
         int slot = 0;
-        for (Guild guild : this.guildManager.getGuilds()) {
+        
+        List<Guild> guilds = new ArrayList<>(this.guildManager.getGuilds());
+        guilds.sort(java.util.Comparator.comparingLong(Guild::getCreatedAt));
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+        
+        for (Guild guild : guilds) {
             if (slot >= 45) break;
-            inv.setItem(slot++, this.item(Material.WHITE_BANNER, "&b" + guild.getName() + " &8[&f" + guild.getTag() + "&8]", List.of("&7Leader: &f" + this.guildManager.getOfflineName(guild.getLeader()), "&7Members: &f" + guild.size() + "/" + this.guildManager.getMaxMembers(), "", "&eClick to view members")));
+            List<String> lore = new ArrayList<>();
+            lore.add("&7Leader: &f" + this.guildManager.getOfflineName(guild.getLeader()));
+            lore.add("&7Members: &f" + guild.size() + "/" + this.guildManager.getMaxMembers(guild));
+            lore.add("&7Created: &e" + sdf.format(new java.util.Date(guild.getCreatedAt())));
+            lore.add("");
+            lore.add("&eClick to view members");
+            
+            inv.setItem(slot++, this.item(Material.WHITE_BANNER, "&b" + guild.getName() + " &8[&f" + guild.getTag() + "&8]", lore));
         }
         inv.setItem(49, this.item(Material.ARROW, "&cBack", List.of("&7Back to guild menu.")));
+        player.openInventory(inv);
+    }
+
+    public void openBank(Player player, Guild guild) {
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("bank", ""), (int)27, (String)Text.color("&8Guild Bank"));
+        
+        List<String> balLore = new ArrayList<>();
+        balLore.add("&7Total Kekayaan Guild:");
+        if (this.plugin.getEconomyManager() != null) {
+            balLore.add("&a" + this.plugin.getEconomyManager().format(guild.getBalance()));
+        } else {
+            balLore.add("&cEconomy disabled");
+        }
+        inv.setItem(13, this.item(Material.GOLD_BLOCK, "&6&lGuild Wealth", balLore));
+        
+        inv.setItem(11, this.item(Material.EMERALD, "&a&lDeposit", List.of("&7Click to deposit money", "&7ke dalam Guild Bank.")));
+        
+        GuildRole role = guild.getRole(player.getUniqueId());
+        if (role == GuildRole.MEMBER) {
+            inv.setItem(15, this.item(Material.BARRIER, "&c&lWithdraw", List.of("&7Hanya Leader dan Admin", "&7who can withdraw money", "&7dari Guild Bank.")));
+        } else {
+            inv.setItem(15, this.item(Material.DIAMOND, "&b&lWithdraw", List.of("&7Click to withdraw money", "&7dari Guild Bank.")));
+        }
+        
+        inv.setItem(26, this.item(Material.ARROW, "&cBack", List.of("&7Back to guild menu.")));
         player.openInventory(inv);
     }
 
     public void openMembers(Player player, Guild guild) {
         Inventory inv = Bukkit.createInventory((InventoryHolder)new Holder("members", guild.getTag()), (int)54, (String)Text.color(this.plugin.getConfig().getString("gui.members-title", "&8Guild Members")));
         int slot = 0;
-        for (Map.Entry<UUID, GuildRole> entry : guild.getMembers().entrySet()) {
+        
+        List<Map.Entry<UUID, GuildRole>> members = new ArrayList<>(guild.getMembers().entrySet());
+        members.sort(java.util.Comparator.comparingLong(e -> guild.getJoinedAt(e.getKey())));
+        
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm");
+        
+        for (Map.Entry<UUID, GuildRole> entry : members) {
             if (slot >= 45) break;
-            String name = this.guildManager.getOfflineName(entry.getKey());
-            inv.setItem(slot++, this.item(Material.PLAYER_HEAD, "&f" + name, List.of("&7Role: &e" + entry.getValue().displayName(this.plugin), "&7Guild: &b" + guild.getTag())));
+            UUID uuid = entry.getKey();
+            org.bukkit.OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+            String name = op.getName() != null ? op.getName() : "Unknown";
+            
+            List<String> lore = new ArrayList<>();
+            lore.add("&7Role: &e" + entry.getValue().displayName(this.plugin));
+            long joinedAt = guild.getJoinedAt(uuid);
+            if (joinedAt > 0) lore.add("&7Joined: &e" + sdf.format(new java.util.Date(joinedAt)));
+            
+            try {
+                int kills = op.getStatistic(org.bukkit.Statistic.PLAYER_KILLS);
+                int deaths = op.getStatistic(org.bukkit.Statistic.DEATHS);
+                double kda = deaths == 0 ? kills : (double) kills / deaths;
+                lore.add("&7Kills: &c" + kills + " &8| &7Deaths: &c" + deaths);
+                lore.add("&7KDA Ratio: &e" + String.format(java.util.Locale.US, "%.2f", kda));
+            } catch (Exception ex) {}
+            
+            lore.add("&7Guild: &b" + guild.getTag());
+            
+            inv.setItem(slot++, this.item(Material.PLAYER_HEAD, "&f" + name, lore));
         }
         inv.setItem(49, this.item(Material.ARROW, "&cBack", List.of("&7Back to guild menu.")));
         player.openInventory(inv);
@@ -116,32 +234,48 @@ implements Listener {
         int slot = event.getRawSlot();
         if (holder.type.equals("main")) {
             player.closeInventory();
-            if (slot == 11 && this.guildManager.getGuild(player) != null) {
-                Bukkit.dispatchCommand((CommandSender)player, (String)"guild home");
-            } else if (slot == 12 && this.guildManager.getGuild(player) != null) {
-                this.openMembers(player, this.guildManager.getGuild(player));
-            } else if (slot == 13) {
-                this.openGuildList(player);
-            } else if (slot == 14 && this.guildManager.getGuild(player) != null) {
-                Bukkit.dispatchCommand((CommandSender)player, (String)"guild chat");
+            Guild guild = this.guildManager.getGuild(player);
+            if (guild == null) {
+                if (slot == 13) this.openGuildList(player);
+                return;
             }
+            
+            GuildRole role = guild.getRole(player.getUniqueId());
+            
+            if (slot == 11) this.openMembers(player, guild);
+            else if (slot == 12) Bukkit.dispatchCommand((CommandSender)player, "guild home");
+            else if (slot == 13) this.openBank(player, guild);
+            else if (slot == 14) Bukkit.dispatchCommand((CommandSender)player, "guild vault");
+            else if (slot == 15) Bukkit.dispatchCommand((CommandSender)player, "guild upgrade");
+            else if (slot == 16) this.openGuildList(player);
+            
         } else if (holder.type.equals("list")) {
             if (slot == 49) {
                 this.open(player);
                 return;
             }
-            ItemStack clicked = event.getCurrentItem();
-            if (clicked == null || !clicked.hasItemMeta()) {
-                return;
-            }
-            String display = clicked.getItemMeta().getDisplayName();
-            for (Guild guild : this.guildManager.getGuilds()) {
-                if (!Text.color("&b" + guild.getName() + " &8[&f" + guild.getTag() + "&8]").equals(display)) continue;
-                this.openMembers(player, guild);
-                return;
+            List<Guild> guilds = new ArrayList<>(this.guildManager.getGuilds());
+            guilds.sort(java.util.Comparator.comparingLong(Guild::getCreatedAt));
+            if (slot < guilds.size()) {
+                this.openMembers(player, guilds.get(slot));
             }
         } else if (holder.type.equals("members") && slot == 49) {
             this.open(player);
+        } else if (holder.type.equals("bank")) {
+            if (slot == 26) {
+                this.open(player);
+                return;
+            }
+            if (slot == 11) {
+                player.closeInventory();
+                Text.msg((CommandSender)player, "&eGunakan command &b/guild deposit <amount> &euntuk menyetor.");
+            } else if (slot == 15) {
+                Guild guild = this.guildManager.getGuild(player);
+                if (guild != null && guild.getRole(player.getUniqueId()) != GuildRole.MEMBER) {
+                    player.closeInventory();
+                    Text.msg((CommandSender)player, "&eGunakan command &b/guild withdraw <amount> &euntuk menarik.");
+                }
+            }
         }
     }
 

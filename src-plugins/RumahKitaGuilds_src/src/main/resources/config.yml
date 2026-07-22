@@ -1,10 +1,23 @@
 settings:
-  prefix: "&8[&bRumahKitaGuilds&8] "
+  prefix: ""
   create-cost:
     enabled: true
-    material: DIAMOND
-    amount: 5
-  max-members-per-guild: 25
+    money: 1000.0
+
+  upgrades:
+    vault:
+      level-1: 500.0
+      level-2: 1500.0
+      level-3: 3000.0
+    members:
+      level-1: 500.0
+      level-2: 1500.0
+      level-3: 3000.0
+  max-members:
+    default: 10
+    level-1: 15
+    level-2: 20
+    level-3: 25
   tag:
     min-length: 2
     max-length: 5
@@ -12,7 +25,7 @@ settings:
   name:
     min-length: 3
     max-length: 20
-  invite-expire-seconds: 120
+  invite-expire-seconds: 300
 
 mysql:
   enabled: true
@@ -61,6 +74,7 @@ gui:
   size: 27
 
 messages:
+  prefix: ""
   no-permission: "&cYou don't have permission."
   only-player: "&cThis command is for players only."
   not-in-guild: "&cYou are not in a guild."
@@ -102,7 +116,10 @@ messages:
   guild-chat-empty: "&cGuild chat message cannot be empty."
   guild-chat-toggle-on: "&aGuild chat mode &eON&a. Your normal chat now only goes to the guild. Type &e/guildchat &ato disable."
   guild-chat-toggle-off: "&cGuild chat mode OFF. Your chat is back to public."
-
+  need-confirm: "&eThis is a dangerous command. Repeat with &fconfirm &eat the end."
+  not-found: "&cGuild/player not found in guild data."
+  backup-made: "&aBackup created: &f%file%"
+  guild-frozen: "&cYour guild is currently frozen by an admin, this command is temporarily blocked."
 
 guild-war:
   enabled: true
@@ -114,7 +131,7 @@ guild-war:
   teleport-all-online-members: true
   keep-inventory-during-war: true
   keep-level-during-war: true
-  respawn-continue: true
+  respawn-continue: false
   restore-location-after-war: true
   prevent-friendly-fire: true
   reset-health-food-on-start: true
@@ -235,65 +252,4 @@ backup:
 
 
 
-# =======================================
-# Admin Tools Configuration
-# =======================================
 
-
-# File data that will be searched in plugins/RumahKitaGuilds/
-# If your guild plugin uses a different file name, add it here.
-data-files:
-  - "guilds.yml"
-  - "data.yml"
-  - "guild-data.yml"
-  - "storage.yml"
-
-# Root path where guild list is stored.
-# Example: guilds.GuildName or data.guilds.GuildName
-root-paths:
-  - "guilds"
-  - "data.guilds"
-  - "storage.guilds"
-  - ""
-
-# Guild commands that will be blocked if the guild is frozen by an admin.
-frozen-guild-command-block:
-  enabled: true
-  commands:
-    - "/guild"
-    - "/g"
-    - "/clan"
-    - "/rkgalaxy"
-    - "/rkguild"
-  blocked-subcommands:
-    - "invite"
-    - "kick"
-    - "sethome"
-    - "delhome"
-    - "home"
-    - "claim"
-    - "unclaim"
-    - "war"
-    - "rename"
-    - "prefix"
-    - "promote"
-    - "demote"
-    - "transfer"
-    - "leave"
-
-backup:
-  enabled: true
-  folder: "backups"
-
-logs:
-  enabled: true
-  file: "admin-actions.log"
-
-messages:
-  prefix: "&8[&bGuildAdmin&8] "
-  no-permission: "&cYou do not have permission."
-  need-confirm: "&eThis is a dangerous command. Repeat with &fconfirm &eat the end."
-  not-found: "&cGuild/player not found in guild data."
-  backup-made: "&aBackup created: &f%file%"
-  reloaded: "&aGuildAdminTools successfully reloaded."
-  guild-frozen: "&cYour guild is currently frozen by an admin, this command is temporarily blocked."

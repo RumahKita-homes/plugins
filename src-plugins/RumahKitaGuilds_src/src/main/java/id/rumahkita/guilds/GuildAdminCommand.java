@@ -59,12 +59,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class GuildAdminCommand implements Listener, org.bukkit.command.TabExecutor {
     private final RumahKitaGuildsPlugin plugin;
+    private final AdminDashboardGui gui;
 
-    public GuildAdminCommand(RumahKitaGuildsPlugin plugin) {
+    private final GuildManager guildManager;
+    private static final java.util.Map<java.util.UUID, org.bukkit.Location> pos1Map = new java.util.HashMap<>();
+    private static final java.util.Map<java.util.UUID, org.bukkit.Location> pos2Map = new java.util.HashMap<>();
+
+    public GuildAdminCommand(RumahKitaGuildsPlugin plugin, AdminDashboardGui gui, GuildManager guildManager) {
         this.plugin = plugin;
-        if(plugin.getCommand("rkgadmin") != null) {
-            plugin.getCommand("rkgadmin").setExecutor(this);
-            plugin.getCommand("rkgadmin").setTabCompleter(this);
+        this.gui = gui;
+        this.guildManager = guildManager;
+        if(plugin.getCommand("rkg") != null) {
+            plugin.getCommand("rkg").setExecutor(this);
+            plugin.getCommand("rkg").setTabCompleter(this);
         }
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
@@ -127,7 +134,16 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
             this.msg(sender, this.pref() + plugin.getConfig().getString("messages.no-permission", "&cNo permission."));
             return true;
         }
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+        if (args.length == 0) {
+            if (sender instanceof Player) {
+                this.gui.openMain((Player) sender);
+                return true;
+            } else {
+                this.sendHelp(sender);
+                return true;
+            }
+        }
+        if (args[0].equalsIgnoreCase("help")) {
             this.sendHelp(sender);
             return true;
         }
@@ -150,9 +166,18 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.listGuilds(sender);
                     break;
                 }
+                case "admin":
+                case "gui": {
+                    if (!(sender instanceof Player)) {
+                        this.msg(sender, this.pref() + "&cMust be a player.");
+                        return true;
+                    }
+                    this.gui.openMain((Player) sender);
+                    break;
+                }
                 case "info": {
                     if (args.length < 2) {
-                        return this.usage(sender, "/rkgadmin info <guild>");
+                        return this.usage(sender, "/rkg info <guild>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -163,7 +188,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                 }
                 case "members": {
                     if (args.length < 2) {
-                        return this.usage(sender, "/rkgadmin members <guild>");
+                        return this.usage(sender, "/rkg members <guild>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -177,7 +202,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 2) {
-                        return this.usage(sender, "/rkgadmin freeze <guild>");
+                        return this.usage(sender, "/rkg freeze <guild>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -198,7 +223,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 2) {
-                        return this.usage(sender, "/rkgadmin unfreeze <guild>");
+                        return this.usage(sender, "/rkg unfreeze <guild>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -213,12 +238,106 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     this.msg(sender, this.pref() + "&aGuild &f" + ref.name + " &ahas been unfrozen.");
                     break;
                 }
+                case "bypass":
+                case "ignoreclaims": {
+                    if (!(sender instanceof Player)) return true;
+                    Player p = (Player) sender;
+                    if (this.guildManager.getBypassPlayers().contains(p.getUniqueId())) {
+                        this.guildManager.getBypassPlayers().remove(p.getUniqueId());
+                        this.msg(sender, this.pref() + "&eGuild claim bypass mode &cDISABLED&e.");
+                    } else {
+                        this.guildManager.getBypassPlayers().add(p.getUniqueId());
+                        this.msg(sender, this.pref() + "&eGuild claim bypass mode &aENABLED&e.");
+                    }
+                    break;
+                }
+                case "pos1": {
+                    if (!(sender instanceof Player)) return true;
+                    Player p = (Player) sender;
+                    pos1Map.put(p.getUniqueId(), p.getLocation());
+                    this.msg(sender, this.pref() + "&aPos 1 set to your location.");
+                    break;
+                }
+                case "pos2": {
+                    if (!(sender instanceof Player)) return true;
+                    Player p = (Player) sender;
+                    pos2Map.put(p.getUniqueId(), p.getLocation());
+                    this.msg(sender, this.pref() + "&aPos 2 set to your location.");
+                    break;
+                }
+                case "claim": {
+                    if (!(sender instanceof Player)) return true;
+                    Player p = (Player) sender;
+                    if (args.length < 2) return this.usage(sender, "/rkg claim <guild>");
+                    
+                    Location loc1 = pos1Map.get(p.getUniqueId());
+                    Location loc2 = pos2Map.get(p.getUniqueId());
+                    if (loc1 == null || loc2 == null) {
+                        this.msg(sender, this.pref() + "&cYou must set pos1 and pos2 first.");
+                        return true;
+                    }
+                    if (!loc1.getWorld().getName().equals(loc2.getWorld().getName())) {
+                        this.msg(sender, this.pref() + "&cPositions must be in the same world.");
+                        return true;
+                    }
+                    
+                    Guild guild = this.guildManager.getGuildByTag(args[1]);
+                    if (guild == null) guild = this.guildManager.getGuildByName(args[1]);
+                    if (guild == null) {
+                        this.msg(sender, this.pref() + "&cGuild not found.");
+                        return true;
+                    }
+                    
+                    int minX = Math.min(loc1.getChunk().getX(), loc2.getChunk().getX());
+                    int minZ = Math.min(loc1.getChunk().getZ(), loc2.getChunk().getZ());
+                    int maxX = Math.max(loc1.getChunk().getX(), loc2.getChunk().getX());
+                    int maxZ = Math.max(loc1.getChunk().getZ(), loc2.getChunk().getZ());
+                    
+                    String worldName = loc1.getWorld().getName();
+                    int count = 0;
+                    for (int x = minX; x <= maxX; x++) {
+                        for (int z = minZ; z <= maxZ; z++) {
+                            String chunkKey = worldName + ";" + x + ";" + z;
+                            if (!guild.hasClaim(chunkKey)) {
+                                guild.addClaim(chunkKey);
+                                this.guildManager.registerClaim(chunkKey, guild);
+                                this.guildManager.getDatabaseManager().saveGuildClaimSync(guild.getTag(), chunkKey);
+                                count++;
+                            }
+                        }
+                    }
+                    this.msg(sender, this.pref() + "&aClaimed " + count + " chunks for guild " + guild.getName());
+                    break;
+                }
+                case "unclaim": {
+                    if (!(sender instanceof Player)) return true;
+                    Player p = (Player) sender;
+                    if (args.length < 2) return this.usage(sender, "/rkg unclaim <guild>");
+                    
+                    Guild guild = this.guildManager.getGuildByTag(args[1]);
+                    if (guild == null) guild = this.guildManager.getGuildByName(args[1]);
+                    if (guild == null) {
+                        this.msg(sender, this.pref() + "&cGuild not found.");
+                        return true;
+                    }
+                    
+                    String chunkKey = p.getLocation().getWorld().getName() + ";" + p.getLocation().getChunk().getX() + ";" + p.getLocation().getChunk().getZ();
+                    if (guild.hasClaim(chunkKey)) {
+                        guild.removeClaim(chunkKey);
+                        this.guildManager.unregisterClaim(chunkKey);
+                        this.guildManager.getDatabaseManager().removeGuildClaimSync(chunkKey);
+                        this.msg(sender, this.pref() + "&aUnclaimed the chunk you are standing on from guild " + guild.getName());
+                    } else {
+                        this.msg(sender, this.pref() + "&cThis chunk is not claimed by that guild.");
+                    }
+                    break;
+                }
                 case "disband": {
                     if (!this.has(sender, "rumahkita.guild.admin.disband")) {
                         return this.noPerm(sender);
                     }
                     if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin disband <guild> confirm");
+                        return this.confirm(sender, "/rkg disband <guild> confirm");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -236,7 +355,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin delhome <guild> confirm");
+                        return this.confirm(sender, "/rkg delhome <guild> confirm");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -259,7 +378,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     }
                     Player p = (Player)sender;
                     if (args.length < 2) {
-                        return this.usage(sender, "/rkgadmin sethome <guild>");
+                        return this.usage(sender, "/rkg sethome <guild>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -277,7 +396,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 4 || !args[3].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin kick <guild> <player> confirm");
+                        return this.confirm(sender, "/rkg kick <guild> <player> confirm");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -295,7 +414,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 3 || !args[2].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin removeplayer <player> confirm");
+                        return this.confirm(sender, "/rkg removeplayer <player> confirm");
                     }
                     int total = 0;
                     for (GuildRef ref : this.allGuildRefs()) {
@@ -314,7 +433,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 4 || !args[3].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin setleader <guild> <player> confirm");
+                        return this.confirm(sender, "/rkg setleader <guild> <player> confirm");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -332,7 +451,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 4 || !args[3].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin rename <guild> <namaBaru> confirm");
+                        return this.confirm(sender, "/rkg rename <guild> <namaBaru> confirm");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -349,7 +468,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 3) {
-                        return this.usage(sender, "/rkgadmin setprefix <guild> <prefix>");
+                        return this.usage(sender, "/rkg setprefix <guild> <prefix>");
                     }
                     GuildRef ref = this.findGuild(args[1]);
                     if (ref == null) {
@@ -378,7 +497,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                         return this.noPerm(sender);
                     }
                     if (args.length < 2 || !args[1].equalsIgnoreCase("confirm")) {
-                        return this.confirm(sender, "/rkgadmin migratemysql confirm");
+                        return this.confirm(sender, "/rkg migratemysql confirm");
                     }
                     if (!plugin.getConfig().getBoolean("mysql.enabled", false)) {
                         this.msg(sender, this.pref() + "&cMySQL is not enabled in config.yml.");
@@ -436,21 +555,23 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
     private void sendHelp(CommandSender s) {
         this.msg(s, "&8&m--------------------------------");
         this.msg(s, "&bRumahKita Guild Admin Tools");
-        this.msg(s, "&e/rkgadmin list");
-        this.msg(s, "&e/rkgadmin info <guild>");
-        this.msg(s, "&e/rkgadmin members <guild>");
-        this.msg(s, "&e/rkgadmin freeze <guild>");
-        this.msg(s, "&e/rkgadmin unfreeze <guild>");
-        this.msg(s, "&e/rkgadmin disband <guild> confirm");
-        this.msg(s, "&e/rkgadmin delhome <guild> confirm");
-        this.msg(s, "&e/rkgadmin sethome <guild>");
-        this.msg(s, "&e/rkgadmin kick <guild> <player> confirm");
-        this.msg(s, "&e/rkgadmin removeplayer <player> confirm");
-        this.msg(s, "&e/rkgadmin setleader <guild> <player> confirm");
-        this.msg(s, "&e/rkgadmin rename <guild> <namaBaru> confirm");
-        this.msg(s, "&e/rkgadmin setprefix <guild> <prefix>");
-        this.msg(s, "&e/rkgadmin backup / reload / scan");
-        this.msg(s, "&e/rkgadmin migratemysql confirm");
+        this.msg(s, "&e/rkg admin &7- Open config editor GUI");
+        this.msg(s, "&e/rkg list");
+        this.msg(s, "&e/rkg info <guild>");
+        this.msg(s, "&e/rkg members <guild>");
+        this.msg(s, "&e/rkg freeze <guild>");
+        this.msg(s, "&e/rkg unfreeze <guild>");
+        this.msg(s, "&e/rkg disband <guild> confirm");
+        this.msg(s, "&e/rkg delhome <guild> confirm");
+        this.msg(s, "&e/rkg bypass &7- Toggle claim bypass");
+        this.msg(s, "&e/rkg sethome <guild>");
+        this.msg(s, "&e/rkg kick <guild> <player> confirm");
+        this.msg(s, "&e/rkg removeplayer <player> confirm");
+        this.msg(s, "&e/rkg setleader <guild> <player> confirm");
+        this.msg(s, "&e/rkg rename <guild> <namaBaru> confirm");
+        this.msg(s, "&e/rkg setprefix <guild> <prefix>");
+        this.msg(s, "&e/rkg backup / reload / scan");
+        this.msg(s, "&e/rkg migratemysql confirm");
         this.msg(s, "&8&m--------------------------------");
     }
 
@@ -806,15 +927,15 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
             }
         }
         catch (Exception e) {
-            plugin.getLogger().warning("Gagal tulis log: " + e.getMessage());
+            plugin.getLogger().warning("Failed to write log: " + e.getMessage());
         }
     }
 
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return this.filter(args[0], List.of("help", "scan", "list", "info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "removeplayer", "setleader", "rename", "setprefix", "backup", "reload", "migratemysql"));
+            return this.filter(args[0], List.of("help", "scan", "list", "info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "removeplayer", "setleader", "rename", "setprefix", "backup", "reload", "migratemysql", "pos1", "pos2", "claim", "bypass", "ignoreclaims"));
         }
-        if (args.length == 2 && List.of("info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "setleader", "rename", "setprefix").contains(args[0].toLowerCase(Locale.ROOT))) {
+        if (args.length == 2 && List.of("info", "members", "freeze", "unfreeze", "disband", "delhome", "sethome", "kick", "setleader", "rename", "setprefix", "claim").contains(args[0].toLowerCase(Locale.ROOT))) {
             ArrayList<String> names = new ArrayList<String>();
             for (GuildRef ref : this.allGuildRefs()) {
                 names.add(ref.name);

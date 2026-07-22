@@ -178,7 +178,7 @@ TabExecutor {
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("rumahkita.utilities.admin")) {
-            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.no-permission", "&cKamu tidak punya permission."));
+            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
             return true;
         }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
@@ -187,7 +187,7 @@ TabExecutor {
         }
         if (args[0].equalsIgnoreCase("reload")) {
             this.plugin.reloadAll();
-            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.reloaded", "&aConfig berhasil direload."));
+            Text.msg(sender, this.pref() + this.plugin.getConfig().getString("messages.reloaded", "&aConfig successfully reloaded."));
             return true;
         }
         if (args[0].equalsIgnoreCase("on")) {

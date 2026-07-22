@@ -60,7 +60,7 @@ implements TabExecutor {
             plugin.getCommand("ramguard").setTabCompleter((TabCompleter)this);
         }
         this.startMonitorTask();
-        this.log("RumahKitaRamGuard aktif. Gunakan /ramguard status untuk cek RAM.");
+        this.log("RumahKitaRamGuard active. Use /ramguard status to check RAM.");
     }
 
     public void onDisable() {
@@ -105,7 +105,7 @@ implements TabExecutor {
         }
         if (args[0].equalsIgnoreCase("restore")) {
             this.ramGuardService.restoreViewDistance();
-            sender.sendMessage(Text.color("&aView distance dan simulation distance dikembalikan ke config normal."));
+            sender.sendMessage(Text.color("&aView distance and simulation distance restored to normal config."));
             return true;
         }
         if (args[0].equalsIgnoreCase("reload")) {

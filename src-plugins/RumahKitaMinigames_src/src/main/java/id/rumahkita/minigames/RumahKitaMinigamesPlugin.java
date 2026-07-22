@@ -20,8 +20,7 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         getLogger().info("Initializing RumahKita Minigames Modules...");
-        
-        // Extract individual module configs if they don't exist
+
         extractConfig("RumahKitaGames_config.yml");
         extractConfig("RumahKitaCaptureFlag_config.yml");
         extractConfig("RumahKitaPvP1v1_config.yml");
@@ -32,9 +31,14 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
         try { moduleRumahKitaCaptureFlag.onEnable(); } catch (Throwable e) { getLogger().severe("Failed to load CTF: " + e.getMessage()); }
         moduleRumahKitaPvP1v1Plugin = new RumahKitaPvP1v1Plugin(this);
         try { moduleRumahKitaPvP1v1Plugin.onEnable(); } catch (Throwable e) { getLogger().severe("Failed to load PvP: " + e.getMessage()); }
-        
-        // Register Global Anti-Cooldown Listener
+
         getServer().getPluginManager().registerEvents(this, this);
+        MinigamesAdminGui adminGui = new MinigamesAdminGui(this);
+        getServer().getPluginManager().registerEvents(adminGui, this);
+        org.bukkit.command.PluginCommand adminCmd = getCommand("rkminigames");
+        if (adminCmd != null) {
+            adminCmd.setExecutor(new MinigamesAdminCommand(adminGui));
+        }
         
         getLogger().info("RumahKita Minigames Enabled.");
     }
@@ -43,7 +47,6 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
     public void onGlobalInteract(PlayerInteractEvent event) {
         if (!event.hasItem()) return;
         Material mat = event.getItem().getType();
-        // Remove cooldown for Ender Pearl and Firework Rocket globally
         if (mat == Material.ENDER_PEARL || mat == Material.FIREWORK_ROCKET) {
             Bukkit.getScheduler().runTaskLater(this, () -> {
                 try {
@@ -61,7 +64,6 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();

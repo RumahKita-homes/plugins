@@ -7,9 +7,9 @@ folia-supported: false
 description: Keeps mob farm hostile mobs active, aware, and targeting nearby survival players.
 
 commands:
-  rkfarmai:
+  rkfai:
     description: RumahKitaFarmAI admin command.
-    usage: /rkfarmai <status|scan|reload|zonehere>
+    usage: /rkfai <status|scan|reload|zonehere>
     permission: rumahkita.farmai.admin
     aliases:
       - farmai

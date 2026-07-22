@@ -6,10 +6,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class MinigamesAdminCommand implements CommandExecutor {
-    private final MinigamesAdminGui gui;
+public class RkmgCommand implements CommandExecutor {
+    private final RumahKitaMinigamesPlugin plugin;
+    private final RkmgGuiManager gui;
 
-    public MinigamesAdminCommand(MinigamesAdminGui gui) {
+    public RkmgCommand(RumahKitaMinigamesPlugin plugin, RkmgGuiManager gui) {
+        this.plugin = plugin;
         this.gui = gui;
     }
 

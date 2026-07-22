@@ -6,39 +6,11 @@ author: RumahKita
 description: Security module combining AntiCheat, AntiXray, Bans, and RamGuard.
 softdepend: []
 commands:
-  rkac:
-    description: RumahKita AntiCheat command.
-    usage: /rkac
+  rks:
+    description: Main RumahKita Security command.
+    usage: /rks <ac|xray|sec|ban|ipban|unban|ramguard|spec>
     aliases:
-    - rumahkitaac
-    - ac
-  rkxray:
-    description: RumahKita AntiXray command.
-    usage: /rkxray <status|reload|check|top|reset|freeze|unfreeze|logs|on|off>
-  rksec:
-    description: Main strict ban command.
-    usage: /rksec <status|reload|ban|banip|unban|check|history|list>
-  rkban:
-    description: Strict ban player.
-    usage: /rkban <player> [reason]
-  rkipban:
-    description: Ban IP or CIDR subnet.
-    usage: /rkipban <ip|cidr> [reason]
-  rkunban:
-    description: Unban UUID, name, IP, or CIDR.
-    usage: /rkunban <uuid|name|ip|cidr>
-  ramguard:
-    description: Monitor dan cleanup RAM server RumahKita S2
-    usage: /ramguard <status|cleanup|restore|reload>
-    aliases:
-    - rkg
-  spec2:
-    description: Spectator ore vision admin mode.
-    usage: /spec2 <on|off|toggle|scan|radius|vradius|deep|filter|list|reload|status>
-    aliases:
-    - orespec
-    - rkorespec
-    - rkore
+    - rksecurity
 permissions:
   rumahkita.anticheat.admin:
     description: Allows managing RumahKitaAntiCheat.

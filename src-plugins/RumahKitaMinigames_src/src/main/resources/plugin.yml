@@ -21,14 +21,10 @@ commands:
     - suwit
     - rps
     usage: /rps <create/join/cancel> [amount/player] [batu/gunting/kertas]
-  rkg:
-    description: Command admin RumahKitaGames
-    permission: rumahkita.admin
-    usage: /rkg reload
-  rkminigames:
+  rkmg:
     description: Minigames Admin Dashboard
     permission: rumahkita.minigames.admin
-    aliases: [rkm]
+    aliases: [rkminigames, rkm]
   rkctf:
     description: RumahKita Capture Flag / Capture Point event command.
     usage: /rkctf help

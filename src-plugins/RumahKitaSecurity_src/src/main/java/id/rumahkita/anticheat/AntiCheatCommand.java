@@ -105,7 +105,7 @@ implements TabExecutor {
 
     private void check(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /rkac check <player>");
+            Text.msg(sender, "&eGunakan: /rks ac check <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
@@ -121,7 +121,7 @@ implements TabExecutor {
     private void exempt(CommandSender sender, String[] args) {
         long seconds;
         if (args.length < 3) {
-            Text.msg(sender, "&eGunakan: /rkac exempt <player> <seconds> [reason]");
+            Text.msg(sender, "&eGunakan: /rks ac exempt <player> <seconds> [reason]");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
@@ -144,7 +144,7 @@ implements TabExecutor {
 
     private void unexempt(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /rkac unexempt <player>");
+            Text.msg(sender, "&eGunakan: /rks ac unexempt <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
@@ -161,7 +161,7 @@ implements TabExecutor {
 
     private void violations(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /rkac violations <player>");
+            Text.msg(sender, "&eGunakan: /rks ac violations <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
@@ -174,7 +174,7 @@ implements TabExecutor {
 
     private void clearVl(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            Text.msg(sender, "&eGunakan: /rkac clearvl <player>");
+            Text.msg(sender, "&eGunakan: /rks ac clearvl <player>");
             return;
         }
         Player target = Bukkit.getPlayerExact((String)args[1]);
@@ -189,20 +189,20 @@ implements TabExecutor {
     private void help(CommandSender sender) {
         Text.msg(sender, "&8&m-----------------------------");
         Text.msg(sender, "&cRumahKitaAntiCheat &7v1.2.0");
-        Text.msg(sender, "&e/rkac status");
-        Text.msg(sender, "&e/rkac on");
-        Text.msg(sender, "&e/rkac off");
-        Text.msg(sender, "&e/rkac reload");
-        Text.msg(sender, "&e/rkac check <player>");
-        Text.msg(sender, "&e/rkac exempt <player> <seconds> [reason]");
-        Text.msg(sender, "&e/rkac unexempt <player>");
-        Text.msg(sender, "&e/rkac violations <player>");
-        Text.msg(sender, "&e/rkac clearvl <player>");
+        Text.msg(sender, "&e/rks ac status");
+        Text.msg(sender, "&e/rks ac on");
+        Text.msg(sender, "&e/rks ac off");
+        Text.msg(sender, "&e/rks ac reload");
+        Text.msg(sender, "&e/rks ac check <player>");
+        Text.msg(sender, "&e/rks ac exempt <player> <seconds> [reason]");
+        Text.msg(sender, "&e/rks ac unexempt <player>");
+        Text.msg(sender, "&e/rks ac violations <player>");
+        Text.msg(sender, "&e/rks ac clearvl <player>");
         Text.msg(sender, "&8&m-----------------------------");
     }
 
-    private String pref() {
-        return this.plugin.getConfig().getString("settings.prefix", "&8[&cRumahKitaAC&8] ");
+    public String pref() {
+        return "";
     }
 
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

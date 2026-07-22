@@ -81,8 +81,8 @@ commands:
     - 'save-all'
 
 messages:
-  prefix: '&8[&aRamGuard&8] '
-  warning: '&eRAM server sudah &6%percent%%&e. Plugin mulai memantau lebih ketat.'
-  cleanup: '&cRAM server sudah &4%percent%%&c. Auto cleanup dijalankan untuk meringankan server.'
-  emergency: '&4RAM server sudah &c%percent%%&4. Emergency cleanup dijalankan.'
-  restored: '&aRAM sudah turun ke &f%percent%%&a. View distance dikembalikan normal.'
+  prefix: ''
+  warning: '&eServer RAM is at &6%percent%%&e. RamGuard is monitoring.'
+  cleanup: '&cServer RAM is at &4%percent%%&c. Auto cleanup executed.'
+  emergency: '&4Server RAM is at &c%percent%%&4. Emergency cleanup executed.'
+  restored: '&aServer RAM restored to &f%percent%%&a. View distance normalized.'

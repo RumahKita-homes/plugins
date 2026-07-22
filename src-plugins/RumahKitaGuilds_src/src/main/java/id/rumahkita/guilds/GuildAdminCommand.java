@@ -301,7 +301,8 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                             if (!guild.hasClaim(chunkKey)) {
                                 guild.addClaim(chunkKey);
                                 this.guildManager.registerClaim(chunkKey, guild);
-                                this.guildManager.getDatabaseManager().saveGuildClaimSync(guild.getTag(), chunkKey);
+                                final String finalTag = guild.getTag();
+                                java.util.concurrent.CompletableFuture.runAsync(() -> this.guildManager.getDatabaseManager().saveGuildClaimSync(finalTag, chunkKey));
                                 count++;
                             }
                         }
@@ -325,7 +326,8 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                     if (guild.hasClaim(chunkKey)) {
                         guild.removeClaim(chunkKey);
                         this.guildManager.unregisterClaim(chunkKey);
-                        this.guildManager.getDatabaseManager().removeGuildClaimSync(chunkKey);
+                        final String finalChunkKey = chunkKey;
+                        java.util.concurrent.CompletableFuture.runAsync(() -> this.guildManager.getDatabaseManager().removeGuildClaimSync(finalChunkKey));
                         this.msg(sender, this.pref() + "&aUnclaimed the chunk you are standing on from guild " + guild.getName());
                     } else {
                         this.msg(sender, this.pref() + "&cThis chunk is not claimed by that guild.");

@@ -133,12 +133,14 @@ public final class DailyLimitManager {
     }
 
     public void save() {
-        try {
-            this.configuration.save(this.file);
-        }
-        catch (IOException exception) {
-            this.plugin.getLogger().warning("Failed to save daily-limits.yml: " + exception.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)this.plugin, () -> {
+            try {
+                this.configuration.save(this.file);
+            }
+            catch (Exception exception) {
+                this.plugin.getLogger().warning("Failed to save daily-limits.yml: " + exception.getMessage());
+            }
+        });
     }
 }
 

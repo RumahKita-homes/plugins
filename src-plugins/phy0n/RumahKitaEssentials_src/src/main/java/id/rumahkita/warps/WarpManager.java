@@ -92,11 +92,13 @@ public class WarpManager implements Listener {
             warpsConfig.set(path + ".yaw", warp.location.getYaw());
             warpsConfig.set(path + ".pitch", warp.location.getPitch());
         }
-        try {
-            warpsConfig.save(warpsFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin.getPlugin(), () -> {
+            try {
+                warpsConfig.save(warpsFile);
+            } catch (Exception e) {
+                plugin.getLogger().severe("Could not save warps.yml!");
+            }
+        });
     }
 
     public boolean createWarp(Player p, String name) {
@@ -305,6 +307,13 @@ public class WarpManager implements Listener {
         OfflinePlayer owner = Bukkit.getOfflinePlayer(warp.owner);
         String ownerName = owner.getName() != null ? owner.getName() : "Unknown";
         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aWelcome to &e" + warp.name + "&a!"));
+        
+        if (owner.isOnline() && !owner.getUniqueId().equals(p.getUniqueId())) {
+            Player onlineOwner = owner.getPlayer();
+            if (onlineOwner != null) {
+                onlineOwner.sendMessage(ChatColor.YELLOW + p.getName() + ChatColor.GREEN + " has teleported to your pwarp " + ChatColor.YELLOW + warp.name + ChatColor.GREEN + ".");
+            }
+        }
     }
 
     public String getPrefix() {

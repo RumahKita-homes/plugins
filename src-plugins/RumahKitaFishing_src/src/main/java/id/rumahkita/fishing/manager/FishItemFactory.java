@@ -53,16 +53,16 @@ public final class FishItemFactory {
 
     public FishItemFactory(RumahKitaFishingPlugin plugin) {
         this.plugin = plugin;
-        this.uniqueIdKey = new NamespacedKey(plugin.getPlugin(), "fish_unique_id");
-        this.fishIdKey = new NamespacedKey(plugin.getPlugin(), "fish_id");
-        this.rarityKey = new NamespacedKey(plugin.getPlugin(), "rarity");
-        this.weightKey = new NamespacedKey(plugin.getPlugin(), "weight");
-        this.priceKey = new NamespacedKey(plugin.getPlugin(), "price");
-        this.caughtByUuidKey = new NamespacedKey(plugin.getPlugin(), "caught_by_uuid");
-        this.caughtByNameKey = new NamespacedKey(plugin.getPlugin(), "caught_by_name");
-        this.caughtAtKey = new NamespacedKey(plugin.getPlugin(), "caught_at");
-        this.biomeKey = new NamespacedKey(plugin.getPlugin(), "biome");
-        this.worldKey = new NamespacedKey(plugin.getPlugin(), "world");
+        this.uniqueIdKey = new NamespacedKey(plugin, "fish_unique_id");
+        this.fishIdKey = new NamespacedKey(plugin, "fish_id");
+        this.rarityKey = new NamespacedKey(plugin, "rarity");
+        this.weightKey = new NamespacedKey(plugin, "weight");
+        this.priceKey = new NamespacedKey(plugin, "price");
+        this.caughtByUuidKey = new NamespacedKey(plugin, "caught_by_uuid");
+        this.caughtByNameKey = new NamespacedKey(plugin, "caught_by_name");
+        this.caughtAtKey = new NamespacedKey(plugin, "caught_at");
+        this.biomeKey = new NamespacedKey(plugin, "biome");
+        this.worldKey = new NamespacedKey(plugin, "world");
     }
 
     public ItemStack create(Player player, FishDefinition definition, double weight, String biome, String world) {

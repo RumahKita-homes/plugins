@@ -23,30 +23,37 @@ public class EssentialsAdminGui implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
         
         fillBorder(inv);
         
-        inv.setItem(10, createItem(Material.RED_BED, "&a&lSpawn Manager", 
-            "&7Left-Click: &fTeleport to Spawn", 
-            "&7Right-Click: &cSet Spawn at your location"
-        ));
-        
-        inv.setItem(12, createItem(Material.COMPASS, "&b&lWarp Browser", 
+        inv.setItem(13, createItem(Material.COMPASS, "&b&lWarp Browser", 
             "&7View the list of all available", 
             "&7warps on the server."
         ));
         
-        inv.setItem(14, createItem(Material.REDSTONE, "&c&lUtility Toggles", 
-            "&7(Coming soon)",
-            "&7Utility module settings."
+        inv.setItem(29, createItem(Material.RED_BED, "&a&lSpawn Manager", 
+            "&7Left-Click: &fTeleport to Spawn", 
+            "&7Right-Click: &cSet Spawn at your location"
         ));
         
-        inv.setItem(16, createItem(Material.DIAMOND_SWORD, "&e&lAdmin Toolkits", 
+        inv.setItem(31, createItem(Material.REDSTONE, "&c&lUtility Toggles", 
+            "&7Left-Click: &fToggle Sleep",
+            "&7Right-Click: &fToggle Carry",
+            "&7Shift-Click: &fToggle Bansos"
+        ));
+        
+        inv.setItem(33, createItem(Material.DIAMOND_SWORD, "&e&lAdmin Toolkits", 
             "&7Click to open menu:",
             "&f- Vanish",
             "&f- Fly",
             "&f- God Mode"
+        ));
+        
+        inv.setItem(40, createItem(Material.CLOCK, "&6&lPerformance Monitor", 
+            "&7Check server TPS & Ping",
+            "&7Left-Click: &fTPS",
+            "&7Right-Click: &fPing"
         ));
         
         player.openInventory(inv);
@@ -84,20 +91,36 @@ public class EssentialsAdminGui implements Listener {
         Player player = (Player) event.getWhoClicked();
         
         int slot = event.getSlot();
-        if (slot == 10) { 
+        if (slot == 29) { 
             player.closeInventory();
             if (event.isLeftClick()) {
                 Bukkit.dispatchCommand(player, "spawn");
             } else if (event.isRightClick()) {
                 Bukkit.dispatchCommand(player, "setspawn");
             }
-        } else if (slot == 12) { 
+        } else if (slot == 13) { 
             player.closeInventory();
             Bukkit.dispatchCommand(player, "warps");
             player.sendMessage(ChatColor.YELLOW + "Type /setwarp <name> to create a new warp.");
-        } else if (slot == 16) { 
+        } else if (slot == 31) { 
+            player.closeInventory();
+            if (event.isShiftClick()) {
+                Bukkit.dispatchCommand(player, "rkbansos toggle");
+            } else if (event.isRightClick()) {
+                Bukkit.dispatchCommand(player, "rkcarry toggle");
+            } else {
+                Bukkit.dispatchCommand(player, "rksleep toggle");
+            }
+        } else if (slot == 33) { 
             player.closeInventory();
             openAdminToolkit(player);
+        } else if (slot == 40) {
+            player.closeInventory();
+            if (event.isRightClick()) {
+                Bukkit.dispatchCommand(player, "ping");
+            } else {
+                Bukkit.dispatchCommand(player, "tps");
+            }
         }
     }
     

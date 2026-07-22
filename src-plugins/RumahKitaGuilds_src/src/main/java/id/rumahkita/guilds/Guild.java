@@ -33,13 +33,12 @@ public final class Guild {
     private Location home;
     private int emeraldWallet;
     private int vaultLevel = 1;
-    private ItemStack[] vaultItems = new ItemStack[54];
+    private ItemStack[] vaultItems = new ItemStack[108];
     private final List<String> logs = new ArrayList<>();
     private double balance = 0.0;
     private boolean friendlyFire = false;
     private final Set<String> allies = new HashSet<>();
-    
-    // Area Settings
+
     private boolean mobSpawning = false;
     private boolean mobGriefing = false;
     private boolean publicInteraction = false;
@@ -183,7 +182,7 @@ public final class Guild {
         section.set("vault-level", this.vaultLevel);
         section.set("member-level", this.memberLevel);
         section.set("friendly-fire", this.friendlyFire);
-        section.set("vault-items", DatabaseManager.itemStackArrayToBase64(this.getVaultInventory(this.vaultLevel * 9, "").getContents()));
+        section.set("vault-items", DatabaseManager.itemStackArrayToBase64(this.vaultItems));
         section.set("logs", new java.util.ArrayList<>(this.logs));
         section.set("allies", new java.util.ArrayList<>(this.allies));
         
@@ -299,7 +298,30 @@ public final class Guild {
     public int getVaultLevel() { return this.vaultLevel; }
     public void setVaultLevel(int level) { this.vaultLevel = level; }
     
-        public void setVaultItems(ItemStack[] items) { this.vaultItems = items; }
+    public ItemStack[] getVaultItems() { return this.vaultItems; }
+    
+    public void setVaultItems(ItemStack[] items) {
+        if (items != null && items.length == 108) {
+            this.vaultItems = items;
+        } else if (items != null) {
+            for (int i = 0; i < items.length && i < 108; i++) {
+                this.vaultItems[i] = items[i];
+            }
+        }
+    }
+    
+    public void updateVaultItems(int page, ItemStack[] contents) {
+        if (this.vaultItems == null) {
+            this.vaultItems = new ItemStack[108];
+        }
+        int startIndex = (page - 1) * 54;
+        for (int i = 0; i < contents.length; i++) {
+            if (this.vaultLevel >= 3 && i == 53) continue;
+            if (startIndex + i < this.vaultItems.length) {
+                this.vaultItems[startIndex + i] = contents[i];
+            }
+        }
+    }
     
     public void addLog(String log) {
         if (!log.startsWith("[")) {
@@ -351,21 +373,54 @@ public final class Guild {
         return this.joinedAt.getOrDefault(uuid, this.createdAt);
     }
     
-    private org.bukkit.inventory.Inventory vaultInventory;
-    public org.bukkit.inventory.Inventory getVaultInventory(int size, String title) {
-        if (this.vaultInventory == null) {
-            this.vaultInventory = org.bukkit.Bukkit.createInventory(new VaultHolder(this), size, title);
-            if (this.vaultItems != null) {
-                this.vaultInventory.setContents(this.vaultItems);
+    public org.bukkit.inventory.Inventory getVaultInventory(int page) {
+        int size = 27;
+        if (this.vaultLevel == 2) size = 54;
+        else if (this.vaultLevel >= 3) size = 54;
+
+        String title = org.bukkit.ChatColor.DARK_GRAY + this.getName() + " Vault";
+        if (this.vaultLevel >= 3) {
+            title += " - Page " + page;
+        }
+        
+        org.bukkit.inventory.Inventory inv = org.bukkit.Bukkit.createInventory(new VaultHolder(this, page), size, title);
+        
+        if (this.vaultItems != null) {
+            int startIndex = (page - 1) * 54;
+            int endIndex = startIndex + size;
+            if (this.vaultLevel >= 3) {
+                endIndex = startIndex + 53;
+            }
+            
+            for (int i = 0; i < size && (startIndex + i) < this.vaultItems.length; i++) {
+                if (this.vaultLevel >= 3 && i == 53) continue;
+                inv.setItem(i, this.vaultItems[startIndex + i]);
             }
         }
-        return this.vaultInventory;
+        
+        if (this.vaultLevel >= 3) {
+            org.bukkit.inventory.ItemStack btn = new org.bukkit.inventory.ItemStack(org.bukkit.Material.ARROW);
+            org.bukkit.inventory.meta.ItemMeta meta = btn.getItemMeta();
+            if (page == 1) {
+                meta.setDisplayName(org.bukkit.ChatColor.GREEN + "Next Page");
+            } else {
+                meta.setDisplayName(org.bukkit.ChatColor.GREEN + "Previous Page");
+            }
+            btn.setItemMeta(meta);
+            inv.setItem(53, btn);
+        }
+        
+        return inv;
     }
     
     public void closeVaultInventory() {
-        if (this.vaultInventory != null) {
-            for (org.bukkit.entity.HumanEntity viewer : new java.util.ArrayList<>(this.vaultInventory.getViewers())) {
-                viewer.closeInventory();
+        for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+            org.bukkit.inventory.Inventory top = p.getOpenInventory().getTopInventory();
+            if (top != null && top.getHolder() instanceof VaultHolder) {
+                VaultHolder vh = (VaultHolder) top.getHolder();
+                if (vh.getGuild().getTag().equals(this.getTag())) {
+                    p.closeInventory();
+                }
             }
         }
     }

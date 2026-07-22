@@ -15,7 +15,6 @@ import id.rumahkita.fishing.model.Rarity;
 import id.rumahkita.fishing.util.NumberUtil;
 import id.rumahkita.fishing.util.Text;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -165,16 +164,17 @@ public final class PlayerDataManager {
         config.set("legendary_catches", (Object)data.legendaryCatches());
         config.set("mythic_catches", (Object)data.mythicCatches());
         config.set("discovered_fishes", new ArrayList<String>(data.discoveredFishes()));
-        try {
-            config.save(file);
-        }
-        catch (IOException exception) {
-            this.plugin.getLogger().warning("Failed to save player fishing data " + String.valueOf(data.uuid()) + ": " + exception.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)this.plugin, () -> {
+            try {
+                config.save(file);
+            }
+            catch (Exception exception) {
+                this.plugin.getLogger().warning("Failed to save player fishing data " + String.valueOf(data.uuid()) + ": " + exception.getMessage());
+            }
+        });
     }
 
     private File file(UUID uuid) {
         return new File(this.playersFolder, String.valueOf(uuid) + ".yml");
     }
 }
-

@@ -33,11 +33,11 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
         try { moduleRumahKitaPvP1v1Plugin.onEnable(); } catch (Throwable e) { getLogger().severe("Failed to load PvP: " + e.getMessage()); }
 
         getServer().getPluginManager().registerEvents(this, this);
-        MinigamesAdminGui adminGui = new MinigamesAdminGui(this);
+        RkmgGuiManager adminGui = new RkmgGuiManager(this);
         getServer().getPluginManager().registerEvents(adminGui, this);
-        org.bukkit.command.PluginCommand adminCmd = getCommand("rkminigames");
+        org.bukkit.command.PluginCommand adminCmd = getCommand("rkmg");
         if (adminCmd != null) {
-            adminCmd.setExecutor(new MinigamesAdminCommand(adminGui));
+            adminCmd.setExecutor(new RkmgCommand(this, adminGui));
         }
         
         getLogger().info("RumahKita Minigames Enabled.");

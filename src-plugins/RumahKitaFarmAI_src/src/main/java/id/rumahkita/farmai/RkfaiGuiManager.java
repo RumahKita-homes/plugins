@@ -1,4 +1,4 @@
-package id.rumahkita.minigames;
+package id.rumahkita.farmai;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,51 +14,46 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MinigamesAdminGui implements Listener {
-    private final RumahKitaMinigamesPlugin plugin;
-    public static final String TITLE = ChatColor.GOLD + "Minigames Admin Dashboard";
+public class RkfaiGuiManager implements Listener {
+    private final RumahKitaFarmAI plugin;
+    public static final String TITLE = ChatColor.GREEN + "Farm AI Admin Dashboard";
 
-    public MinigamesAdminGui(RumahKitaMinigamesPlugin plugin) {
+    public RkfaiGuiManager(RumahKitaFarmAI plugin) {
         this.plugin = plugin;
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
+        
         fillBorder(inv);
         
-        inv.setItem(10, createItem(Material.RED_BANNER, "&c&lCapture The Flag", 
-            "&7Manage CTF arenas,",
-            "&7Red/Blue flag positions,",
-            "&7and force start/stop.",
-            "",
-            "&aLeft-Click to open /ctf help"
+        boolean enabled = plugin.getConfig().getBoolean("enabled", true);
+        
+        inv.setItem(13, createItem(Material.ZOMBIE_HEAD, "&b&lStatus: " + (enabled ? "&a&lON" : "&c&lOFF"), 
+            "&7Click to toggle",
+            "&7Farm AI functionality."
         ));
         
-        inv.setItem(12, createItem(Material.IRON_SWORD, "&e&lPvP 1v1 Manager", 
-            "&7View PvP arena queues",
-            "&7and manage setups.",
-            "",
-            "&aLeft-Click to open /pvp help"
+        inv.setItem(29, createItem(Material.DIAMOND_SWORD, "&e&lForce Scan Now", 
+            "&7Force scan all worlds", 
+            "&7for hostile mobs to fix."
         ));
         
-        inv.setItem(14, createItem(Material.TARGET, "&b&lGames Settings", 
-            "&7General minigames settings,",
-            "&7such as rewards and maps.",
-            "",
-            "&aLeft-Click to open /games help"
+        inv.setItem(31, createItem(Material.OAK_FENCE, "&c&lZone Builder", 
+            "&7Use &e/rkfai zonehere <name> <rad>", 
+            "&7to build new zones."
         ));
         
-        inv.setItem(16, createItem(Material.CLOCK, "&a&lGlobal Anti-Cooldown", 
-            "&7Status: &aActive",
-            "&7Prevents cooldown for Ender Pearls",
-            "&7and Firework Rockets globally."
+        inv.setItem(33, createItem(Material.REDSTONE, "&a&lReload Config", 
+            "&7Click to reload", 
+            "&7the plugin configuration."
         ));
         
         player.openInventory(inv);
     }
 
     private void fillBorder(Inventory inv) {
-        ItemStack pane = createItem(Material.ORANGE_STAINED_GLASS_PANE, " ");
+        ItemStack pane = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
                 inv.setItem(i, pane);
@@ -86,23 +81,22 @@ public class MinigamesAdminGui implements Listener {
         if (!event.getView().getTitle().equals(TITLE)) return;
         event.setCancelled(true);
         if (!(event.getWhoClicked() instanceof Player)) return;
-        
         Player player = (Player) event.getWhoClicked();
-        int slot = event.getSlot();
         
-        if (slot == 10) {
+        int slot = event.getSlot();
+        if (slot == 13) { 
             player.closeInventory();
-            Bukkit.dispatchCommand(player, "ctf help");
-        } else if (slot == 12) {
+            boolean enabled = plugin.getConfig().getBoolean("enabled", true);
+            Bukkit.dispatchCommand(player, enabled ? "rkfai off" : "rkfai on");
+        } else if (slot == 29) { 
             player.closeInventory();
-            Bukkit.dispatchCommand(player, "pvp help");
-        } else if (slot == 14) {
+            Bukkit.dispatchCommand(player, "rkfai scan");
+        } else if (slot == 31) { 
             player.closeInventory();
-            Bukkit.dispatchCommand(player, "games help");
-        } else if (slot == 16) {
-            // Future toggle feature
-            player.sendMessage(ChatColor.YELLOW + "The Anti-Cooldown feature is currently active by default.");
+            Bukkit.dispatchCommand(player, "rkfai help");
+        } else if (slot == 33) {
             player.closeInventory();
+            Bukkit.dispatchCommand(player, "rkfai reload");
         }
     }
 }

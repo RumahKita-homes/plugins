@@ -55,12 +55,9 @@ implements TabExecutor {
     public void onEnable() {
         plugin.saveDefaultConfig();
         this.ramGuardService = new RamGuardService(this);
-        if (plugin.getCommand("ramguard") != null) {
-            plugin.getCommand("ramguard").setExecutor((CommandExecutor)this);
-            plugin.getCommand("ramguard").setTabCompleter((TabCompleter)this);
-        }
+
         this.startMonitorTask();
-        this.log("RumahKitaRamGuard active. Use /ramguard status to check RAM.");
+        this.log("RumahKitaRamGuard active. Use /rks ramguard status to check RAM.");
     }
 
     public void onDisable() {
@@ -114,7 +111,7 @@ implements TabExecutor {
             sender.sendMessage(Text.color("&aRumahKitaRamGuard config successfully reloaded."));
             return true;
         }
-        sender.sendMessage(Text.color("&eGunakan: &f/ramguard status&7, &f/ramguard cleanup&7, &f/ramguard emergency&7, &f/ramguard restore&7, &f/ramguard reload"));
+        sender.sendMessage(Text.color("&eGunakan: &f/rks ramguard status&7, &f/rks ramguard cleanup&7, &f/rks ramguard emergency&7, &f/rks ramguard restore&7, &f/rks ramguard reload"));
         return true;
     }
 
@@ -149,9 +146,8 @@ implements TabExecutor {
     }
 
     public String message(String key, MemoryInfo info) {
-        String prefix = "";
         String message = plugin.getConfig().getString("messages." + key, "");
-        return (prefix + message).replace("%percent%", info.getPercentFormatted()).replace("%used%", info.getUsedFormatted()).replace("%max%", info.getMaxFormatted());
+        return message.replace("%percent%", info.getPercentFormatted()).replace("%used%", info.getUsedFormatted()).replace("%max%", info.getMaxFormatted());
     }
 
     public void log(String message) {

@@ -85,10 +85,6 @@ TabExecutor {
     public void onEnable() {
         plugin.saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
-        if (plugin.getCommand("spec2") != null) {
-            plugin.getCommand("spec2").setExecutor((CommandExecutor)this);
-            plugin.getCommand("spec2").setTabCompleter((TabCompleter)this);
-        }
         this.startTask();
         plugin.getLogger().info("RumahKitaOreSpectator v1.0.3 enabled.");
     }
@@ -150,7 +146,7 @@ TabExecutor {
         this.refreshMarkers(player, true);
         this.msg((CommandSender)player, this.pref() + this.applyPlaceholders(player, session, plugin.getConfig().getString("messages.enabled", "&aSpec2 active. Markers: &f%count% &7| Filter: &f%filter% &7| Radius: &f%radius%/%vradius%")));
         if (session.lastMarkerCount <= 0) {
-            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-markers-tip", "&eMarkers 0. Fly closer to the ground/underground, or use &f/spec2 filter all &eand &f/spec2 radius 96&e."));
+            this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.no-markers-tip", "&eMarkers 0. Fly closer to the ground/underground, or use &f/rks spec filter all &eand &f/rks spec radius 96&e."));
         }
     }
 
@@ -188,6 +184,21 @@ TabExecutor {
             session.markers.add(marker);
             ++count;
         }
+        
+        // Highlight Suspects
+        if (plugin.getAntiXray() != null) {
+            int suspectThreshold = plugin.getConfig().getInt("risk.alert-score", 60);
+            for (Player suspect : player.getWorld().getPlayers()) {
+                if (suspect.equals(player)) continue;
+                if (plugin.getAntiXray().getRiskScore(suspect.getUniqueId()) >= suspectThreshold / 2) {
+                    Entity suspectMarker = this.spawnSuspectMarker(player, suspect);
+                    if (suspectMarker != null) {
+                        session.markers.add(suspectMarker);
+                    }
+                }
+            }
+        }
+
         session.lastMarkerCount = count;
         session.lastFoundCount = hits.size();
         if (notifyIfDebug && plugin.getConfig().getBoolean("general.debug-scan-on-enable", false)) {
@@ -248,6 +259,34 @@ TabExecutor {
                 td.setGravity(false);
                 td.setSilent(true);
             });
+            this.hideMarkerFromOthers(owner, (Entity)display);
+            return display;
+        }
+        catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private Entity spawnSuspectMarker(Player owner, Player suspect) {
+        try {
+            Location loc = suspect.getLocation().add(0, 2.5, 0);
+            TextDisplay display = (TextDisplay)owner.getWorld().spawn(loc, TextDisplay.class, td -> {
+                int score = plugin.getAntiXray().getRiskScore(suspect.getUniqueId());
+                td.setText(this.color("&c&lSUSPECT: " + suspect.getName() + "\n&eScore: " + score));
+                td.setBillboard(Display.Billboard.CENTER);
+                td.setSeeThrough(true);
+                td.setShadowed(true);
+                td.setDefaultBackground(false);
+                td.setLineWidth(120);
+                td.setGlowing(true);
+                td.setGlowColorOverride(Color.RED);
+                td.setPersistent(false);
+                td.setInvulnerable(true);
+                td.setGravity(false);
+                td.setSilent(true);
+            });
+            // Make the text display ride the suspect so it moves with them
+            suspect.addPassenger(display);
             this.hideMarkerFromOthers(owner, (Entity)display);
             return display;
         }
@@ -603,7 +642,7 @@ TabExecutor {
                 Session session;
                 int radius;
                 if (args.length < 2) {
-                    this.msg((CommandSender)player, this.pref() + "&e/spec2 radius <angka>");
+                    this.msg((CommandSender)player, this.pref() + "&e/rks spec radius <angka>");
                     return true;
                 }
                 try {
@@ -630,7 +669,7 @@ TabExecutor {
                 Session session;
                 int radius;
                 if (args.length < 2) {
-                    this.msg((CommandSender)player, this.pref() + "&e/spec2 vradius <angka>");
+                    this.msg((CommandSender)player, this.pref() + "&e/rks spec vradius <angka>");
                     return true;
                 }
                 try {
@@ -654,7 +693,7 @@ TabExecutor {
             case "filter": {
                 Session session;
                 if (args.length < 2) {
-                    this.msg((CommandSender)player, this.pref() + "&e/spec2 filter <all|valuable|diamond|netherite|emerald>");
+                    this.msg((CommandSender)player, this.pref() + "&e/rks spec filter <all|valuable|diamond|netherite|emerald>");
                     return true;
                 }
                 String filter = args[1].toLowerCase(Locale.ROOT);
@@ -697,10 +736,10 @@ TabExecutor {
                     return true;
                 }
                 if (this.sessions.isEmpty()) {
-                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-empty", "&7No admins are currently in /spec2."));
+                    this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-empty", "&7No admins are currently in /rks spec."));
                     return true;
                 }
-                this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-header", "&bAdmins currently in /spec2:"));
+                this.msg((CommandSender)player, this.pref() + plugin.getConfig().getString("messages.list-header", "&bAdmins currently in /rks spec:"));
                 for (UUID uuid : this.sessions.keySet()) {
                     Player p = Bukkit.getPlayer((UUID)uuid);
                     Session s = this.sessions.get(uuid);
@@ -741,13 +780,13 @@ TabExecutor {
     private void sendHelp(Player player) {
         this.msg((CommandSender)player, "&8&m-----------------------------");
         this.msg((CommandSender)player, "&bRumahKita OreSpectator &7v1.0.3");
-        this.msg((CommandSender)player, "&e/spec2 &7- toggle stealth spectator");
-        this.msg((CommandSender)player, "&e/spec2 scan &7- scan ulang marker");
-        this.msg((CommandSender)player, "&e/spec2 filter all/valuable/diamond/netherite/emerald");
-        this.msg((CommandSender)player, "&e/spec2 radius <4-128> &7- jarak horizontal");
-        this.msg((CommandSender)player, "&e/spec2 vradius <8-192> &7- jarak atas/bawah");
-        this.msg((CommandSender)player, "&e/spec2 deep &7- mode to search ores deeper down");
-        this.msg((CommandSender)player, "&e/spec2 status");
+        this.msg((CommandSender)player, "&e/rks spec &7- toggle stealth spectator");
+        this.msg((CommandSender)player, "&e/rks spec scan &7- scan ulang marker");
+        this.msg((CommandSender)player, "&e/rks spec filter all/valuable/diamond/netherite/emerald");
+        this.msg((CommandSender)player, "&e/rks spec radius <4-128> &7- jarak horizontal");
+        this.msg((CommandSender)player, "&e/rks spec vradius <8-192> &7- jarak atas/bawah");
+        this.msg((CommandSender)player, "&e/rks spec deep &7- mode to search ores deeper down");
+        this.msg((CommandSender)player, "&e/rks spec status");
         this.msg((CommandSender)player, "&8&m-----------------------------");
     }
 
@@ -787,8 +826,8 @@ TabExecutor {
         return input.replace("%player%", player == null ? "-" : player.getName()).replace("%filter%", filter).replace("%radius%", String.valueOf(radius)).replace("%vradius%", String.valueOf(vradius)).replace("%count%", String.valueOf(count)).replace("%found%", String.valueOf(found)).replace("%active%", String.valueOf(active)).replace("%sessions%", String.valueOf(this.sessions.size())).replace("%stealth%", String.valueOf(plugin.getConfig().getBoolean("stealth.enabled", true)));
     }
 
-    private String pref() {
-        return plugin.getConfig().getString("messages.prefix", "&8[&bOreSpec&8] ");
+    public String pref() {
+        return "";
     }
 
     private String color(String input) {

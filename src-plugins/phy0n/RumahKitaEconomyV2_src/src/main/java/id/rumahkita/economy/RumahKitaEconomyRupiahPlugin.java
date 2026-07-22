@@ -498,20 +498,22 @@ TabExecutor {
     }
 
     private void trySave(FileConfiguration cfg, File file) {
-        try {
-            cfg.save(file);
-            if (file.getName().equals("balances.yml") && this.getConfig().getBoolean("settings.auto-backup", true)) {
-                String dateHr = new java.text.SimpleDateFormat("yyyy-MM-dd_HH").format(new java.util.Date());
-                File backupFile = new File(file.getParentFile(), "backups/balances_" + dateHr + ".yml");
-                if (!backupFile.exists()) {
-                    backupFile.getParentFile().mkdirs();
-                    java.nio.file.Files.copy(file.toPath(), backupFile.toPath());
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((Plugin)this, () -> {
+            try {
+                cfg.save(file);
+                if (file.getName().equals("balances.yml") && this.getConfig().getBoolean("settings.auto-backup", true)) {
+                    String dateHr = new java.text.SimpleDateFormat("yyyy-MM-dd_HH").format(new java.util.Date());
+                    File backupFile = new File(file.getParentFile(), "backups/balances_" + dateHr + ".yml");
+                    if (!backupFile.exists()) {
+                        backupFile.getParentFile().mkdirs();
+                        java.nio.file.Files.copy(file.toPath(), backupFile.toPath());
+                    }
                 }
             }
-        }
-        catch (Exception e) {
-            this.getLogger().warning("Failed saving " + file.getName() + ": " + e.getMessage());
-        }
+            catch (Exception ex) {
+                this.getLogger().warning("Could not save " + file.getName() + ": " + ex.getMessage());
+            }
+        });
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -151,11 +151,13 @@ public class RumahKitaAdminPlugin implements CommandExecutor, TabCompleter, List
     }
 
     private void saveDataConfig() {
-        try {
-            dataConfig.save(dataFile);
-        } catch (IOException e) {
-            getLogger().severe("Could not save data.yml!");
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)this.plugin, () -> {
+            try {
+                dataConfig.save(dataFile);
+            } catch (Exception e) {
+                getLogger().severe("Could not save data.yml!");
+            }
+        });
     }
 
     private void loadJailData() {

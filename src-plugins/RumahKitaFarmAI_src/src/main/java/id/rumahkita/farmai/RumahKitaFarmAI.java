@@ -92,10 +92,16 @@ extends JavaPlugin {
     private int lastScanned;
     private int lastFixed;
     private int lastNudged;
+    private RkfaiGuiManager guiManager;
 
     public void onEnable() {
         this.saveDefaultConfig();
         this.loadSettings();
+        this.guiManager = new RkfaiGuiManager(this);
+        org.bukkit.Bukkit.getPluginManager().registerEvents(this.guiManager, this);
+        if (this.getCommand("rkfai") != null) {
+            this.getCommand("rkfai").setExecutor(this);
+        }
         this.startScanner();
         this.getLogger().info("RumahKitaFarmAI enabled. Mob farm AI helper is running.");
     }
@@ -446,10 +452,19 @@ extends JavaPlugin {
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         String sub;
-        if (!command.getName().equalsIgnoreCase("rkfarmai")) {
+        if (!command.getName().equalsIgnoreCase("rkfai")) {
             return false;
         }
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+        if (args.length == 0) {
+            if (sender instanceof Player) {
+                guiManager.open((Player) sender);
+                return true;
+            } else {
+                this.sendHelp(sender);
+                return true;
+            }
+        }
+        if (args[0].equalsIgnoreCase("help")) {
             this.sendHelp(sender);
             return true;
         }
@@ -500,8 +515,8 @@ extends JavaPlugin {
         }
         Player player = (Player)sender;
         if (args.length < 3) {
-            sender.sendMessage(this.prefix + this.color("&eUsage: /rkfarmai zonehere <name> <radius>"));
-            sender.sendMessage(this.prefix + this.color("&7Contoh: /rkfarmai zonehere mobfarm1 80"));
+            sender.sendMessage(this.prefix + this.color("&eUsage: /rkfai zonehere <name> <radius>"));
+            sender.sendMessage(this.prefix + this.color("&7Contoh: /rkfai zonehere mobfarm1 80"));
             return;
         }
         String rawName = args[1].replaceAll("[^A-Za-z0-9_-]", "");
@@ -541,11 +556,11 @@ extends JavaPlugin {
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage(this.prefix + this.color("&eCommands:"));
-        sender.sendMessage(this.color("&a/rkfarmai status &7- cek status plugin"));
-        sender.sendMessage(this.color("&a/rkfarmai scan &7- scan manual sekarang"));
-        sender.sendMessage(this.color("&a/rkfarmai reload &7- reload config"));
-        sender.sendMessage(this.color("&a/rkfarmai on/off &7- aktifkan/matikan plugin"));
-        sender.sendMessage(this.color("&a/rkfarmai zonehere <name> <radius> &7- create a mob farm zone at your location"));
+        sender.sendMessage(this.color("&a/rkfai status &7- cek status plugin"));
+        sender.sendMessage(this.color("&a/rkfai scan &7- scan manual sekarang"));
+        sender.sendMessage(this.color("&a/rkfai reload &7- reload config"));
+        sender.sendMessage(this.color("&a/rkfai on/off &7- aktifkan/matikan plugin"));
+        sender.sendMessage(this.color("&a/rkfai zonehere <name> <radius> &7- create a mob farm zone at your location"));
     }
 
     private String color(String message) {

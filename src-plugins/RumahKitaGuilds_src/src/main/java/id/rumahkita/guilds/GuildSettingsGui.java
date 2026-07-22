@@ -105,7 +105,7 @@ public class GuildSettingsGui implements Listener {
             }
 
             if (changed) {
-                guildManager.save();
+                guildManager.save(guild);
                 player.playSound(player.getLocation(), org.bukkit.Sound.UI_BUTTON_CLICK, 1.0f, 1.2f);
                 open(player, guild); 
             }

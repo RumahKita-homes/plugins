@@ -87,11 +87,13 @@ public class ServerWarpManager implements Listener {
             config.set(path + "icon", w.icon.name());
             config.set(path + "lore", w.lore);
         }
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin.getPlugin(), () -> {
+            try {
+                config.save(file);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void setWarp(String name, Location loc) {

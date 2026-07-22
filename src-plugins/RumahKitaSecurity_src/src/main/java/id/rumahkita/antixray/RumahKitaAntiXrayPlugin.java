@@ -95,8 +95,6 @@ TabExecutor {
         this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
         this.loadData();
         Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
-        plugin.getCommand("rkxray").setExecutor((CommandExecutor)this);
-        plugin.getCommand("rkxray").setTabCompleter((TabCompleter)this);
         long decayTicks = Math.max(1L, plugin.getConfig().getLong("risk.decay-every-minutes", 10L)) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this.plugin, this::decayScores, decayTicks, decayTicks);
         long saveTicks = Math.max(1L, plugin.getConfig().getLong("logs.save-data-every-minutes", 5L)) * 60L * 20L;
@@ -210,6 +208,12 @@ TabExecutor {
         if (material == Material.ANCIENT_DEBRIS && loc.getBlockY() >= plugin.getConfig().getInt("thresholds.ancient-suspicious-y-min", 8) && loc.getBlockY() <= plugin.getConfig().getInt("thresholds.ancient-suspicious-y-max", 18)) {
             extra += 6;
         }
+        
+        // Light Level Check: Mining rare ores in pitch darkness is suspicious
+        if (loc.getBlock().getLightLevel() == 0 && loc.getBlock().getLightFromSky() == 0) {
+            extra += plugin.getConfig().getInt("detection.darkness-extra-points", 20);
+        }
+
         double mult = 1.0;
         if (this.isNewbie(player)) {
             mult *= plugin.getConfig().getDouble("detection.newbie-risk-multiplier", 1.35);
@@ -219,7 +223,11 @@ TabExecutor {
 
     private String buildReason(Player player, Material material, Location loc, RiskData risk, int add) {
         int mins = plugin.getConfig().getInt("detection.recent-window-minutes", 15);
-        return material.name() + " +" + add + ", recentRare=" + this.countRecentRare(risk, mins) + ", recentNormal=" + this.countRecentNormal(risk, mins) + ", platform=" + (this.isBedrock(player) ? "Bedrock" : "Java") + ", y=" + loc.getBlockY();
+        String extra = "";
+        if (loc.getBlock().getLightLevel() == 0 && loc.getBlock().getLightFromSky() == 0) {
+            extra = ", DARK";
+        }
+        return material.name() + " +" + add + ", recentRare=" + this.countRecentRare(risk, mins) + ", recentNormal=" + this.countRecentNormal(risk, mins) + ", platform=" + (this.isBedrock(player) ? "Bedrock" : "Java") + ", y=" + loc.getBlockY() + extra;
     }
 
     private void maybeAlert(Player player, Location loc, int score, String reason) {
@@ -463,12 +471,16 @@ TabExecutor {
             this.data.set(p + ".last-z", (Object)r.lastZ);
             this.data.set(p + ".last-seen", (Object)r.lastSeen);
         }
-        try {
-            this.data.save(this.dataFile);
-        }
-        catch (Exception ex) {
-            plugin.getLogger().warning("Failed to save AntiXray data: " + ex.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)plugin, () -> {
+            try {
+                if (this.data != null && this.dataFile != null) {
+                    this.data.save(this.dataFile);
+                }
+            }
+            catch (Exception e) {
+                plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
+            }
+        });
     }
 
     private Player findPlayer(String name) {
@@ -518,8 +530,8 @@ TabExecutor {
         s.sendMessage(this.color(in));
     }
 
-    private String pref() {
-        return plugin.getConfig().getString("messages.prefix", "&8[&bAntiXray&8] ");
+    public String pref() {
+        return "";
     }
 
     private String esc(String in) {
@@ -560,7 +572,7 @@ TabExecutor {
             }
             case "check": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkxray check <player>");
+                    this.msg(sender, "&e/rks xray check <player>");
                     return true;
                 }
                 RiskData r2 = this.findRisk(args[1]);
@@ -593,7 +605,7 @@ TabExecutor {
             }
             case "reset": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkxray reset <player>");
+                    this.msg(sender, "&e/rks xray reset <player>");
                     return true;
                 }
                 this.resetRisk(args[1]);
@@ -602,7 +614,7 @@ TabExecutor {
             }
             case "freeze": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkxray freeze <player>");
+                    this.msg(sender, "&e/rks xray freeze <player>");
                     return true;
                 }
                 Player p = this.findPlayer(args[1]);
@@ -616,7 +628,7 @@ TabExecutor {
             }
             case "unfreeze": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkxray unfreeze <player>");
+                    this.msg(sender, "&e/rks xray unfreeze <player>");
                     return true;
                 }
                 UUID u = this.findUuid(args[1]);
@@ -633,15 +645,15 @@ TabExecutor {
             default: {
                 this.msg(sender, "&8&m-----------------------------");
                 this.msg(sender, "&bRumahKitaAntiXray");
-                this.msg(sender, "&e/rkxray status");
-                this.msg(sender, "&e/rkxray reload");
-                this.msg(sender, "&e/rkxray check <player>");
-                this.msg(sender, "&e/rkxray top");
-                this.msg(sender, "&e/rkxray reset <player>");
-                this.msg(sender, "&e/rkxray freeze <player>");
-                this.msg(sender, "&e/rkxray unfreeze <player>");
-                this.msg(sender, "&e/rkxray logs");
-                this.msg(sender, "&e/rkxray on/off");
+                this.msg(sender, "&e/rks xray status");
+                this.msg(sender, "&e/rks xray reload");
+                this.msg(sender, "&e/rks xray check <player>");
+                this.msg(sender, "&e/rks xray top");
+                this.msg(sender, "&e/rks xray reset <player>");
+                this.msg(sender, "&e/rks xray freeze <player>");
+                this.msg(sender, "&e/rks xray unfreeze <player>");
+                this.msg(sender, "&e/rks xray logs");
+                this.msg(sender, "&e/rks xray on/off");
                 this.msg(sender, "&8&m-----------------------------");
             }
         }
@@ -658,12 +670,17 @@ TabExecutor {
         return List.of();
     }
 
-    private static final class RiskData {
-        String name;
-        int score = 0;
-        int flags = 0;
-        int rareOres = 0;
-        int normalBlocks = 0;
+    public int getRiskScore(UUID uuid) {
+        RiskData data = this.risks.get(uuid);
+        return data != null ? data.score : 0;
+    }
+
+    public static final class RiskData {
+        public String name;
+        public int score = 0;
+        public int flags = 0;
+        public int rareOres = 0;
+        public int normalBlocks = 0;
         String lastReason = "-";
         String lastWorld = "-";
         int lastX = 0;

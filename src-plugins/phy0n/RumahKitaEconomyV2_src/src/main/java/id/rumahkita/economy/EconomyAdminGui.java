@@ -30,7 +30,7 @@ public class EconomyAdminGui implements Listener {
     }
 
     public void openMain(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 27, MAIN_TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, MAIN_TITLE);
         fillBorder(inv);
         
         long totalWealth = 0;
@@ -41,9 +41,13 @@ public class EconomyAdminGui implements Listener {
             }
         }
         
-        inv.setItem(11, createItem(Material.PLAYER_HEAD, "&b&lPlayer Bank Browser", "&7List of all player bank", "&7accounts on the server."));
         inv.setItem(13, createItem(Material.EMERALD_BLOCK, "&a&lServer Wealth Stats", "&7Total Money in Circulation:", "&e" + plugin.formatRp(totalWealth)));
-        inv.setItem(15, createItem(Material.PAPER, "&c&lEconomy Config", "&7Economy settings,", "&7starting money, taxes, etc."));
+        
+        inv.setItem(29, createItem(Material.PLAYER_HEAD, "&b&lPlayer Bank Browser", "&7List of all player bank", "&7accounts on the server."));
+        inv.setItem(31, createItem(Material.GOLD_INGOT, "&6&lMarket Manager", "&7Force refresh market stock,", "&7edit prices and items."));
+        inv.setItem(33, createItem(Material.CHEST, "&d&lSellHand / SellAll", "&7Toggle global sellhand", "&7and sellall availability."));
+        
+        inv.setItem(40, createItem(Material.PAPER, "&c&lEconomy Config", "&7Economy settings,", "&7starting money, taxes, etc."));
         
         player.openInventory(inv);
     }
@@ -94,37 +98,37 @@ public class EconomyAdminGui implements Listener {
 
     public void openDetails(Player player, UUID targetUuid) {
         OfflinePlayer op = Bukkit.getOfflinePlayer(targetUuid);
-        Inventory inv = Bukkit.createInventory(null, 27, DETAILS_TITLE + (op.getName() != null ? op.getName() : "Unknown"));
+        Inventory inv = Bukkit.createInventory(null, 54, DETAILS_TITLE + (op.getName() != null ? op.getName() : "Unknown"));
         viewingDetails.put(player.getUniqueId(), targetUuid);
         
         fillBorder(inv);
         
         long balance = plugin.getBalance(targetUuid);
         
-        inv.setItem(10, createItem(Material.PAPER, "&bAccount Information", 
+        inv.setItem(13, createItem(Material.PAPER, "&bAccount Information", 
             "&7Owner: &f" + op.getName(),
             "&7Balance: &a" + plugin.formatRp(balance)
         ));
         
-        inv.setItem(12, createItem(Material.EMERALD, "&aDeposit (Add Funds)", 
+        inv.setItem(29, createItem(Material.EMERALD, "&aDeposit (Add Funds)", 
             "&7Left-Click: &a+ Rp 10.000",
             "&7Right-Click: &a+ Rp 100.000"
         ));
         
-        inv.setItem(14, createItem(Material.REDSTONE, "&cWithdraw (Remove Funds)", 
+        inv.setItem(33, createItem(Material.REDSTONE, "&cWithdraw (Remove Funds)", 
             "&7Left-Click: &c- Rp 10.000",
             "&7Right-Click: &c- Rp 100.000"
         ));
         
-        inv.setItem(16, createItem(Material.TNT, "&4&lReset Balance", "&7Click to set this player's", "&7balance to Rp 0!"));
+        inv.setItem(40, createItem(Material.TNT, "&4&lReset Balance", "&7Click to set this player's", "&7balance to Rp 0!"));
         
-        inv.setItem(26, createItem(Material.ARROW, "&cBack to Browser"));
+        inv.setItem(49, createItem(Material.ARROW, "&cBack to Browser"));
         
         player.openInventory(inv);
     }
 
     private void fillBorder(Inventory inv) {
-        ItemStack pane = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
+        ItemStack pane = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
                 inv.setItem(i, pane);
@@ -156,8 +160,11 @@ public class EconomyAdminGui implements Listener {
         if (title.equals(MAIN_TITLE)) {
             event.setCancelled(true);
             int slot = event.getSlot();
-            if (slot == 11) {
+            if (slot == 29) {
                 openBrowser(player, 0);
+            } else if (slot == 31) {
+                player.closeInventory();
+                player.performCommand("market admin");
             }
         } 
         else if (title.equals(BROWSER_TITLE)) {
@@ -198,14 +205,14 @@ public class EconomyAdminGui implements Listener {
             }
             
             int slot = event.getSlot();
-            if (slot == 26) {
+            if (slot == 49) {
                 openBrowser(player, browserPages.getOrDefault(player.getUniqueId(), 0));
-            } else if (slot == 12) { // Deposit
+            } else if (slot == 29) { // Deposit
                 long amount = event.isLeftClick() ? 10000 : 100000;
                 plugin.addBalance(target, amount);
                 player.sendMessage(ChatColor.GREEN + "Successfully deposited " + plugin.formatRp(amount));
                 openDetails(player, target);
-            } else if (slot == 14) { // Withdraw
+            } else if (slot == 33) { // Withdraw
                 long amount = event.isLeftClick() ? 10000 : 100000;
                 long bal = plugin.getBalance(target);
                 if (bal >= amount) {
@@ -215,7 +222,7 @@ public class EconomyAdminGui implements Listener {
                     player.sendMessage(ChatColor.RED + "Insufficient balance.");
                 }
                 openDetails(player, target);
-            } else if (slot == 16) { // Reset
+            } else if (slot == 40) { // Reset
                 long bal = plugin.getBalance(target);
                 plugin.takeBalance(target, bal);
                 player.sendMessage(ChatColor.GREEN + "Successfully reset balance.");

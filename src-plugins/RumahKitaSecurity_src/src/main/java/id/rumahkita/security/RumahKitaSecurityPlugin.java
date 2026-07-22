@@ -31,8 +31,23 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
         moduleRumahKitaOreSpectatorPlugin = new RumahKitaOreSpectatorPlugin(this);
         try { moduleRumahKitaOreSpectatorPlugin.onEnable(); } catch (Exception e) { e.printStackTrace(); }
         
+        RksGuiManager guiManager = new RksGuiManager(this);
+        getServer().getPluginManager().registerEvents(guiManager, this);
+
+        RksCommand rksCommand = new RksCommand(this, guiManager);
+        if (getCommand("rks") != null) {
+            getCommand("rks").setExecutor(rksCommand);
+            getCommand("rks").setTabCompleter(rksCommand);
+        }
+        
         getLogger().info("RumahKita Security Enabled.");
     }
+
+    public RumahKitaAntiCheatPlugin getAntiCheat() { return moduleRumahKitaAntiCheatPlugin; }
+    public RumahKitaAntiXrayPlugin getAntiXray() { return moduleRumahKitaAntiXrayPlugin; }
+    public RumahKitaSecurityBanPlugin getSecurityBan() { return moduleRumahKitaSecurityBanPlugin; }
+    public RumahKitaRamGuardPlugin getRamGuard() { return moduleRumahKitaRamGuardPlugin; }
+    public RumahKitaOreSpectatorPlugin getOreSpectator() { return moduleRumahKitaOreSpectatorPlugin; }
 
     @Override
     public void onDisable() {

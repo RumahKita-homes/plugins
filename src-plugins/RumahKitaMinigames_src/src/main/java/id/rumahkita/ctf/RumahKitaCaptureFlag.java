@@ -1767,13 +1767,15 @@ TabCompleter {
             yaml.set("inventory.armor." + i, (Object)armor[i]);
         }
         yaml.set("inventory.offhand", (Object)inv.getItemInOffHand());
-        try {
-            yaml.save(file);
-        }
-        catch (IOException e) {
-            plugin.getLogger().warning("Failed to save inventory backup for " + player.getName() + ": " + e.getMessage());
-            player.sendMessage(this.prefix + this.color("&cFailed to backup inventory. For safety, it is not recommended to continue."));
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)plugin, () -> {
+            try {
+                yaml.save(file);
+            }
+            catch (java.io.IOException e) {
+                plugin.getLogger().warning("Failed to save inventory backup for " + player.getName() + ": " + e.getMessage());
+                player.sendMessage(this.prefix + this.color("&cFailed to backup inventory. For safety, it is not recommended to continue."));
+            }
+        });
     }
 
     private boolean restoreInventoryBackup(Player player, boolean deleteAfterRestore, boolean teleportOriginal) {

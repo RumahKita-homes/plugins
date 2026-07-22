@@ -50,6 +50,7 @@ public final class RumahKitaAntiCheatPlugin
     private ExemptManager exemptManager;
     private ViolationTracker violationTracker;
     private LogManager logManager;
+    private AntiCheatCommand commandExecutor;
 
     public void onEnable() {
         plugin.saveDefaultConfig();
@@ -59,9 +60,7 @@ public final class RumahKitaAntiCheatPlugin
         AntiCheatListener listener = new AntiCheatListener(this, this.exemptManager, this.violationTracker);
         Bukkit.getPluginManager().registerEvents((Listener)listener, this.plugin);
         listener.startAuditTask();
-        AntiCheatCommand command = new AntiCheatCommand(this, this.exemptManager, this.violationTracker);
-        plugin.getCommand("rkac").setExecutor((CommandExecutor)command);
-        plugin.getCommand("rkac").setTabCompleter((TabCompleter)command);
+        this.commandExecutor = new AntiCheatCommand(this, this.exemptManager, this.violationTracker);
         Bukkit.getScheduler().runTaskTimer(this.plugin, () -> this.exemptManager.cleanup(), 600L, 600L);
         plugin.getLogger().info("RumahKitaAntiCheat v1.2.0 enabled.");
     }
@@ -70,12 +69,16 @@ public final class RumahKitaAntiCheatPlugin
         plugin.getLogger().info("RumahKitaAntiCheat disabled.");
     }
 
+    public AntiCheatCommand getCommandExecutor() {
+        return commandExecutor;
+    }
+
     public boolean isEnabledInConfig() {
         return plugin.getConfig().getBoolean("settings.enabled", true);
     }
 
     public void handleViolation(Player player, String type, String detail, int vl) {
-        String alert = plugin.getConfig().getString("settings.prefix", "&8[&cRumahKitaAC&8] ") + Text.replace(plugin.getConfig().getString("messages.alert"), "%player%", player.getName(), "%type%", type, "%detail%", detail, "%vl%", String.valueOf(vl));
+        String alert = Text.replace(plugin.getConfig().getString("messages.alert"), "%player%", player.getName(), "%type%", type, "%detail%", detail, "%vl%", String.valueOf(vl));
         if (plugin.getConfig().getBoolean("actions.staff-alerts", true)) {
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.hasPermission(plugin.getConfig().getString("settings.notify-permission", "rumahkita.anticheat.notify"))) continue;
@@ -86,7 +89,7 @@ public final class RumahKitaAntiCheatPlugin
     }
 
     public void handleKick(Player player, String type) {
-        String msg = plugin.getConfig().getString("settings.prefix", "&8[&cRumahKitaAC&8] ") + Text.replace(plugin.getConfig().getString("messages.kicked"), "%player%", player.getName(), "%type%", type);
+        String msg = Text.replace(plugin.getConfig().getString("messages.kicked"), "%player%", player.getName(), "%type%", type);
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (!online.hasPermission(plugin.getConfig().getString("settings.notify-permission", "rumahkita.anticheat.notify"))) continue;
             Text.msg((CommandSender)online, msg);
@@ -95,7 +98,7 @@ public final class RumahKitaAntiCheatPlugin
     }
 
     public void staffAlert(Player player, String type, String detail) {
-        String alert = plugin.getConfig().getString("settings.prefix", "&8[&cRumahKitaAC&8] ") + Text.replace(plugin.getConfig().getString("messages.alert"), "%player%", player.getName(), "%type%", type, "%detail%", detail, "%vl%", "-");
+        String alert = Text.replace(plugin.getConfig().getString("messages.alert"), "%player%", player.getName(), "%type%", type, "%detail%", detail, "%vl%", "-");
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (!online.hasPermission(plugin.getConfig().getString("settings.notify-permission", "rumahkita.anticheat.notify"))) continue;
             Text.msg((CommandSender)online, alert);

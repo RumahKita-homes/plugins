@@ -142,7 +142,7 @@ implements Listener {
             Guild g = this.guildManager.getGuildByTag(ch.challengerTag);
             if (g != null) {
                 g.addBalance(ch.betAmount);
-                this.guildManager.save();
+                this.guildManager.save(g);
             }
         }
     }
@@ -195,7 +195,7 @@ implements Listener {
             return;
         }
         guild.withdrawBalance(bet);
-        this.guildManager.save();
+        this.guildManager.save(guild);
         long expire = System.currentTimeMillis() + (long)this.plugin.getConfig().getInt("guild-war.challenge-expire-seconds", 120) * 1000L;
         Challenge challenge = new Challenge(guild.getTag(), enemy.getTag(), player.getUniqueId(), expire, bet);
         this.challenges.put(enemy.getTag().toUpperCase(Locale.ROOT), challenge);
@@ -245,7 +245,7 @@ implements Listener {
             return;
         }
         guild.withdrawBalance(ch.betAmount);
-        this.guildManager.save();
+        this.guildManager.save(guild);
         
         this.challenges.remove(guild.getTag().toUpperCase(Locale.ROOT));
         this.startCountdown(challenger, guild, ch.betAmount);
@@ -369,15 +369,14 @@ implements Listener {
             Guild winner = this.guildManager.getGuildByTag(winnerTag);
             if (winner != null) {
                 winner.addBalance(bet * 2);
-                this.guildManager.save();
+                this.guildManager.save(winner);
             }
             Bukkit.broadcastMessage((String)Text.color(this.pref() + "&aGuild War ended! Winner: &e" + winnerTag + " &7(" + reason + ") &a+" + this.economyManager.format(bet * 2) + " to Guild Bank."));
         } else {
             Guild g1 = this.guildManager.getGuildByTag(war.guild1);
-            if (g1 != null) g1.addBalance(bet);
+            if (g1 != null) { g1.addBalance(bet); this.guildManager.save(g1); }
             Guild g2 = this.guildManager.getGuildByTag(war.guild2);
-            if (g2 != null) g2.addBalance(bet);
-            this.guildManager.save();
+            if (g2 != null) { g2.addBalance(bet); this.guildManager.save(g2); }
             Bukkit.broadcastMessage((String)Text.color(this.pref() + "&eGuild War ended in a tie! &7(" + reason + ") &fBets refunded."));
         }
         if (this.plugin.getConfig().getBoolean("guild-war.restore-location-after-war", true)) {

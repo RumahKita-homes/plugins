@@ -14,9 +14,9 @@ commands:
   verify:
     description: Generate Discord verification code.
     usage: /verify
-  rkverify:
+  rkdv:
     description: Admin command for Discord Verify.
-    usage: /rkverify <status|reload|check|unverify|forceverify|clearpending|resyncdiscord>
+    usage: /rkdv <status|reload|check|unverify|forceverify|clearpending|resyncdiscord>
 
 permissions:
   rumahkita.verify.admin:

@@ -1,12 +1,12 @@
 settings:
   enabled: true
-  prefix: "&8[&cRumahKitaAC&8] "
+  prefix: ""
   notify-permission: "rumahkita.anticheat.notify"
   admin-permission: "rumahkita.anticheat.admin"
   bypass-permission: "rumahkita.anticheat.bypass"
 
-  # Bypass hanya permission ini.
-  # Jadi default yang tiba-tiba allowFlight/flying tetap kena.
+  # Bypass only these permissions.
+  # So defaults that suddenly allowFlight/flying will still be caught.
   strict-default-no-fly: true
 
 checks:

@@ -75,14 +75,6 @@ TabExecutor {
         this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
         this.loadBans();
         Bukkit.getPluginManager().registerEvents((Listener)this, this.plugin);
-        plugin.getCommand("rksec").setExecutor((CommandExecutor)this);
-        plugin.getCommand("rksec").setTabCompleter((TabCompleter)this);
-        plugin.getCommand("rkban").setExecutor((CommandExecutor)this);
-        plugin.getCommand("rkban").setTabCompleter((TabCompleter)this);
-        plugin.getCommand("rkipban").setExecutor((CommandExecutor)this);
-        plugin.getCommand("rkipban").setTabCompleter((TabCompleter)this);
-        plugin.getCommand("rkunban").setExecutor((CommandExecutor)this);
-        plugin.getCommand("rkunban").setTabCompleter((TabCompleter)this);
         plugin.getLogger().info("RumahKitaSecurityBan v1.0.3 enabled.");
     }
 
@@ -118,7 +110,11 @@ TabExecutor {
             type = "SUBNET";
         }
         if (hit != null) {
-            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, this.denyMessage(type, hit.reason));
+            if (hit.isExpired()) {
+                this.removeBan(hit.value());
+            } else {
+                e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, this.denyMessage(type, hit.reason));
+            }
         }
     }
 
@@ -182,18 +178,29 @@ TabExecutor {
             String path = "bans." + type + "." + key;
             String value = this.data.getString(path + ".value", "").toLowerCase(Locale.ROOT);
             if (value.isBlank()) continue;
-            map.put(value, new BanRecord(type, value, this.data.getString(path + ".reason", "Banned"), this.data.getString(path + ".by", "Console"), this.data.getString(path + ".time", "-")));
+            long expireTime = this.data.getLong(path + ".expireTime", 0L);
+            BanRecord rec = new BanRecord(type, value, this.data.getString(path + ".reason", "Banned"), this.data.getString(path + ".by", "Console"), this.data.getString(path + ".time", "-"), expireTime);
+            if (rec.isExpired()) {
+                this.data.set(path, null);
+                continue;
+            }
+            map.put(value, rec);
         }
     }
 
     private void addBan(String type, String value, String reason, String by) {
+        this.addBan(type, value, reason, by, 0L);
+    }
+
+    private void addBan(String type, String value, String reason, String by, long expireTime) {
         String val = this.normalizeValue(type, value);
         String path = "bans." + type + "." + this.enc(val);
         this.data.set(path + ".value", (Object)val);
         this.data.set(path + ".reason", (Object)reason);
         this.data.set(path + ".by", (Object)by);
         this.data.set(path + ".time", (Object)this.now());
-        BanRecord rec = new BanRecord(type, val, reason, by, this.now());
+        this.data.set(path + ".expireTime", expireTime);
+        BanRecord rec = new BanRecord(type, val, reason, by, this.now(), expireTime);
         if (type.equals("uuid")) {
             this.uuidBans.put(val, rec);
         } else if (type.equals("name")) {
@@ -272,7 +279,7 @@ TabExecutor {
         return existed;
     }
 
-    private void banPlayer(CommandSender sender, String target, String reason) {
+    private void banPlayer(CommandSender sender, String target, String reason, long expireTime) {
         Player online = Bukkit.getPlayerExact((String)target);
         if (online == null) {
             online = Bukkit.getPlayer((String)target);
@@ -296,10 +303,10 @@ TabExecutor {
             uuid = target.matches("[0-9a-fA-F-]{32,36}") ? target : this.findUuidFromHistory(target);
         }
         if (!uuid.isBlank()) {
-            this.addBan("uuid", uuid, reason, this.senderName(sender));
+            this.addBan("uuid", uuid, reason, this.senderName(sender), expireTime);
         }
         if (plugin.getConfig().getBoolean("security.auto-ban-name", true)) {
-            this.addBan("name", name, reason, this.senderName(sender));
+            this.addBan("name", name, reason, this.senderName(sender), expireTime);
         }
         ArrayList<String> ips = new ArrayList<String>();
         if (!ip.isBlank()) {
@@ -311,13 +318,13 @@ TabExecutor {
         if (plugin.getConfig().getBoolean("security.auto-ban-last-ip", true)) {
             for (String one : ips) {
                 if (one == null || one.isBlank()) continue;
-                this.addBan("ip", one, reason, this.senderName(sender));
+                this.addBan("ip", one, reason, this.senderName(sender), expireTime);
             }
         }
         if (plugin.getConfig().getBoolean("security.auto-ban-subnet", true)) {
             for (String one : ips) {
                 if (one == null || one.isBlank()) continue;
-                this.addBan("subnet", this.subnetOf(one), reason, this.senderName(sender));
+                this.addBan("subnet", this.subnetOf(one), reason, this.senderName(sender), expireTime);
             }
         }
         if (online != null && plugin.getConfig().getBoolean("security.kick-online-target", true)) {
@@ -326,13 +333,13 @@ TabExecutor {
         this.Text(sender, this.pref() + plugin.getConfig().getString("messages.banned", "&cTarget successfully hard banned."));
     }
 
-    private void banIp(CommandSender sender, String value, String reason) {
+    private void banIp(CommandSender sender, String value, String reason, long expireTime) {
         if (value.contains("/")) {
-            this.addBan("subnet", value, reason, this.senderName(sender));
+            this.addBan("subnet", value, reason, this.senderName(sender), expireTime);
         } else {
-            this.addBan("ip", value, reason, this.senderName(sender));
+            this.addBan("ip", value, reason, this.senderName(sender), expireTime);
             if (plugin.getConfig().getBoolean("security.auto-ban-subnet", true)) {
-                this.addBan("subnet", this.subnetOf(value), reason, this.senderName(sender));
+                this.addBan("subnet", this.subnetOf(value), reason, this.senderName(sender), expireTime);
             }
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -410,6 +417,66 @@ TabExecutor {
         this.Text(s, "&8&m-----------------------------");
     }
 
+    private void openGui(Player viewer, String q) {
+        String uuid = this.findUuidFromHistory(q);
+        Player p = Bukkit.getPlayerExact((String)q);
+        if (p != null) {
+            uuid = p.getUniqueId().toString();
+        }
+        if (uuid.isBlank()) {
+            this.Text(viewer, this.pref() + plugin.getConfig().getString("messages.player-not-found"));
+            return;
+        }
+        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_RED + "Security: " + q);
+        String path = "history.players." + this.enc(uuid.toLowerCase(Locale.ROOT));
+
+        // UUID item
+        org.bukkit.inventory.ItemStack uuidItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.PLAYER_HEAD);
+        org.bukkit.inventory.meta.ItemMeta uuidMeta = uuidItem.getItemMeta();
+        uuidMeta.setDisplayName(ChatColor.YELLOW + "UUID: " + this.data.getString(path + ".uuid", uuid));
+        List<String> lore = new ArrayList<>();
+        BanRecord rec = this.uuidBans.get(uuid.toLowerCase(Locale.ROOT));
+        if (rec != null) lore.add(ChatColor.RED + "BANNED: " + rec.reason());
+        uuidMeta.setLore(lore);
+        uuidItem.setItemMeta(uuidMeta);
+        inv.setItem(11, uuidItem);
+
+        // Names item
+        org.bukkit.inventory.ItemStack namesItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.NAME_TAG);
+        org.bukkit.inventory.meta.ItemMeta namesMeta = namesItem.getItemMeta();
+        namesMeta.setDisplayName(ChatColor.YELLOW + "Known Names");
+        lore = new ArrayList<>();
+        for (String name : this.data.getStringList(path + ".names")) {
+            BanRecord nr = this.nameBans.get(this.normalizeName(name));
+            lore.add(ChatColor.WHITE + name + (nr != null ? ChatColor.RED + " (BANNED)" : ""));
+        }
+        namesMeta.setLore(lore);
+        namesItem.setItemMeta(namesMeta);
+        inv.setItem(13, namesItem);
+
+        // IPs item
+        org.bukkit.inventory.ItemStack ipsItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.MAP);
+        org.bukkit.inventory.meta.ItemMeta ipsMeta = ipsItem.getItemMeta();
+        ipsMeta.setDisplayName(ChatColor.YELLOW + "Known IPs");
+        lore = new ArrayList<>();
+        for (String ip : this.data.getStringList(path + ".ips")) {
+            BanRecord ir = this.ipBans.get(ip);
+            lore.add(ChatColor.WHITE + ip + (ir != null ? ChatColor.RED + " (BANNED)" : ""));
+        }
+        ipsMeta.setLore(lore);
+        ipsItem.setItemMeta(ipsMeta);
+        inv.setItem(15, ipsItem);
+
+        viewer.openInventory(inv);
+    }
+
+    @EventHandler
+    public void onClick(org.bukkit.event.inventory.InventoryClickEvent e) {
+        if (e.getView().getTitle().startsWith(ChatColor.DARK_RED + "Security: ")) {
+            e.setCancelled(true);
+        }
+    }
+
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("rumahkita.securityban.admin")) {
             this.Text(sender, this.pref() + plugin.getConfig().getString("messages.no-permission"));
@@ -418,25 +485,35 @@ TabExecutor {
         String l = label.toLowerCase(Locale.ROOT);
         if (l.equals("rkban")) {
             if (args.length < 1) {
-                this.Text(sender, "&e/rkban <player> [reason]");
+                this.Text(sender, "&e/rks ban <player> [reason]");
             } else {
-                this.banPlayer(sender, args[0], this.reason(args, 1));
+                this.banPlayer(sender, args[0], this.reason(args, 1), 0L);
             }
             return true;
         }
         if (l.equals("rkipban")) {
             if (args.length < 1) {
-                this.Text(sender, "&e/rkipban <ip|cidr> [reason]");
+                this.Text(sender, "&e/rks ipban <ip|cidr> [reason]");
             } else {
-                this.banIp(sender, args[0], this.reason(args, 1));
+                this.banIp(sender, args[0], this.reason(args, 1), 0L);
             }
             return true;
         }
         if (l.equals("rkunban")) {
             if (args.length < 1) {
-                this.Text(sender, "&e/rkunban <uuid|name|ip|cidr>");
+                this.Text(sender, "&e/rks unban <uuid|name|ip|cidr>");
             } else {
                 this.Text(sender, this.pref() + (this.removeBan(args[0]) ? plugin.getConfig().getString("messages.unbanned") : plugin.getConfig().getString("messages.not-banned")));
+            }
+            return true;
+        }
+        if (l.equals("rktempban")) {
+            if (args.length < 2) {
+                this.Text(sender, "&e/rks tempban <player> <duration> [reason]");
+            } else {
+                long duration = this.parseDuration(args[1]);
+                long expireTime = duration > 0 ? System.currentTimeMillis() + duration : 0;
+                this.banPlayer(sender, args[0], this.reason(args, 2), expireTime);
             }
             return true;
         }
@@ -455,23 +532,33 @@ TabExecutor {
             }
             case "ban": {
                 if (args.length < 2) {
-                    this.Text(sender, "&e/rksec ban <player> [reason]");
+                    this.Text(sender, "&e/rks sec ban <player> [reason]");
                     break;
                 }
-                this.banPlayer(sender, args[1], this.reason(args, 2));
+                this.banPlayer(sender, args[1], this.reason(args, 2), 0L);
+                break;
+            }
+            case "tempban": {
+                if (args.length < 3) {
+                    this.Text(sender, "&e/rks sec tempban <player> <duration> [reason]");
+                    break;
+                }
+                long duration = this.parseDuration(args[2]);
+                long expireTime = duration > 0 ? System.currentTimeMillis() + duration : 0;
+                this.banPlayer(sender, args[1], this.reason(args, 3), expireTime);
                 break;
             }
             case "banip": {
                 if (args.length < 2) {
-                    this.Text(sender, "&e/rksec banip <ip|cidr> [reason]");
+                    this.Text(sender, "&e/rks sec banip <ip|cidr> [reason]");
                     break;
                 }
-                this.banIp(sender, args[1], this.reason(args, 2));
+                this.banIp(sender, args[1], this.reason(args, 2), 0L);
                 break;
             }
             case "unban": {
                 if (args.length < 2) {
-                    this.Text(sender, "&e/rksec unban <target>");
+                    this.Text(sender, "&e/rks sec unban <target>");
                     break;
                 }
                 this.Text(sender, this.pref() + (this.removeBan(args[1]) ? plugin.getConfig().getString("messages.unbanned") : plugin.getConfig().getString("messages.not-banned")));
@@ -479,15 +566,27 @@ TabExecutor {
             }
             case "check": {
                 if (args.length < 2) {
-                    this.Text(sender, "&e/rksec check <target>");
+                    this.Text(sender, "&e/rks sec check <target>");
                     break;
                 }
                 this.check(sender, args[1]);
                 break;
             }
+            case "gui": {
+                if (args.length < 2) {
+                    this.Text(sender, "&e/rks sec gui <target>");
+                    break;
+                }
+                if (sender instanceof Player) {
+                    this.openGui((Player)sender, args[1]);
+                } else {
+                    this.Text(sender, "&cMust be a player.");
+                }
+                break;
+            }
             case "history": {
                 if (args.length < 2) {
-                    this.Text(sender, "&e/rksec history <player>");
+                    this.Text(sender, "&e/rks sec history <player>");
                     break;
                 }
                 this.history(sender, args[1]);
@@ -507,13 +606,13 @@ TabExecutor {
     private void help(CommandSender s) {
         this.Text(s, "&8&m-----------------------------");
         this.Text(s, "&cRumahKitaSecurityBan");
-        this.Text(s, "&e/rkban <player> [reason]");
-        this.Text(s, "&e/rkipban <ip|cidr> [reason]");
-        this.Text(s, "&e/rkunban <uuid|name|ip|cidr>");
-        this.Text(s, "&e/rksec check <target>");
-        this.Text(s, "&e/rksec history <player>");
-        this.Text(s, "&e/rksec list");
-        this.Text(s, "&e/rksec reload");
+        this.Text(s, "&e/rks ban <player> [reason]");
+        this.Text(s, "&e/rks ipban <ip|cidr> [reason]");
+        this.Text(s, "&e/rks unban <uuid|name|ip|cidr>");
+        this.Text(s, "&e/rks sec check <target>");
+        this.Text(s, "&e/rks sec history <player>");
+        this.Text(s, "&e/rks sec list");
+        this.Text(s, "&e/rks sec reload");
         this.Text(s, "&8&m-----------------------------");
     }
 
@@ -608,6 +707,31 @@ TabExecutor {
         return "";
     }
 
+    private long parseDuration(String s) {
+        if (s == null || s.isBlank()) return 0L;
+        long totalMillis = 0;
+        StringBuilder numStr = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isDigit(c)) {
+                numStr.append(c);
+            } else {
+                if (numStr.length() > 0) {
+                    long val = Long.parseLong(numStr.toString());
+                    numStr.setLength(0);
+                    switch (c) {
+                        case 's': totalMillis += val * 1000L; break;
+                        case 'm': totalMillis += val * 60000L; break;
+                        case 'h': totalMillis += val * 3600000L; break;
+                        case 'd': totalMillis += val * 86400000L; break;
+                        case 'w': totalMillis += val * 604800000L; break;
+                    }
+                }
+            }
+        }
+        return totalMillis;
+    }
+
     private List<String> findIpsFromHistory(String uuid) {
         if (uuid == null || uuid.isBlank()) {
             return List.of();
@@ -616,18 +740,20 @@ TabExecutor {
     }
 
     private void saveData() {
-        try {
-            if (this.data != null && this.dataFile != null) {
-                this.data.save(this.dataFile);
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously((org.bukkit.plugin.Plugin)plugin, () -> {
+            try {
+                if (this.data != null && this.dataFile != null) {
+                    this.data.save(this.dataFile);
+                }
             }
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
-        }
+            catch (Exception e) {
+                plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
+            }
+        });
     }
 
-    private String pref() {
-        return plugin.getConfig().getString("messages.prefix", "");
+    public String pref() {
+        return "";
     }
 
     private String color(String s) {
@@ -687,7 +813,10 @@ TabExecutor {
         }
     }
 
-    private record BanRecord(String type, String value, String reason, String by, String time) {
+    private record BanRecord(String type, String value, String reason, String by, String time, long expireTime) {
+        public boolean isExpired() {
+            return expireTime > 0 && System.currentTimeMillis() > expireTime;
+        }
     }
 }
 

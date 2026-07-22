@@ -418,8 +418,7 @@ implements TabExecutor {
             return;
         }
         
-        int slots = vaultLvl * 9;
-        org.bukkit.inventory.Inventory inv = guild.getVaultInventory(slots, Text.color("&8" + guild.getName() + " Vault"));
+        org.bukkit.inventory.Inventory inv = guild.getVaultInventory(1);
         
         player.openInventory(inv);
         Text.msg(sender, "&aOpened Guild Vault.");
@@ -543,7 +542,7 @@ implements TabExecutor {
                 return;
             }
             guild.setRole(targetUuid, GuildRole.ADMIN);
-            this.guildManager.save();
+            this.guildManager.save(guild);
             Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "promoted"), "%player%", this.guildManager.getOfflineName(targetUuid)));
         } else {
             if (guild.getRole(targetUuid) != GuildRole.ADMIN) {
@@ -551,7 +550,7 @@ implements TabExecutor {
                 return;
             }
             guild.setRole(targetUuid, GuildRole.MEMBER);
-            this.guildManager.save();
+            this.guildManager.save(guild);
             Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "demoted"), "%player%", this.guildManager.getOfflineName(targetUuid)));
         }
     }
@@ -601,7 +600,7 @@ implements TabExecutor {
         guild.setRole(targetUuid, GuildRole.LEADER);
         guild.addLog(player.getName() + " transferred leadership to " + this.guildManager.getOfflineName(targetUuid) + ".");
         guild.setRole(player.getUniqueId(), GuildRole.ADMIN);
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, Text.replace(Text.prefixed(this.plugin, "transfer-done"), "%player%", this.guildManager.getOfflineName(targetUuid)));
     }
 
@@ -674,7 +673,7 @@ implements TabExecutor {
             return;
         }
         guild.setHome(player.getLocation());
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, Text.prefixed(this.plugin, "home-set"));
     }
 
@@ -706,7 +705,7 @@ implements TabExecutor {
             return;
         }
         guild.setHome(null);
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, Text.prefixed(this.plugin, "home-deleted"));
     }
 
@@ -737,7 +736,7 @@ implements TabExecutor {
         this.economyManager.withdraw((org.bukkit.OfflinePlayer)player, amount);
         guild.addBalance(amount);
         guild.addLog(player.getName() + " deposited $" + this.economyManager.format(amount));
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, "&aYou deposited &e" + this.economyManager.format(amount) + " &ainto the guild bank.");
     }
 
@@ -768,7 +767,7 @@ implements TabExecutor {
         guild.withdrawBalance(amount);
         this.economyManager.deposit((org.bukkit.OfflinePlayer)player, amount);
         guild.addLog(player.getName() + " withdrew $" + this.economyManager.format(amount));
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, "&aYou withdrew &e" + this.economyManager.format(amount) + " &afrom the guild bank.");
     }
 
@@ -779,7 +778,7 @@ implements TabExecutor {
         if (guild == null) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "not-in-guild")); return; }
         if (!guild.getRole(player.getUniqueId()).atLeast(GuildRole.ADMIN)) { Text.msg((CommandSender)player, Text.prefixed(this.plugin, "no-permission")); return; }
         guild.setFriendlyFire(!guild.isFriendlyFire());
-        this.guildManager.save();
+        this.guildManager.save(guild);
         Text.msg((CommandSender)player, "&aGuild and Ally Friendly Fire is now " + (guild.isFriendlyFire() ? "&eON" : "&cOFF") + "&a.");
     }
     
@@ -831,7 +830,7 @@ implements TabExecutor {
             
             guild.addAlly(target.getTag());
             target.addAlly(guild.getTag());
-            this.guildManager.save();
+            this.guildManager.save(guild);
             allyRequests.remove(key);
             
             Bukkit.broadcastMessage((String)Text.color(this.plugin.getConfig().getString("settings.prefix", "&8[&bRumahKitaGuilds&8] ") + "&dGuild &f" + guild.getName() + " &dand &f" + target.getName() + " &dare now ALLIES!"));
@@ -874,7 +873,7 @@ implements TabExecutor {
         
         guild.removeAlly(target.getTag());
         target.removeAlly(guild.getTag());
-        this.guildManager.save();
+        this.guildManager.save(guild);
         
         Bukkit.broadcastMessage((String)Text.color(this.plugin.getConfig().getString("settings.prefix", "&8[&bRumahKitaGuilds&8] ") + "&cGuild &f" + guild.getName() + " &cand &f" + target.getName() + " &care no longer allies."));
     }

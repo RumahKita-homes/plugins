@@ -340,7 +340,7 @@ public class DatabaseManager {
                 stmtGuild.setInt(14, guild.getVaultLevel());
                 stmtGuild.setInt(15, guild.getMemberLevel());
                 stmtGuild.setBoolean(16, guild.isFriendlyFire());
-                stmtGuild.setString(17, itemStackArrayToBase64(guild.getVaultInventory(guild.getVaultLevel() * 9, "").getContents()));
+                stmtGuild.setString(17, itemStackArrayToBase64(guild.getVaultItems()));
                 stmtGuild.setString(18, String.join(";;", guild.getLogs()));
                 stmtGuild.setString(19, String.join(",", guild.getAllies()));
 
@@ -368,7 +368,7 @@ public class DatabaseManager {
                 stmtGuild.setInt(31, guild.getVaultLevel());
                 stmtGuild.setInt(32, guild.getMemberLevel());
                 stmtGuild.setBoolean(33, guild.isFriendlyFire());
-                stmtGuild.setString(34, itemStackArrayToBase64(guild.getVaultInventory(guild.getVaultLevel() * 9, "").getContents()));
+                stmtGuild.setString(34, itemStackArrayToBase64(guild.getVaultItems()));
                 stmtGuild.setString(35, String.join(";;", guild.getLogs()));
                 stmtGuild.setString(36, String.join(",", guild.getAllies()));
 
@@ -429,18 +429,19 @@ public class DatabaseManager {
     }
 
     public static ItemStack[] itemStackArrayFromBase64(String data) {
-        if (data == null || data.isEmpty()) return new ItemStack[54];
+        if (data == null || data.isEmpty()) return new ItemStack[108];
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            ItemStack[] items = new ItemStack[dataInput.readInt()];
-            for (int i = 0; i < items.length; i++) {
+            int length = dataInput.readInt();
+            ItemStack[] items = new ItemStack[108];
+            for (int i = 0; i < length && i < 108; i++) {
                 items[i] = (ItemStack) dataInput.readObject();
             }
             dataInput.close();
             return items;
         } catch (Exception e) {
-            return new ItemStack[54];
+            return new ItemStack[108];
         }
     }
 }

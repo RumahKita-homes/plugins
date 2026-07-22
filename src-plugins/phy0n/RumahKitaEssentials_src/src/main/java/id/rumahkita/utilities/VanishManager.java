@@ -89,12 +89,14 @@ TabExecutor {
     public void saveData() {
         List ids = this.vanished.stream().map(UUID::toString).sorted().collect(Collectors.toList());
         this.data.set("vanished", ids);
-        try {
-            this.data.save(this.file);
-        }
-        catch (Exception e) {
-            this.plugin.getLogger().warning("Failed to save vanish.yml: " + e.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin.getPlugin(), () -> {
+            try {
+                this.data.save(this.file);
+            }
+            catch (Exception e) {
+                this.plugin.getLogger().warning("Failed to save vanish.yml: " + e.getMessage());
+            }
+        });
     }
 
     public boolean isVanished(UUID uuid) {

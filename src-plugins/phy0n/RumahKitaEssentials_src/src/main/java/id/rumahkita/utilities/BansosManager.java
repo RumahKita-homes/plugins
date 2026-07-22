@@ -60,12 +60,13 @@ implements TabExecutor {
     }
 
     public void saveData() {
-        try {
-            this.data.save(this.dataFile);
-        }
-        catch (Exception e) {
-            this.plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin.getPlugin(), () -> {
+            try {
+                this.data.save(this.dataFile);
+            } catch (Exception e) {
+                this.plugin.getLogger().warning("Failed to save data.yml: " + e.getMessage());
+            }
+        });
     }
 
     public void startScheduler() {

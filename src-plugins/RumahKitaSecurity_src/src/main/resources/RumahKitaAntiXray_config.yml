@@ -92,7 +92,7 @@ logs:
   save-data-every-minutes: 5
 
 messages:
-  prefix: "&8[&bAntiXray&8] "
+  prefix: ""
   no-permission: "&cYou don't have permission."
   reloaded: "&aAntiXray successfully reloaded."
   reset: "&aRisk player successfully reset."

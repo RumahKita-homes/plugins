@@ -92,7 +92,7 @@ implements Listener,
 TabExecutor {
     private final SecureRandom random = new SecureRandom();
     private final HttpClient http = HttpClient.newHttpClient();
-    private final Map<UUID, PendingVerify> pendingByUuid = new ConcurrentHashMap<UUID, PendingVerify>();
+    public final Map<UUID, PendingVerify> pendingByUuid = new ConcurrentHashMap<UUID, PendingVerify>();
     private final Map<String, UUID> pendingByCode = new ConcurrentHashMap<String, UUID>();
     private final Set<String> processedDiscordMessages = ConcurrentHashMap.newKeySet();
     private final Map<UUID, Long> reminderCooldown = new HashMap<UUID, Long>();
@@ -100,6 +100,7 @@ TabExecutor {
     private YamlConfiguration data;
     private int pollTask = -1;
     private static final Pattern FIVE_DIGITS = Pattern.compile("(?<!\\d)(\\d{5})(?!\\d)");
+    private RkdvGuiManager guiManager;
 
     public void onEnable() {
         this.saveDefaultConfig();
@@ -108,11 +109,13 @@ TabExecutor {
         this.data = YamlConfiguration.loadConfiguration((File)this.dataFile);
         this.loadPending();
         this.loadProcessedMessages();
+        this.guiManager = new RkdvGuiManager(this);
+        Bukkit.getPluginManager().registerEvents(this.guiManager, (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
         this.getCommand("verify").setExecutor((CommandExecutor)this);
         this.getCommand("verify").setTabCompleter((TabCompleter)this);
-        this.getCommand("rkverify").setExecutor((CommandExecutor)this);
-        this.getCommand("rkverify").setTabCompleter((TabCompleter)this);
+        this.getCommand("rkdv").setExecutor((CommandExecutor)this);
+        this.getCommand("rkdv").setTabCompleter((TabCompleter)this);
         if (this.getConfig().getBoolean("discord.enabled", true)) {
             if (this.getConfig().getBoolean("discord.ignore-old-messages-on-startup", true)) {
                 Bukkit.getScheduler().runTaskLaterAsynchronously((Plugin)this, this::primeDiscordMessages, 40L);
@@ -1012,6 +1015,12 @@ TabExecutor {
             this.msg(sender, this.pref() + this.getConfig().getString("messages.no-permission", "&cYou do not have permission."));
             return true;
         }
+        if (args.length == 0) {
+            if (sender instanceof Player) {
+                guiManager.open((Player) sender);
+                return true;
+            }
+        }
         if (args.length == 0 || args[0].equalsIgnoreCase("status")) {
             this.msg(sender, this.pref() + "&7Enabled: &f" + this.getConfig().getBoolean("enabled", true));
             this.msg(sender, this.pref() + "&7Verified: &f" + this.countSection("verified"));
@@ -1032,7 +1041,7 @@ TabExecutor {
             }
             case "check": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkverify check <player>");
+                    this.msg(sender, "&e/rkdv check <player>");
                     return true;
                 }
                 this.checkPlayer(sender, args[1]);
@@ -1040,7 +1049,7 @@ TabExecutor {
             }
             case "unverify": {
                 if (args.length < 2) {
-                    this.msg(sender, "&e/rkverify unverify <player>");
+                    this.msg(sender, "&e/rkdv unverify <player>");
                     return true;
                 }
                 UUID uuid = this.findUuid(args[1]);
@@ -1059,7 +1068,7 @@ TabExecutor {
             }
             case "forceverify": {
                 if (args.length < 3) {
-                    this.msg(sender, "&e/rkverify forceverify <player> <discordId>");
+                    this.msg(sender, "&e/rkdv forceverify <player> <discordId>");
                     return true;
                 }
                 Player p = Bukkit.getPlayerExact((String)args[1]);
@@ -1095,7 +1104,7 @@ TabExecutor {
         return true;
     }
 
-    private int countSection(String path) {
+    public int countSection(String path) {
         ConfigurationSection sec = this.data.getConfigurationSection(path);
         return sec == null ? 0 : sec.getKeys(false).size();
     }
@@ -1156,13 +1165,13 @@ TabExecutor {
         this.msg(sender, "&8&m-----------------------------");
         this.msg(sender, "&bRumahKitaDiscordVerify");
         this.msg(sender, "&e/verify");
-        this.msg(sender, "&e/rkverify status");
-        this.msg(sender, "&e/rkverify reload");
-        this.msg(sender, "&e/rkverify check <player>");
-        this.msg(sender, "&e/rkverify unverify <player>");
-        this.msg(sender, "&e/rkverify forceverify <player> <discordId>");
-        this.msg(sender, "&e/rkverify clearpending");
-        this.msg(sender, "&e/rkverify resyncdiscord");
+        this.msg(sender, "&e/rkdv status");
+        this.msg(sender, "&e/rkdv reload");
+        this.msg(sender, "&e/rkdv check <player>");
+        this.msg(sender, "&e/rkdv unverify <player>");
+        this.msg(sender, "&e/rkdv forceverify <player> <discordId>");
+        this.msg(sender, "&e/rkdv clearpending");
+        this.msg(sender, "&e/rkdv resyncdiscord");
         this.msg(sender, "&8&m-----------------------------");
     }
 

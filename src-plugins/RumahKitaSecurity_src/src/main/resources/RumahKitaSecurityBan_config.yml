@@ -21,17 +21,17 @@ history:
   max-names-per-player: 10
 
 messages:
-  prefix: "&8[&cSecurityBan&8] "
+  prefix: ""
   no-permission: "&cYou don't have permission."
   reloaded: "&aSecurityBan reloaded successfully."
-  player-not-found: "&cPlayer tidak ditemukan di online/history."
+  player-not-found: "&cPlayer not found in online/history."
   banned: "&cTarget successfully hard-banned."
   ip-banned: "&cIP/Subnet successfully banned."
   unbanned: "&aBan data successfully deleted."
-  not-banned: "&eData itu tidak ditemukan di ban list."
+  not-banned: "&eTarget is not banned."
   deny-message:
     - "&cYou are blocked from RumahKita S2."
-    - "&7Alasan: &f%reason%"
-    - "&7Tipe: &f%type%"
+    - "&7Reason: &f%reason%"
+    - "&7Type: &f%type%"
     - ""
-    - "&eKalau merasa ini salah, hubungi staff RumahKita."
+    - "&eIf you think this is a mistake, contact staff."

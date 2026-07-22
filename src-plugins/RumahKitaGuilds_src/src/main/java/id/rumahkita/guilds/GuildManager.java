@@ -102,6 +102,19 @@ public final class GuildManager {
         }
     }
 
+    public void save(Guild guild) {
+        if (!this.plugin.getDataFolder().exists()) {
+            this.plugin.getDataFolder().mkdirs();
+        }
+        
+        if (dbManager.isEnabled()) {
+            dbManager.saveGuildAsync(guild);
+            return;
+        }
+        
+        save(); // For YAML, it's safer to save all since it writes to one file, but we will make it async.
+    }
+
     public void save() {
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
@@ -111,20 +124,22 @@ public final class GuildManager {
             for (Guild guild : this.guildsByTag.values()) {
                 dbManager.saveGuildAsync(guild);
             }
-            return; // We skip YAML saving if MySQL is enabled to prevent I/O blocking
+            return;
         }
         
-        YamlConfiguration data = new YamlConfiguration();
-        ConfigurationSection guildsSection = data.createSection("guilds");
-        for (Guild guild : this.guildsByTag.values()) {
-            guild.saveTo(guildsSection.createSection(this.normalizeTag(guild.getTag()).toLowerCase(Locale.ROOT)));
-        }
-        try {
-            data.save(this.dataFile);
-        }
-        catch (IOException ex) {
-            this.plugin.getLogger().severe("Could not save guilds.yml: " + ex.getMessage());
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            org.bukkit.configuration.file.YamlConfiguration data = new org.bukkit.configuration.file.YamlConfiguration();
+            org.bukkit.configuration.ConfigurationSection guildsSection = data.createSection("guilds");
+            for (Guild guild : this.guildsByTag.values()) {
+                guild.saveTo(guildsSection.createSection(this.normalizeTag(guild.getTag()).toLowerCase(java.util.Locale.ROOT)));
+            }
+            try {
+                data.save(this.dataFile);
+            }
+            catch (java.io.IOException ex) {
+                this.plugin.getLogger().severe("Could not save guilds.yml: " + ex.getMessage());
+            }
+        });
     }
 
     public Guild getGuildByTag(String tag) {

@@ -26,6 +26,25 @@ public class AdminDashboardGui implements Listener {
     private final Map<UUID, Integer> browserPages = new HashMap<>();
     private final Map<UUID, Guild> viewingDetails = new HashMap<>();
 
+    public enum PendingAdminAction {
+        FORCE_DISBAND,
+        UNCLAIM
+    }
+
+    public static class PendingActionRequest {
+        public final PendingAdminAction action;
+        public final Guild guild;
+        public final long timestamp;
+
+        public PendingActionRequest(PendingAdminAction action, Guild guild) {
+            this.action = action;
+            this.guild = guild;
+            this.timestamp = System.currentTimeMillis();
+        }
+    }
+
+    private final Map<UUID, PendingActionRequest> pendingActions = new HashMap<>();
+
     public AdminDashboardGui(RumahKitaGuildsPlugin plugin, GuildManager guildManager, GuildConfigGui configGui) {
         this.plugin = plugin;
         this.guildManager = guildManager;
@@ -83,40 +102,43 @@ public class AdminDashboardGui implements Listener {
 
     public void openDetails(Player player, Guild guild) {
         String cleanTag = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', guild.getTag()));
-        Inventory inv = Bukkit.createInventory(null, 27, DETAILS_TITLE + cleanTag);
+        Inventory inv = Bukkit.createInventory(null, 54, DETAILS_TITLE + cleanTag);
         viewingDetails.put(player.getUniqueId(), guild);
         
         fillBorder(inv);
         
-        inv.setItem(10, createItem(Material.PAPER, "&bGeneral Information", 
+        inv.setItem(13, createItem(Material.PAPER, "&bGeneral Information", 
             "&7Nama: &f" + guild.getName(),
             "&7Leader: &f" + guildManager.getOfflineName(guild.getLeader()),
             "&7Total Member: &f" + guild.size(),
             "&7Balance: &a" + plugin.getEconomyManager().format(guild.getBalance())
         ));
         
-        inv.setItem(12, createItem(Material.GOLD_INGOT, "&eManajemen Kas (Bank)", 
+        inv.setItem(22, createItem(Material.GOLD_INGOT, "&eManajemen Kas (Bank)", 
             "&7Klik Kiri: &aForce Deposit (+1000)",
             "&7Klik Kanan: &cForce Withdraw (-1000)"
         ));
         
-        inv.setItem(14, createItem(Material.PLAYER_HEAD, "&aDaftar Member", "&7(Click to view all members)"));
+        inv.setItem(20, createItem(Material.PLAYER_HEAD, "&aDaftar Member", "&7(Click to view all members)"));
         
-        inv.setItem(16, createItem(Material.BOOK, "&dActivity Logs", "&7(Click to print the 10", "&7latest guild logs in chat)"));
+        inv.setItem(24, createItem(Material.BOOK, "&dActivity Logs", "&7(Click to print the 10", "&7latest guild logs in chat)"));
         
-        inv.setItem(19, createItem(Material.WOODEN_AXE, "&aSet Pos 1", "&7Set Pos 1 to your location", "&7currently."));
-        inv.setItem(20, createItem(Material.WOODEN_AXE, "&aSet Pos 2", "&7Set Pos 2 to your location", "&7currently."));
-        inv.setItem(21, createItem(Material.GRASS_BLOCK, "&eAdmin Claim", "&7Claim area from Pos 1 to Pos 2", "&7for this guild."));
+        inv.setItem(29, createItem(Material.WOODEN_AXE, "&aSet Pos 1", "&7Set Pos 1 to your location", "&7currently."));
+        inv.setItem(31, createItem(Material.WOODEN_AXE, "&aSet Pos 2", "&7Set Pos 2 to your location", "&7currently."));
+        inv.setItem(33, createItem(Material.GRASS_BLOCK, "&eAdmin Claim", "&7Claim area from Pos 1 to Pos 2", "&7for this guild."));
+        inv.setItem(35, createItem(Material.WOODEN_HOE, "&cAdmin Unclaim", "&7Unclaims the chunk you are", "&7currently standing on."));
         
-        inv.setItem(24, createItem(Material.TNT, "&c&lFORCE DISBAND", "&7Forcefully disband this guild!"));
+        inv.setItem(38, createItem(Material.ENDER_PEARL, "&dTeleport to Guild", "&7Teleports you to the guild's", "&7home or claimed area."));
         
-        inv.setItem(26, createItem(Material.ARROW, "&cBack to Browser"));
+        inv.setItem(40, createItem(Material.TNT, "&c&lFORCE DISBAND", "&7Forcefully disband this guild!"));
+        
+        inv.setItem(49, createItem(Material.ARROW, "&cBack to Browser"));
         
         player.openInventory(inv);
     }
 
     private void fillBorder(Inventory inv) {
-        ItemStack pane = createItem(Material.GRAY_STAINED_GLASS_PANE, " ");
+        ItemStack pane = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
                 inv.setItem(i, pane);
@@ -183,9 +205,9 @@ public class AdminDashboardGui implements Listener {
             }
             
             int slot = event.getSlot();
-            if (slot == 26) {
+            if (slot == 49) {
                 openBrowser(player, browserPages.getOrDefault(player.getUniqueId(), 0));
-            } else if (slot == 12) {
+            } else if (slot == 22) {
                 if (event.isLeftClick()) {
                     guild.addBalance(1000);
                     player.sendMessage(ChatColor.GREEN + "Successfully deposited 1000 to " + guild.getName());
@@ -198,7 +220,7 @@ public class AdminDashboardGui implements Listener {
                     }
                 }
                 openDetails(player, guild);
-            } else if (slot == 16) {
+            } else if (slot == 24) {
                 player.closeInventory();
                 player.sendMessage(ChatColor.GOLD + "=== Activity Log: " + guild.getName() + " ===");
                 List<String> logs = guild.getLogs();
@@ -210,18 +232,46 @@ public class AdminDashboardGui implements Listener {
                         player.sendMessage(ChatColor.GRAY + "" + ChatColor.WHITE + logs.get(i));
                     }
                 }
-            } else if (slot == 19) {
+            } else if (slot == 29) {
                 player.performCommand("rkg pos1");
-            } else if (slot == 20) {
+            } else if (slot == 31) {
                 player.performCommand("rkg pos2");
-            } else if (slot == 21) {
+            } else if (slot == 33) {
                 String cleanTag = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', guild.getTag()));
                 player.performCommand("rkg claim " + cleanTag);
-            } else if (slot == 24) {
+            } else if (slot == 38) {
                 player.closeInventory();
-                Bukkit.dispatchCommand(player, "rkg disband " + guild.getTag() + " confirm");
-                player.sendMessage(ChatColor.RED + "Guild successfully disbanded.");
-            } else if (slot == 14) {
+                if (guild.getHome() != null) {
+                    player.teleport(guild.getHome());
+                    player.sendMessage(ChatColor.GREEN + "Teleported to the guild's home.");
+                } else if (!guild.getClaimedChunks().isEmpty()) {
+                    String chunkKey = guild.getClaimedChunks().iterator().next();
+                    String[] parts = chunkKey.split(";");
+                    org.bukkit.World world = Bukkit.getWorld(parts[0]);
+                    if (world != null) {
+                        int cx = Integer.parseInt(parts[1]);
+                        int cz = Integer.parseInt(parts[2]);
+                        org.bukkit.Location loc = new org.bukkit.Location(world, cx * 16 + 8, 100, cz * 16 + 8);
+                        loc.setY(world.getHighestBlockYAt(loc) + 1);
+                        player.teleport(loc);
+                        player.sendMessage(ChatColor.GREEN + "Teleported to the guild's claimed area.");
+                    } else {
+                        player.sendMessage(ChatColor.RED + "World not found for the claim.");
+                    }
+                } else {
+                    player.sendMessage(ChatColor.RED + "Guild ini belum memiliki area yang di-claim ataupun home.");
+                }
+            } else if (slot == 35) {
+                player.closeInventory();
+                pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.UNCLAIM, guild));
+                player.sendMessage(ChatColor.YELLOW + "Apakah Anda yakin ingin melakukan UNCLAIM pada area (chunk) guild ini?");
+                player.sendMessage(ChatColor.YELLOW + "Ketik " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " untuk konfirmasi, atau " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " untuk membatalkan.");
+            } else if (slot == 40) {
+                player.closeInventory();
+                pendingActions.put(player.getUniqueId(), new PendingActionRequest(PendingAdminAction.FORCE_DISBAND, guild));
+                player.sendMessage(ChatColor.RED + "Apakah Anda yakin ingin secara PAKSA MEMBUBARKAN guild " + guild.getName() + "?");
+                player.sendMessage(ChatColor.YELLOW + "Ketik " + ChatColor.GREEN + "'Yes'" + ChatColor.YELLOW + " untuk konfirmasi, atau " + ChatColor.RED + "'Cancel'" + ChatColor.YELLOW + " untuk membatalkan.");
+            } else if (slot == 20) {
                 player.closeInventory();
                 player.sendMessage(ChatColor.AQUA + "=== Members " + guild.getName() + " ===");
                 for (Map.Entry<UUID, GuildRole> entry : guild.getMembers().entrySet()) {
@@ -229,6 +279,38 @@ public class AdminDashboardGui implements Listener {
                     player.sendMessage(ChatColor.GRAY + "- " + ChatColor.WHITE + op.getName() + ChatColor.YELLOW + " (" + entry.getValue().name() + ")");
                 }
                 player.sendMessage(ChatColor.GREEN + "To manage specific members, use the /rkg members command");
+            }
+        }
+    }
+    @EventHandler
+    public void onChat(org.bukkit.event.player.AsyncPlayerChatEvent event) {
+        Player player = event.getPlayer();
+        PendingActionRequest req = pendingActions.get(player.getUniqueId());
+        if (req != null) {
+            event.setCancelled(true);
+            if (System.currentTimeMillis() - req.timestamp > 60000) {
+                pendingActions.remove(player.getUniqueId());
+                player.sendMessage(ChatColor.RED + "Permintaan verifikasi kedaluwarsa.");
+                return;
+            }
+
+            String message = event.getMessage().trim().toLowerCase();
+            if (message.equals("yes") || message.equals("confirm") || message.equals("ya") || message.equals("y")) {
+                pendingActions.remove(player.getUniqueId());
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (req.action == PendingAdminAction.FORCE_DISBAND) {
+                        Bukkit.dispatchCommand(player, "rkg disband " + req.guild.getTag() + " confirm");
+                        player.sendMessage(ChatColor.RED + "Guild " + req.guild.getName() + " berhasil dibubarkan.");
+                    } else if (req.action == PendingAdminAction.UNCLAIM) {
+                        String cleanTag = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', req.guild.getTag()));
+                        Bukkit.dispatchCommand(player, "rkg unclaim " + cleanTag);
+                    }
+                });
+            } else if (message.equals("no") || message.equals("cancel") || message.equals("tidak") || message.equals("n")) {
+                pendingActions.remove(player.getUniqueId());
+                player.sendMessage(ChatColor.YELLOW + "Aksi dibatalkan.");
+            } else {
+                player.sendMessage(ChatColor.RED + "Ketik 'Yes' untuk mengonfirmasi, atau 'Cancel' untuk membatalkan.");
             }
         }
     }

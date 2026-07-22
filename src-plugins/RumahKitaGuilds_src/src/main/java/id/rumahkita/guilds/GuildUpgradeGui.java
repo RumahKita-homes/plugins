@@ -160,7 +160,7 @@ public class GuildUpgradeGui implements Listener {
                 return;
             }
             guild.setVaultLevel(nextLevel);
-            guildManager.save();
+            guildManager.save(guild);
             
             player.sendMessage(ChatColor.GREEN + "Successfully upgraded Guild Vault to Level " + nextLevel + "!");
             open(player, guild); 
@@ -185,7 +185,7 @@ public class GuildUpgradeGui implements Listener {
                 return;
             }
             guild.setMemberLevel(nextLevel);
-            guildManager.save();
+            guildManager.save(guild);
             
             player.sendMessage(ChatColor.GREEN + "Successfully upgraded Max Members to Level " + nextLevel + "!");
             open(player, guild);

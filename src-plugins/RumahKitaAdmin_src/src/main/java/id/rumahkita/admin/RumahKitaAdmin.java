@@ -65,6 +65,8 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
     private final Set<UUID> jailedPlayers = new HashSet<>();
     private final Map<UUID, org.bukkit.permissions.PermissionAttachment> vanishPerms = new HashMap<>();
     private final Map<UUID, Location> spectateLocations = new HashMap<>();
+    private final Map<UUID, Boolean> adminSpectate = new HashMap<>();
+    private id.rumahkita.admin.gui.AdminGuiManager guiManager;
     private final Map<UUID, GameMode> spectateGameModes = new HashMap<>();
     
     private boolean maintenanceMode = false;
@@ -91,6 +93,8 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
             getCommand("sc").setExecutor(this);
         }
         getServer().getPluginManager().registerEvents(this, this);
+        guiManager = new id.rumahkita.admin.gui.AdminGuiManager(this);
+        getServer().getPluginManager().registerEvents(guiManager, this);
         createDataConfig();
         loadJailData();
         
@@ -186,6 +190,10 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         }
 
         if (args.length == 0) {
+            if (sender instanceof org.bukkit.entity.Player) {
+                guiManager.openMainMenu((org.bukkit.entity.Player) sender);
+                return true;
+            }
             sender.sendMessage(ChatColor.RED + "Type /rka help for help.");
             return true;
         }

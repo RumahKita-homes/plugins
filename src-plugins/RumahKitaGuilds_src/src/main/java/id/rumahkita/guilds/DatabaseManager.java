@@ -179,6 +179,18 @@ public class DatabaseManager {
                     try { guild.setFriendlyFire(rsGuilds.getBoolean("friendly_fire")); } catch (Exception ignored) { guild.setFriendlyFire(false); }
                     
                     try {
+                        String hw = rsGuilds.getString("home_world");
+                        if (hw != null && !hw.isEmpty() && org.bukkit.Bukkit.getWorld(hw) != null) {
+                            double hx = rsGuilds.getDouble("home_x");
+                            double hy = rsGuilds.getDouble("home_y");
+                            double hz = rsGuilds.getDouble("home_z");
+                            float hyaw = rsGuilds.getFloat("home_yaw");
+                            float hpitch = rsGuilds.getFloat("home_pitch");
+                            guild.setHome(new Location(org.bukkit.Bukkit.getWorld(hw), hx, hy, hz, hyaw, hpitch));
+                        }
+                    } catch (Exception ignored) {}
+                    
+                    try {
                         String vaultRaw = rsGuilds.getString("vault_items");
                         if (vaultRaw != null && !vaultRaw.isEmpty()) {
                             guild.setVaultItems(itemStackArrayFromBase64(vaultRaw));

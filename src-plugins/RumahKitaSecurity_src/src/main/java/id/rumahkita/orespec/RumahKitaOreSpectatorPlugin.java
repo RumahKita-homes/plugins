@@ -185,7 +185,6 @@ TabExecutor {
             ++count;
         }
         
-        // Highlight Suspects
         if (plugin.getAntiXray() != null) {
             int suspectThreshold = plugin.getConfig().getInt("risk.alert-score", 60);
             for (Player suspect : player.getWorld().getPlayers()) {
@@ -285,7 +284,6 @@ TabExecutor {
                 td.setGravity(false);
                 td.setSilent(true);
             });
-            // Make the text display ride the suspect so it moves with them
             suspect.addPassenger(display);
             this.hideMarkerFromOthers(owner, (Entity)display);
             return display;

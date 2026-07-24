@@ -427,10 +427,9 @@ TabExecutor {
             this.Text(viewer, this.pref() + plugin.getConfig().getString("messages.player-not-found"));
             return;
         }
-        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_RED + "Security: " + q);
+        org.bukkit.inventory.Inventory inv = Bukkit.createInventory(null, 27, ChatColor.WHITE + "Security: " + q);
         String path = "history.players." + this.enc(uuid.toLowerCase(Locale.ROOT));
 
-        // UUID item
         org.bukkit.inventory.ItemStack uuidItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.PLAYER_HEAD);
         org.bukkit.inventory.meta.ItemMeta uuidMeta = uuidItem.getItemMeta();
         uuidMeta.setDisplayName(ChatColor.YELLOW + "UUID: " + this.data.getString(path + ".uuid", uuid));
@@ -441,7 +440,6 @@ TabExecutor {
         uuidItem.setItemMeta(uuidMeta);
         inv.setItem(11, uuidItem);
 
-        // Names item
         org.bukkit.inventory.ItemStack namesItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.NAME_TAG);
         org.bukkit.inventory.meta.ItemMeta namesMeta = namesItem.getItemMeta();
         namesMeta.setDisplayName(ChatColor.YELLOW + "Known Names");
@@ -454,7 +452,6 @@ TabExecutor {
         namesItem.setItemMeta(namesMeta);
         inv.setItem(13, namesItem);
 
-        // IPs item
         org.bukkit.inventory.ItemStack ipsItem = new org.bukkit.inventory.ItemStack(org.bukkit.Material.MAP);
         org.bukkit.inventory.meta.ItemMeta ipsMeta = ipsItem.getItemMeta();
         ipsMeta.setDisplayName(ChatColor.YELLOW + "Known IPs");

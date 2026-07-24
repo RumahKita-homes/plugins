@@ -57,6 +57,9 @@ public final class GuildManager {
         
         if (dbManager.isEnabled()) {
             dbManager.loadAllGuilds(this);
+            for (Guild g : this.guildsByTag.values()) {
+                this.loadVault(g);
+            }
             this.refreshClaimsMap();
             return;
         }
@@ -76,6 +79,7 @@ public final class GuildManager {
         for (String key : guildsSection.getKeys(false)) {
             Guild guild = Guild.loadFrom(guildsSection.getConfigurationSection(key));
             if (guild == null) continue;
+            this.loadVault(guild);
             String normalized = this.normalizeTag(guild.getTag());
             this.guildsByTag.put(normalized, guild);
             for (UUID member : guild.getMembers().keySet()) {
@@ -106,6 +110,7 @@ public final class GuildManager {
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
         }
+        this.saveVault(guild);
         
         if (dbManager.isEnabled()) {
             dbManager.saveGuildAsync(guild);
@@ -115,9 +120,13 @@ public final class GuildManager {
         save(); // For YAML, it's safer to save all since it writes to one file, but we will make it async.
     }
 
-        public void save() {
+    public void save() {
         if (!this.plugin.getDataFolder().exists()) {
             this.plugin.getDataFolder().mkdirs();
+        }
+        
+        for (Guild guild : this.guildsByTag.values()) {
+            this.saveVault(guild);
         }
         
         if (dbManager.isEnabled()) {
@@ -358,6 +367,43 @@ public final class GuildManager {
     }
 
 
+
+    public void saveVault(Guild guild) {
+        java.io.File vaultFolder = new java.io.File(this.plugin.getDataFolder(), "vaults");
+        if (!vaultFolder.exists()) vaultFolder.mkdirs();
+        java.io.File vaultFile = new java.io.File(vaultFolder, guild.getTag() + ".yml");
+        org.bukkit.configuration.file.YamlConfiguration config = new org.bukkit.configuration.file.YamlConfiguration();
+        java.util.List<org.bukkit.inventory.ItemStack> items = new java.util.ArrayList<>();
+        if (guild.getVaultItems() != null) {
+            for (org.bukkit.inventory.ItemStack item : guild.getVaultItems()) {
+                items.add(item);
+            }
+        }
+        config.set("items", items);
+        try {
+            config.save(vaultFile);
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadVault(Guild guild) {
+        java.io.File vaultFile = new java.io.File(this.plugin.getDataFolder(), "vaults" + java.io.File.separator + guild.getTag() + ".yml");
+        if (vaultFile.exists()) {
+            org.bukkit.configuration.file.YamlConfiguration config = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(vaultFile);
+            java.util.List<?> items = config.getList("items");
+            if (items != null) {
+                org.bukkit.inventory.ItemStack[] arr = new org.bukkit.inventory.ItemStack[108];
+                for (int i = 0; i < items.size() && i < 108; i++) {
+                    Object obj = items.get(i);
+                    if (obj instanceof org.bukkit.inventory.ItemStack) {
+                        arr[i] = (org.bukkit.inventory.ItemStack) obj;
+                    }
+                }
+                guild.setVaultItems(arr);
+            }
+        }
+    }
 
     public Map<String, Guild> getRawGuildsMap() {
         return this.guildsByTag;

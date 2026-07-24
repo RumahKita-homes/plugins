@@ -161,9 +161,6 @@ public class VaultEconomyProvider implements Economy {
         return depositPlayer(player, amount);
     }
 
-    // ---------------------------------------------------------
-    // Banks are not supported in this economy implementation
-    // ---------------------------------------------------------
 
     @Override
     public EconomyResponse createBank(String name, String player) {

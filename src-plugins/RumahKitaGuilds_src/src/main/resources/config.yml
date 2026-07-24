@@ -68,9 +68,9 @@ chat-format:
   format: "%guild_tag% &7%player% &8» &f%message%"
 
 gui:
-  title: "&8RumahKita Guild"
-  list-title: "&8Guild List"
-  members-title: "&8Guild Members"
+  title: "&fRumahKita Guild"
+  list-title: "&fGuild List"
+  members-title: "&fGuild Members"
   size: 27
 
 messages:

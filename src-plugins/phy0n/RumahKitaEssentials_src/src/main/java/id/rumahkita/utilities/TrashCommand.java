@@ -19,8 +19,7 @@ public class TrashCommand implements CommandExecutor {
 
         Player player = (Player) sender;
         
-        // 36 slots is usually enough for a trash bin.
-        Inventory trashBin = Bukkit.createInventory(null, 36, ChatColor.DARK_RED + "Trash Bin");
+        Inventory trashBin = Bukkit.createInventory(null, 36, ChatColor.WHITE + "Trash Bin");
         
         player.openInventory(trashBin);
         player.sendMessage(ChatColor.YELLOW + "Place items to discard here. They will be deleted when closed.");

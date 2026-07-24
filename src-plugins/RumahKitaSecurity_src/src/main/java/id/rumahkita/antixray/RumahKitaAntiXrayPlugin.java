@@ -209,7 +209,6 @@ TabExecutor {
             extra += 6;
         }
         
-        // Light Level Check: Mining rare ores in pitch darkness is suspicious
         if (loc.getBlock().getLightLevel() == 0 && loc.getBlock().getLightFromSky() == 0) {
             extra += plugin.getConfig().getInt("detection.darkness-extra-points", 20);
         }

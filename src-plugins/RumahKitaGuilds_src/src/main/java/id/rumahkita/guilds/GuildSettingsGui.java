@@ -23,7 +23,7 @@ public class GuildSettingsGui implements Listener {
     }
 
     public void open(Player player, Guild guild) {
-        String title = ChatColor.DARK_GRAY + "Settings: " + ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', guild.getTag()));
+        String title = ChatColor.WHITE + "Settings: " + ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', guild.getTag()));
         if (title.length() > 32) title = title.substring(0, 32);
         Inventory inv = Bukkit.createInventory(new GuildSettingsHolder(guild), 27, title);
         

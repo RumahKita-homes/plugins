@@ -55,7 +55,7 @@ public class StatsCommand implements CommandExecutor, Listener {
     }
 
     private void openStatsGui(Player viewer, org.bukkit.OfflinePlayer target) {
-        String title = ChatColor.DARK_GRAY + (target.getName() != null ? target.getName() + "'s Stats" : "Statistics");
+        String title = ChatColor.WHITE + (target.getName() != null ? target.getName() + "'s Stats" : "Statistics");
         if (title.length() > 32) title = title.substring(0, 32);
         Inventory inv = Bukkit.createInventory(null, 27, title);
 
@@ -112,7 +112,7 @@ public class StatsCommand implements CommandExecutor, Listener {
             "&7Distance Sprinted: &f" + sprint + "m",
             "&7Total Jumps: &f" + jump
         )));
-        ItemStack filler = createItem(Material.GRAY_STAINED_GLASS_PANE, " ", new ArrayList<>());
+        ItemStack filler = createItem(Material.BLACK_STAINED_GLASS_PANE, " ", new ArrayList<>());
         for (int i = 0; i < inv.getSize(); i++) {
             if (inv.getItem(i) == null) {
                 inv.setItem(i, filler);

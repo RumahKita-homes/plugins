@@ -33,10 +33,17 @@ public class AnvilColorListener implements Listener {
         if (meta != null && meta.hasDisplayName()) {
             String rawName = event.getInventory().getRenameText();
             if (rawName != null && !rawName.isEmpty()) {
-                String coloredName = colorize(rawName);
-                meta.setDisplayName(coloredName);
-                result.setItemMeta(meta);
-                event.setResult(result);
+                if (rawName.contains("&")) {
+                    String coloredName = colorize(rawName);
+
+                    net.kyori.adventure.text.Component displayName = net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
+                            .deserialize(coloredName)
+                            .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false);
+                    
+                    meta.displayName(displayName);
+                    result.setItemMeta(meta);
+                    event.setResult(result);
+                }
             }
         }
     }

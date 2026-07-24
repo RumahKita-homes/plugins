@@ -74,7 +74,6 @@ implements Listener {
         }
         double guildKda = totalDeaths == 0 ? totalKills : (double) totalKills / totalDeaths;
         
-        // Slot 10: Info
         inv.setItem(10, this.item(Material.PAPER, "&b&lGuild Info", List.of(
             "&7Name: &f" + guild.getName(), 
             "&7Tag: &b" + guild.getTag(), 
@@ -85,22 +84,16 @@ implements Listener {
             "&7Vault Level: &f" + guild.getVaultLevel()
         )));
         
-        // Slot 11: Members
         inv.setItem(11, this.item(Material.PLAYER_HEAD, "&e&lMembers", List.of("&7Click to view guild members.")));
         
-        // Slot 12: Home
         inv.setItem(12, this.item(Material.COMPASS, "&a&lGuild Home", List.of("&7Click to teleport to guild home.")));
         
-        // Slot 13: Bank
         inv.setItem(13, this.item(Material.GOLD_INGOT, "&e&lGuild Bank", List.of("&7Click to open Guild Bank.")));
         
-        // Slot 14: Vault
         inv.setItem(14, this.item(Material.CHEST, "&6&lGuild Vault", List.of("&7Click to open vault.")));
         
-        // Slot 15: Upgrades
         inv.setItem(15, this.item(Material.ENCHANTING_TABLE, "&d&lGuild Upgrades", List.of("&7Click to open upgrades.")));
         
-        // Slot 16: Guild List
         inv.setItem(16, this.item(Material.BOOK, "&b&lGuild List", List.of("&7Click to view all guilds on server.")));
         
         if (role == GuildRole.LEADER) {

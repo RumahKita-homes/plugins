@@ -16,7 +16,7 @@ import java.util.List;
 public class GuildUpgradeGui implements Listener {
     private final RumahKitaGuildsPlugin plugin;
     private final GuildManager guildManager;
-    public static final String TITLE = ChatColor.DARK_GRAY + "Guild Upgrades";
+    public static final String TITLE = ChatColor.WHITE + "Guild Upgrades";
 
     public GuildUpgradeGui(RumahKitaGuildsPlugin plugin, GuildManager guildManager) {
         this.plugin = plugin;

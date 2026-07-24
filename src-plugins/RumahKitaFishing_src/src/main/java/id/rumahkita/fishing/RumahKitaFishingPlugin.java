@@ -62,7 +62,6 @@ public final class RumahKitaFishingPlugin extends JavaPlugin
     }
 
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();

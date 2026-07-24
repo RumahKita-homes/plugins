@@ -156,25 +156,19 @@ public class WarpManager implements Listener {
         return true;
     }
 
-    public void openWarpMenu(Player p, int page) {
+    public void openWarpMenu(Player p) {
         int size = 54;
-        String title = ChatColor.DARK_GRAY + "Player Warps - Page " + page;
+        String title = ChatColor.WHITE + "Player Warps";
         Inventory inv = Bukkit.createInventory(null, size, title);
 
         List<PlayerWarp> warpList = new ArrayList<>(warps.values());
         warpList.sort((w1, w2) -> w1.name.compareToIgnoreCase(w2.name));
 
-        int maxItemsPerPage = 45;
-        int totalPages = (int) Math.ceil((double) warpList.size() / maxItemsPerPage);
-        if (totalPages == 0) totalPages = 1;
-
-        if (page > totalPages) page = totalPages;
-
-        int startIndex = (page - 1) * maxItemsPerPage;
-        int endIndex = Math.min(startIndex + maxItemsPerPage, warpList.size());
-
-        for (int i = startIndex; i < endIndex; i++) {
-            PlayerWarp warp = warpList.get(i);
+        int maxItems = 54;
+        int index = 0;
+        
+        for (PlayerWarp warp : warpList) {
+            if (index >= maxItems) break;
             ItemStack head = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             if (meta != null) {
@@ -190,72 +184,16 @@ public class WarpManager implements Listener {
                 meta.setLore(lore);
                 head.setItemMeta(meta);
             }
-            inv.setItem(i - startIndex, head);
+            inv.setItem(index, head);
+            index++;
         }
-
-
-
-        if (page > 1) {
-            ItemStack prev = new ItemStack(Material.ARROW);
-            org.bukkit.inventory.meta.ItemMeta prevMeta = prev.getItemMeta();
-            if (prevMeta != null) {
-                prevMeta.setDisplayName(ChatColor.GREEN + "Previous Page");
-                prev.setItemMeta(prevMeta);
-            }
-            inv.setItem(45, prev);
-        }
-
-        if (page < totalPages) {
-            ItemStack next = new ItemStack(Material.ARROW);
-            org.bukkit.inventory.meta.ItemMeta nextMeta = next.getItemMeta();
-            if (nextMeta != null) {
-                nextMeta.setDisplayName(ChatColor.GREEN + "Next Page");
-                next.setItemMeta(nextMeta);
-            }
-            inv.setItem(53, next);
-        }
-
-        ItemStack infoCreate = new ItemStack(Material.PAPER);
-        org.bukkit.inventory.meta.ItemMeta metaCreate = infoCreate.getItemMeta();
-        if (metaCreate != null) {
-            metaCreate.setDisplayName(ChatColor.AQUA + "Create Warp");
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Type: " + ChatColor.YELLOW + "/pwarp create <name>");
-            lore.add(ChatColor.GRAY + "Cost: " + ChatColor.YELLOW + "Rp 50.000");
-            metaCreate.setLore(lore);
-            infoCreate.setItemMeta(metaCreate);
-        }
-        inv.setItem(48, infoCreate);
-
-        ItemStack infoInfo = new ItemStack(Material.BOOK);
-        org.bukkit.inventory.meta.ItemMeta metaInfo = infoInfo.getItemMeta();
-        if (metaInfo != null) {
-            metaInfo.setDisplayName(ChatColor.GOLD + "Pwarp Info");
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Player Warp System.");
-            lore.add(ChatColor.GRAY + "Type " + ChatColor.YELLOW + "/pwarp help" + ChatColor.GRAY + " for command list.");
-            metaInfo.setLore(lore);
-            infoInfo.setItemMeta(metaInfo);
-        }
-        inv.setItem(49, infoInfo);
-
-        ItemStack infoDelete = new ItemStack(Material.BARRIER);
-        org.bukkit.inventory.meta.ItemMeta metaDelete = infoDelete.getItemMeta();
-        if (metaDelete != null) {
-            metaDelete.setDisplayName(ChatColor.RED + "Delete Warp");
-            List<String> lore = new ArrayList<>();
-            lore.add(ChatColor.GRAY + "Type: " + ChatColor.YELLOW + "/pwarp delete <name>");
-            metaDelete.setLore(lore);
-            infoDelete.setItemMeta(metaDelete);
-        }
-        inv.setItem(50, infoDelete);
 
         p.openInventory(inv);
     }
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().startsWith(ChatColor.DARK_GRAY + "Player Warps - Page ")) {
+        if (e.getView().getTitle().equals(ChatColor.WHITE + "Player Warps")) {
             e.setCancelled(true);
             if (e.getCurrentItem() == null) return;
             
@@ -274,19 +212,6 @@ public class WarpManager implements Listener {
                         p.sendMessage(getPrefix() + ChatColor.RED + "Warp not found.");
                         p.closeInventory();
                     }
-                }
-            } else if (type == Material.ARROW) {
-                String title = e.getView().getTitle();
-                String name = e.getCurrentItem().getItemMeta().getDisplayName();
-                try {
-                    int currentPage = Integer.parseInt(title.split("Page ")[1]);
-                    if (name.contains("Next Page")) {
-                        openWarpMenu(p, currentPage + 1);
-                    } else if (name.contains("Previous Page")) {
-                        openWarpMenu(p, currentPage - 1);
-                    }
-                } catch (Exception ex) {
-                    // Ignore
                 }
             }
         }

@@ -21,10 +21,9 @@ import java.util.*;
 public class PvPKitManagerUI implements Listener {
     private final RumahKitaMinigamesPlugin plugin;
     private final RumahKitaPvP1v1Plugin pvp;
-    private final String LIST_TITLE = ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "PvP Kit Manager";
-    private final String EDIT_TITLE_PREFIX = ChatColor.DARK_PURPLE + "Editing Kit: ";
+    private final String LIST_TITLE = ChatColor.WHITE + "PvP Kit Manager";
+    private final String EDIT_TITLE_PREFIX = ChatColor.WHITE + "Editing Kit: ";
     
-    // Default kits
     private final List<String> DEFAULT_KITS = Arrays.asList("NETHERITE", "CRYSTAL", "DIAMOND", "IRON", "UHC", "NODEBUFF", "SUMO", "BOW", "AXE", "TRIDENT");
 
     public PvPKitManagerUI(RumahKitaMinigamesPlugin plugin, RumahKitaPvP1v1Plugin pvp) {
@@ -70,7 +69,6 @@ public class PvPKitManagerUI implements Listener {
             slot++;
         }
 
-        // Bottom row
         ItemStack glass = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 45; i < 54; i++) inv.setItem(i, glass);
         
@@ -83,7 +81,6 @@ public class PvPKitManagerUI implements Listener {
     public void openKitEditor(Player player, String kitName) {
         Inventory inv = Bukkit.createInventory(null, 54, EDIT_TITLE_PREFIX + kitName);
         
-        // Load items if it's a custom kit
         if (pvp.getConfig().contains("kits." + kitName + ".inventory")) {
             List<?> invList = pvp.getConfig().getList("kits." + kitName + ".inventory");
             if (invList != null) {
@@ -94,23 +91,18 @@ public class PvPKitManagerUI implements Listener {
             }
             List<?> armorList = pvp.getConfig().getList("kits." + kitName + ".armor");
             if (armorList != null) {
-                // Armor: Helmet, Chest, Legs, Boots
                 if (armorList.size() > 0 && armorList.get(0) instanceof ItemStack) inv.setItem(36, (ItemStack) armorList.get(0)); // Boots (index 0 usually in getArmorContents)
                 if (armorList.size() > 1 && armorList.get(1) instanceof ItemStack) inv.setItem(37, (ItemStack) armorList.get(1)); // Legs
                 if (armorList.size() > 2 && armorList.get(2) instanceof ItemStack) inv.setItem(38, (ItemStack) armorList.get(2)); // Chest
                 if (armorList.size() > 3 && armorList.get(3) instanceof ItemStack) inv.setItem(39, (ItemStack) armorList.get(3)); // Helmet
             }
         } else {
-            // It's a default kit but they want to modify it. We start with empty editor, and tell them to fill it.
-            // (Extracting hardcoded items into GUI is complex, so we let them override it from scratch).
         }
 
-        // Frame
         ItemStack glass = createItem(Material.BLACK_STAINED_GLASS_PANE, " ");
         for (int i = 40; i < 45; i++) inv.setItem(i, glass); // separators
         for (int i = 45; i < 54; i++) inv.setItem(i, glass); // bottom row
         
-        // Editor controls
         inv.setItem(40, createItem(Material.LEATHER_BOOTS, "&eArmor: Boots", "&7Place boots in slot 36 (left)"));
         inv.setItem(41, createItem(Material.LEATHER_LEGGINGS, "&eArmor: Leggings", "&7Place leggings in slot 37"));
         inv.setItem(42, createItem(Material.LEATHER_CHESTPLATE, "&eArmor: Chestplate", "&7Place chestplate in slot 38"));
@@ -176,27 +168,23 @@ public class PvPKitManagerUI implements Listener {
                 return;
             }
             if (clicked.getType() == Material.EMERALD_BLOCK) {
-                // Auto create "CUSTOM" kit from inventory
                 player.performCommand("pvp createkit CUSTOM");
                 openKitList(player);
                 return;
             }
             
             if (event.getClick() == ClickType.RIGHT) {
-                // Toggle Disable
                 boolean isDis = pvp.getConfig().getBoolean("disabled-kits." + name, false);
                 pvp.getConfig().set("disabled-kits." + name, !isDis);
                 pvp.saveConfig();
                 openKitList(player);
             } else if (event.getClick() == ClickType.LEFT) {
-                // Open Editor
                 openKitEditor(player, name);
             }
         } 
         else if (title.startsWith(EDIT_TITLE_PREFIX)) {
             String kitName = title.substring(EDIT_TITLE_PREFIX.length());
             
-            // Allow clicking in top inventory ONLY for slots 0-39
             if (event.getRawSlot() >= 40 && event.getRawSlot() < 54) {
                 event.setCancelled(true);
                 ItemStack clicked = event.getCurrentItem();

@@ -1,7 +1,7 @@
 version: 24
 gui:
   main:
-    title: '&8&lServer Market'
+    title: '&fServer Market'
     size: 54
     fill: BLACK_STAINED_GLASS_PANE
     slots:
@@ -14651,9 +14651,9 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-  chain:
-    material: CHAIN
-    display-name: '&fChain'
+  iron_chain:
+    material: IRON_CHAIN
+    display-name: '&fIron Chain'
     trade-amount: 1
     category: decoration
     buy:
@@ -15379,7 +15379,7 @@ items:
       max: -1
       restock-amount: 0
       restock-interval-minutes: 0
-      cave_vines:
+  cave_vines:
     material: GLOW_BERRIES
     display-name: '&fCave Vines'
     trade-amount: 1
@@ -15480,34 +15480,6 @@ items:
       demand-enabled: true
       min-buy-price: 75
       max-buy-price: 300
-      min-sell-price: 0
-      max-sell-price: 0
-      max-change-percent-per-update: 2.0
-      max-change-percent-per-day: 10.0
-      admin-locked-price: false
-    stock:
-      enabled: false
-      current: -1
-      max: -1
-      restock-amount: 0
-      restock-interval-minutes: 0
-  chain:
-    material: CHAIN
-    display-name: '&fChain'
-    trade-amount: 1
-    category: decoration
-    buy:
-      enabled: true
-      price: 50
-    sell:
-      enabled: false
-      price: 0
-      daily-limit-per-player: 0
-    pricing:
-      mode: DEMAND
-      demand-enabled: true
-      min-buy-price: 25
-      max-buy-price: 100
       min-sell-price: 0
       max-sell-price: 0
       max-change-percent-per-update: 2.0

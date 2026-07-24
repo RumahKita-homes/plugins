@@ -131,7 +131,7 @@ public class ServerWarpManager implements Listener {
     }
 
     public void openWarpMenu(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 27, "Server Warps");
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.WHITE + "Server Warps");
         
         ItemStack bg = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bgMeta = bg.getItemMeta();
@@ -174,7 +174,7 @@ public class ServerWarpManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getView().getTitle().equals("Server Warps")) {
+        if (event.getView().getTitle().equals(ChatColor.WHITE + "Server Warps")) {
             event.setCancelled(true);
             if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) return;
             

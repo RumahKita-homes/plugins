@@ -33,11 +33,9 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
         try { moduleRumahKitaPvP1v1Plugin.onEnable(); } catch (Throwable e) { getLogger().severe("Failed to load PvP: " + e.getMessage()); }
 
         getServer().getPluginManager().registerEvents(this, this);
-        RkmgGuiManager adminGui = new RkmgGuiManager(this);
-        getServer().getPluginManager().registerEvents(adminGui, this);
-                org.bukkit.command.PluginCommand adminCmd = getCommand("rkmg");
+        org.bukkit.command.PluginCommand adminCmd = getCommand("rkmg");
         if (adminCmd != null) {
-            RkmgCommand rkmgExec = new RkmgCommand(this, adminGui);
+            RkmgCommand rkmgExec = new RkmgCommand(this);
             adminCmd.setExecutor(rkmgExec);
             adminCmd.setTabCompleter(rkmgExec);
         }
@@ -79,5 +77,11 @@ public class RumahKitaMinigamesPlugin extends JavaPlugin implements Listener {
         if (moduleRumahKitaCaptureFlag != null) { try { moduleRumahKitaCaptureFlag.onDisable(); } catch (Exception e) { e.printStackTrace(); } }
         if (moduleRumahKitaPvP1v1Plugin != null) { try { moduleRumahKitaPvP1v1Plugin.onDisable(); } catch (Exception e) { e.printStackTrace(); } }
         getLogger().info("RumahKita Minigames Disabled.");
+    }
+    
+    public void reloadAll() {
+        if (moduleRumahKitaGamesPlugin != null) { try { moduleRumahKitaGamesPlugin.reloadConfig(); } catch (Exception ignored) {} }
+        if (moduleRumahKitaCaptureFlag != null) { try { moduleRumahKitaCaptureFlag.reloadConfig(); } catch (Exception ignored) {} }
+        if (moduleRumahKitaPvP1v1Plugin != null) { try { moduleRumahKitaPvP1v1Plugin.reloadConfig(); } catch (Exception ignored) {} }
     }
 }

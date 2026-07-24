@@ -54,7 +54,7 @@ public class CoinflipManager implements Listener {
     }
 
     public void openGameList(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_GRAY + "Coinflip Games");
+        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.WHITE + "Coinflip Games");
         
         for (CoinflipGame game : activeGames.values()) {
             if (game.targetPlayer != null) continue;
@@ -79,7 +79,7 @@ public class CoinflipManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "Coinflip Games")) {
+        if (e.getView().getTitle().equals(ChatColor.WHITE + "Coinflip Games")) {
             e.setCancelled(true);
             if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.PLAYER_HEAD) {
                 Player p = (Player) e.getWhoClicked();
@@ -184,12 +184,12 @@ public class CoinflipManager implements Listener {
                     
                     if (currentStreak >= 3) {
                         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                            "&e[Coinflip] &c&l🔥 WOW! &f" + winner.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! 🔥"));
+                            "&e[Coinflip] &c&lðŸ”¥ WOW! &f" + winner.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! ðŸ”¥"));
                     }
                     
                     if (loserStreak >= 3) {
                         Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                            "&e[Coinflip] &4&l☠ RIP! &f" + loser.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + winner.getName() + "&f! ☠"));
+                            "&e[Coinflip] &4&lâ˜  RIP! &f" + loser.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + winner.getName() + "&f! â˜ "));
                     }
                     
                     if (winner.isOnline()) {

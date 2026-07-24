@@ -29,10 +29,7 @@ commands:
   back:
     description: Return to previous location or death point
     usage: /back
-  rkw:
-    description: RumahKitaWarps Admin Command
-    usage: /rkw
-    permission: rumahkitawarps.admin
+
   warp:
     description: Open warp menu
     aliases:

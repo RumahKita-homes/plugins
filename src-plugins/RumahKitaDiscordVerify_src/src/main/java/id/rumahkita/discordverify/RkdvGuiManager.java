@@ -23,7 +23,7 @@ public class RkdvGuiManager implements Listener {
     }
 
     public void open(Player player) {
-        Inventory inv = Bukkit.createInventory(null, 54, TITLE);
+        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.WHITE + "Discord Verification");
         
         fillBorder(inv);
         

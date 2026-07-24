@@ -127,7 +127,6 @@ TabExecutor {
     }
 
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();
@@ -459,7 +458,6 @@ TabExecutor {
             }
         }
         catch (Exception exception) {
-            // empty catch block
         }
     }
 

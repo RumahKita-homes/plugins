@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class GuildConfigGui implements Listener {
     private final RumahKitaGuildsPlugin plugin;
-    public static final String TITLE = ChatColor.DARK_GRAY + "Guild Admin Settings";
+    public static final String TITLE = ChatColor.WHITE + "Guild Admin Settings";
     
     private final Map<UUID, ConfigInput> pendingInputs = new HashMap<>();
 

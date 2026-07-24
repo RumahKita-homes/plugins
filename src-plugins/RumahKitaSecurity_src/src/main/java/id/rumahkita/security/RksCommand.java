@@ -10,11 +10,8 @@ import java.util.List;
 
 public class RksCommand implements TabExecutor {
     private final RumahKitaSecurityPlugin plugin;
-    private final RksGuiManager guiManager;
-
-    public RksCommand(RumahKitaSecurityPlugin plugin, RksGuiManager guiManager) {
+    public RksCommand(RumahKitaSecurityPlugin plugin) {
         this.plugin = plugin;
-        this.guiManager = guiManager;
     }
 
     @Override
@@ -23,36 +20,14 @@ public class RksCommand implements TabExecutor {
             sender.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             return true;
         }
-                if (args.length > 0 && args[0].equalsIgnoreCase("help")) {
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRumahKitaSecurity Commands:"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ac &7- AntiCheat commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks xray &7- AntiXray commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks sec &7- Ban manager"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ban &7- Ban player"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks tempban &7- Tempban player"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ipban &7- Ban IP/CIDR"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks unban &7- Unban player/IP"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ramguard &7- RamGuard commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks spec &7- Ore Spectator commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks checkip &7- VPN & IP Blocker"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks gui &7- Open Security GUI"));
-            return true;
-        }
         if (args.length == 0) {
-            if (sender instanceof org.bukkit.entity.Player) {
-                guiManager.openMainGui((org.bukkit.entity.Player) sender);
-                return true;
-            }
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aRumahKitaSecurity Commands:"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ac &7- AntiCheat commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks xray &7- AntiXray commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks sec &7- Ban manager"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ban &7- Ban player"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks tempban &7- Tempban player"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ipban &7- Ban IP/CIDR"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks unban &7- Unban player/IP"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ramguard &7- RamGuard commands"));
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks spec &7- Ore Spectator commands"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&m--------------------------------"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&bRumahKita Security Admin"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ac/xray &7- AntiCheat/AntiXray admin"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ban/unban &7- Security bans"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks ramguard &7- RAM Guard admin"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&e/rks spec &7- Ore spectator mode"));
+            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&m--------------------------------"));
             return true;
         }
 

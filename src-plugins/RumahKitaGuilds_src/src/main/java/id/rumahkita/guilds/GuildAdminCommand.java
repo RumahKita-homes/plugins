@@ -59,15 +59,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class GuildAdminCommand implements Listener, org.bukkit.command.TabExecutor {
     private final RumahKitaGuildsPlugin plugin;
-    private final AdminDashboardGui gui;
-
     private final GuildManager guildManager;
     private static final java.util.Map<java.util.UUID, org.bukkit.Location> pos1Map = new java.util.HashMap<>();
     private static final java.util.Map<java.util.UUID, org.bukkit.Location> pos2Map = new java.util.HashMap<>();
 
-    public GuildAdminCommand(RumahKitaGuildsPlugin plugin, AdminDashboardGui gui, GuildManager guildManager) {
+    public GuildAdminCommand(RumahKitaGuildsPlugin plugin, GuildManager guildManager) {
         this.plugin = plugin;
-        this.gui = gui;
         this.guildManager = guildManager;
         if(plugin.getCommand("rkg") != null) {
             plugin.getCommand("rkg").setExecutor(this);
@@ -135,13 +132,8 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
             return true;
         }
         if (args.length == 0) {
-            if (sender instanceof Player) {
-                this.gui.openMain((Player) sender);
-                return true;
-            } else {
-                this.sendHelp(sender);
-                return true;
-            }
+            this.sendHelp(sender);
+            return true;
         }
         if (args[0].equalsIgnoreCase("help")) {
             this.sendHelp(sender);
@@ -168,11 +160,7 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
                 }
                 case "admin":
                 case "gui": {
-                    if (!(sender instanceof Player)) {
-                        this.msg(sender, this.pref() + "&cMust be a player.");
-                        return true;
-                    }
-                    this.gui.openMain((Player) sender);
+                    this.sendHelp(sender);
                     break;
                 }
                 case "info": {
@@ -556,24 +544,21 @@ public final class GuildAdminCommand implements Listener, org.bukkit.command.Tab
 
     private void sendHelp(CommandSender s) {
         this.msg(s, "&8&m--------------------------------");
-        this.msg(s, "&bRumahKita Guild Admin Tools");
-        this.msg(s, "&e/rkg admin &7- Open config editor GUI");
-        this.msg(s, "&e/rkg list");
-        this.msg(s, "&e/rkg info <guild>");
-        this.msg(s, "&e/rkg members <guild>");
-        this.msg(s, "&e/rkg freeze <guild>");
-        this.msg(s, "&e/rkg unfreeze <guild>");
-        this.msg(s, "&e/rkg disband <guild> confirm");
-        this.msg(s, "&e/rkg delhome <guild> confirm");
+        this.msg(s, "&bRumahKita Guilds Admin");
+        this.msg(s, "&e/rkg admin &7- Show this help menu");
+        this.msg(s, "&e/rkg list &7- List all guilds");
+        this.msg(s, "&e/rkg info <guild> &7- Show guild info");
+        this.msg(s, "&e/rkg members <guild> &7- Show guild members");
+        this.msg(s, "&e/rkg freeze/unfreeze <guild> &7- Toggle guild freeze");
+        this.msg(s, "&e/rkg disband <guild> confirm &7- Disband guild");
         this.msg(s, "&e/rkg bypass &7- Toggle claim bypass");
-        this.msg(s, "&e/rkg sethome <guild>");
-        this.msg(s, "&e/rkg kick <guild> <player> confirm");
-        this.msg(s, "&e/rkg removeplayer <player> confirm");
-        this.msg(s, "&e/rkg setleader <guild> <player> confirm");
-        this.msg(s, "&e/rkg rename <guild> <namaBaru> confirm");
-        this.msg(s, "&e/rkg setprefix <guild> <prefix>");
-        this.msg(s, "&e/rkg backup / reload / scan");
-        this.msg(s, "&e/rkg migratemysql confirm");
+        this.msg(s, "&e/rkg pos1/pos2 &7- Set claim region");
+        this.msg(s, "&e/rkg claim <guild> &7- Claim selected region for guild");
+        this.msg(s, "&e/rkg unclaim &7- Unclaim region while standing in it");
+        this.msg(s, "&e/rkg sethome/delhome <guild> &7- Manage guild home");
+        this.msg(s, "&e/rkg kick/setleader <guild> <player> &7- Manage members");
+        this.msg(s, "&e/rkg rename/setprefix <guild> <name> &7- Manage guild identity");
+        this.msg(s, "&e/rkg backup/reload/scan &7- Administrative tasks");
         this.msg(s, "&8&m--------------------------------");
     }
 

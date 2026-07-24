@@ -34,10 +34,7 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
         
         networkSecurityModule = new id.rumahkita.security.network.NetworkSecurityModule(this);
         
-        RksGuiManager guiManager = new RksGuiManager(this);
-        getServer().getPluginManager().registerEvents(guiManager, this);
-
-        RksCommand rksCommand = new RksCommand(this, guiManager);
+        RksCommand rksCommand = new RksCommand(this);
         if (getCommand("rks") != null) {
             getCommand("rks").setExecutor(rksCommand);
             getCommand("rks").setTabCompleter(rksCommand);
@@ -55,7 +52,6 @@ public class RumahKitaSecurityPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();

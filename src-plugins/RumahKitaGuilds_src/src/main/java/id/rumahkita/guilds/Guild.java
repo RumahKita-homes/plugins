@@ -378,7 +378,7 @@ public final class Guild {
         if (this.vaultLevel == 2) size = 54;
         else if (this.vaultLevel >= 3) size = 54;
 
-        String title = org.bukkit.ChatColor.DARK_GRAY + this.getName() + " Vault";
+        String title = org.bukkit.ChatColor.WHITE + this.getName() + " Vault";
         if (this.vaultLevel >= 3) {
             title += " - Page " + page;
         }

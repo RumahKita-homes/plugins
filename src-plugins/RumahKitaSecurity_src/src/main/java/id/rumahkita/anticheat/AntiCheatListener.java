@@ -258,9 +258,6 @@ implements Listener {
         } catch (Throwable ignored) {
         }
         
-        // Dynamic Leniency: 
-        // 1. If TPS is low, movement checks are naturally buggy. Give more leniency.
-        // 2. If ping is high, player might skip ticks.
         double pingExtra = Math.min(this.plugin.getConfig().getDouble("checks.speed.max-ping-leniency", 0.50), (double)ping / 100.0 * this.plugin.getConfig().getDouble("checks.speed.ping-leniency-per-100ms", 0.05));
         double tpsExtra = 0;
         if (tps < 19.0) {
@@ -271,7 +268,6 @@ implements Listener {
             ++d.speedBuffer;
             int minFlags = this.plugin.getConfig().getInt("checks.speed.min-consecutive-flags", 3);
             if (d.speedBuffer >= minFlags) {
-                // RUBBERBAND over kick: Always cancel move first to prevent false ban kicks
                 if (this.plugin.getConfig().getBoolean("checks.speed.cancel-move", true)) {
                     this.cancelToSafe(event, d);
                 }

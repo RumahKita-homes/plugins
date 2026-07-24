@@ -36,7 +36,6 @@ extends JavaPlugin {
     private GuildPlaceholderExpansion placeholderExpansion;
     private EconomyManager economyManager;
     private GuildConfigGui configGui;
-    private AdminDashboardGui adminDashboardGui;
     private GuildUpgradeGui upgradeGui;
     private GuildSettingsGui settingsGui;
 
@@ -69,14 +68,12 @@ extends JavaPlugin {
             this.getLogger().warning("PlaceholderAPI not found. Guild placeholders will not work until PlaceholderAPI is installed.");
         }
         this.configGui = new GuildConfigGui(this);
-        this.adminDashboardGui = new AdminDashboardGui(this, this.guildManager, this.configGui);
         this.upgradeGui = new GuildUpgradeGui(this, this.guildManager);
         Bukkit.getPluginManager().registerEvents((Listener)this.configGui, (Plugin)this);
-        Bukkit.getPluginManager().registerEvents((Listener)this.adminDashboardGui, (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)this.upgradeGui, (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)this.settingsGui, (Plugin)this);
         Bukkit.getPluginManager().registerEvents((Listener)new GuildVaultListener(this.guildManager), (Plugin)this);
-        new GuildAdminCommand(this, this.adminDashboardGui, this.guildManager);
+        new GuildAdminCommand(this, this.guildManager);
         
         startUpkeepTask();
         

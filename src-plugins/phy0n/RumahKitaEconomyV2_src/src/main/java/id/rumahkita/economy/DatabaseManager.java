@@ -58,12 +58,24 @@ public class DatabaseManager {
                 "uuid VARCHAR(36) PRIMARY KEY, " +
                 "balance BIGINT NOT NULL DEFAULT 0" +
                 ");";
+                
+        String sqlPoints = "CREATE TABLE IF NOT EXISTS " + tablePrefix + "points (" +
+                "uuid VARCHAR(36) PRIMARY KEY, " +
+                "points BIGINT NOT NULL DEFAULT 0" +
+                ");";
         
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.executeUpdate();
         } catch (SQLException e) {
             plugin.getLogger().severe("Failed to create tables: " + e.getMessage());
+        }
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlPoints)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to create points table: " + e.getMessage());
         }
     }
 
@@ -128,6 +140,53 @@ public class DatabaseManager {
             stmt.executeUpdate();
         } catch (SQLException e) {
             plugin.getLogger().warning("Error saving balance sync for " + uuid + ": " + e.getMessage());
+        }
+    }
+
+    public CompletableFuture<Long> loadPoints(UUID uuid) {
+        return CompletableFuture.supplyAsync(() -> {
+            String sql = "SELECT points FROM " + tablePrefix + "points WHERE uuid = ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, uuid.toString());
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    return rs.getLong("points");
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().warning("Error loading points for " + uuid + ": " + e.getMessage());
+            }
+            return -1L; 
+        });
+    }
+
+    public void savePointsAsync(UUID uuid, long points) {
+        CompletableFuture.runAsync(() -> {
+            String sql = "INSERT INTO " + tablePrefix + "points (uuid, points) VALUES (?, ?) " +
+                    "ON DUPLICATE KEY UPDATE points = ?";
+            try (Connection conn = getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, uuid.toString());
+                stmt.setLong(2, points);
+                stmt.setLong(3, points);
+                stmt.executeUpdate();
+            } catch (SQLException e) {
+                plugin.getLogger().warning("Error saving points for " + uuid + ": " + e.getMessage());
+            }
+        });
+    }
+
+    public void savePointsSync(UUID uuid, long points) {
+        String sql = "INSERT INTO " + tablePrefix + "points (uuid, points) VALUES (?, ?) " +
+                "ON DUPLICATE KEY UPDATE points = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, uuid.toString());
+            stmt.setLong(2, points);
+            stmt.setLong(3, points);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Error saving points sync for " + uuid + ": " + e.getMessage());
         }
     }
 }

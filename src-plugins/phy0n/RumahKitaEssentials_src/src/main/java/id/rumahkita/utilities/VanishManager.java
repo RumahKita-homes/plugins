@@ -147,7 +147,6 @@ TabExecutor {
             target.setCollidable(false);
         }
         if (!this.plugin.getConfig().getBoolean("vanish.silent-game-mode", false) || target.getGameMode() != GameMode.SPECTATOR) {
-            // empty if block
         }
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             this.updateVisibility(viewer, target);

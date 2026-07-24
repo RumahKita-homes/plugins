@@ -31,6 +31,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -88,7 +89,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
     private id.rumahkita.pvp.view.PvPKitManagerUI kitUI;
 
     public void onEnable() {
-        // plugin.saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(this, this.plugin);
         if (plugin.getCommand("pvp") != null) {
             plugin.getCommand("pvp").setExecutor(this);
@@ -280,7 +280,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         
         Duel duel = new Duel(p1.getUniqueId(), p2.getUniqueId(), p1.getLocation().clone(), p2.getLocation().clone(), kit);
         
-        // Save inventories
         duel.p1Inv = p1.getInventory().getContents();
         duel.p1Armor = p1.getInventory().getArmorContents();
         duel.p2Inv = p2.getInventory().getContents();
@@ -297,6 +296,9 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         
         this.activeDuels.put(p1.getUniqueId(), duel);
         this.activeDuels.put(p2.getUniqueId(), duel);
+        
+        p1.setMetadata("in_duel", new org.bukkit.metadata.FixedMetadataValue(this.plugin, true));
+        p2.setMetadata("in_duel", new org.bukkit.metadata.FixedMetadataValue(this.plugin, true));
         
         this.prepPlayer(p1, kit);
         this.prepPlayer(p2, kit);
@@ -381,7 +383,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         player.getInventory().clear();
         player.getInventory().setArmorContents(new ItemStack[4]);
         
-        // Load custom kit if exists
         if (getConfig().contains("kits." + kit)) {
             List<?> contentList = getConfig().getList("kits." + kit + ".contents");
             List<?> armorList = getConfig().getList("kits." + kit + ".armor");
@@ -389,7 +390,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             return;
         }
         
-        // Give hardcoded kit fallback
         if (kit.equals("NETHERITE")) {
             player.getInventory().setHelmet(new ItemStack(Material.NETHERITE_HELMET));
             player.getInventory().setChestplate(new ItemStack(Material.NETHERITE_CHESTPLATE));
@@ -530,7 +530,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             }
         }
         
-        // Add default enchantments for longer fights
         if (!kit.equals("SUMO")) {
             for (ItemStack item : player.getInventory().getArmorContents()) {
                 if (item != null && item.getType() != Material.AIR) {
@@ -571,7 +570,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         Player p1 = Bukkit.getPlayer(duel.p1);
         Player p2 = Bukkit.getPlayer(duel.p2);
         
-        // Heal immediately to prevent dying to fire/poison during the 2-second delay
         if (p1 != null) {
             p1.setHealth(Math.max(1.0, p1.getAttribute(org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH).getValue()));
             p1.setFireTicks(0);
@@ -581,6 +579,12 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             p2.setFireTicks(0);
         }
 
+        Player player1 = Bukkit.getPlayer(duel.p1);
+        if (player1 != null) player1.removeMetadata("in_duel", this.plugin);
+        
+        Player player2 = Bukkit.getPlayer(duel.p2);
+        if (player2 != null) player2.removeMetadata("in_duel", this.plugin);
+
         this.activeDuels.remove(duel.p1);
         this.activeDuels.remove(duel.p2);
         if (winner != null && loser != null) {
@@ -588,6 +592,12 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             loser.incrementStatistic(org.bukkit.Statistic.DEATHS);
             this.msg(winner, this.pref() + this.replace(getConfig().getString("messages.match-win"), "%loser%", loser.getName()));
             this.msg(loser, this.pref() + this.replace(getConfig().getString("messages.match-lose"), "%winner%", winner.getName()));
+            
+            long rewardPoints = getConfig().getLong("rewards.points-on-win", 25L);
+            if (rewardPoints > 0) {
+                org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), "points give " + winner.getName() + " " + rewardPoints);
+            }
+            
             winner.sendTitle(this.cc("&aVICTORY!"), this.cc("&fAgainst &e" + loser.getName()), 5, 35, 10);
             loser.sendTitle(this.cc("&cDEFEAT"), this.cc("&fAgainst &e" + winner.getName()), 5, 35, 10);
         }
@@ -595,9 +605,10 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             this.removeNearbyArenaEntities();
         }
         
-        // Rollback placed blocks
         for (int i = duel.placedBlocks.size() - 1; i >= 0; i--) {
-            duel.placedBlocks.get(i).update(true, true); // applyPhysics = true to make water recede
+            org.bukkit.block.BlockState state = duel.placedBlocks.get(i);
+            state.getBlock().setType(org.bukkit.Material.AIR, false); // force remove first
+            state.update(true, false); // restore original state without physics
         }
         duel.placedBlocks.clear();
         
@@ -713,7 +724,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         this.endDuel(duel, winner, loser, false);
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getEntity() instanceof Player)) {
             return;
@@ -734,6 +745,8 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             }
             if (!victimDuel.canDamage) {
                 event.setCancelled(true);
+            } else {
+                event.setCancelled(false); // Override any other protection plugins since they are in an active duel
             }
             return;
         }
@@ -846,6 +859,24 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
             duel.placedBlocks.add(event.getBlock().getState());
         } else {
             if (!event.isCancelled() && getConfig().getBoolean("protection.block-buckets-in-arena", true) && this.isInArena(event.getBlock().getLocation()) && !event.getPlayer().hasPermission("rumahkita.pvp.bypass")) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    public void onBlockFromTo(BlockFromToEvent event) {
+        if (!getConfig().getBoolean("protection.block-break-place-in-arena", true)) return;
+        if (this.isInArena(event.getToBlock().getLocation())) {
+            boolean isDueling = false;
+            for (Duel d : this.activeDuels.values()) {
+                if (d.canDamage) {
+                    isDueling = true;
+                    d.placedBlocks.add(event.getToBlock().getState());
+                    break;
+                }
+            }
+            if (!isDueling) {
                 event.setCancelled(true);
             }
         }
@@ -1129,15 +1160,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
                 this.msg(player, this.pref() + "&eRegion: &f" + getConfig().getString("arena.world") + " " + getConfig().getInt("arena.pos1.x") + "," + getConfig().getInt("arena.min-y") + "," + getConfig().getInt("arena.pos1.z") + " -> " + getConfig().getInt("arena.pos2.x") + "," + getConfig().getInt("arena.max-y") + "," + getConfig().getInt("arena.pos2.z"));
                 return true;
             }
-            case "reload": {
-                if (!player.hasPermission("rumahkita.pvp.admin")) {
-                    this.msg(player, this.pref() + getConfig().getString("messages.no-permission"));
-                    return true;
-                }
-                reloadConfig();
-                this.msg(player, this.pref() + "&aConfig PvP reloaded.");
-                return true;
-            }
             case "setspawn1": 
             case "setspawn2": 
             case "setpos1": 
@@ -1176,7 +1198,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         if (player.hasPermission("rumahkita.pvp.admin")) {
             this.msg(player, "&eAdmin: &f/pvp createkit <name> &7- create custom kit from inventory");
             this.msg(player, "&eAdmin: &f/pvp deletekit <name> &7- delete custom kit");
-            this.msg(player, "&eAdmin: &f/pvp setpos1, setpos2, setspawn1, setspawn2, status, reload");
+            this.msg(player, "&eAdmin: &f/pvp setpos1, setpos2, setspawn1, setspawn2, status");
         }
     }
 
@@ -1184,7 +1206,7 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
         if (args.length == 1) {
             ArrayList<String> base = new ArrayList<String>(Arrays.asList("invite", "accept", "deny", "cancel", "quickjoin", "leave"));
             if (sender.hasPermission("rumahkita.pvp.admin")) {
-                base.addAll(Arrays.asList("createkit", "deletekit", "status", "reload", "setpos1", "setpos2", "setspawn1", "setspawn2"));
+                base.addAll(Arrays.asList("createkit", "deletekit", "status", "setpos1", "setpos2", "setspawn1", "setspawn2"));
             }
             return this.filter(base, args[0]);
         }
@@ -1202,7 +1224,6 @@ public final class RumahKitaPvP1v1Plugin implements Listener, TabExecutor {
                     if (!kits.contains(k.toUpperCase())) kits.add(k.toUpperCase());
                 }
             }
-            // Remove deleted or disabled kits
             kits.removeIf(k -> {
                 boolean disabled = false;
                 if (getConfig().getConfigurationSection("disabled-kits") != null) {

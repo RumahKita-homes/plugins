@@ -38,3 +38,24 @@ old-player-shop:
     - "plugins/RumahKitaEconomy/player-market.json"
     - "plugins/RumahKitaEconomyRupiah/json/player-market-rupiah.json"
     - "plugins/RumahKitaEconomyRupiah/player-market-rupiah.json"
+
+points:
+  playtime:
+    enabled: true
+    interval-minutes: 30
+    amount: 10
+  afk:
+    enabled: true
+    interval-minutes: 10
+    amount: 5
+    world: "world"
+    x: 0.0
+    y: 64.0
+    z: 0.0
+    radius: 10.0
+  kill-player:
+    enabled: true
+    amount: 15
+  pvp:
+    enabled: true
+    amount: 15

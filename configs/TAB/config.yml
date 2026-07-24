@@ -87,10 +87,11 @@ scoreboard:
         - ""
         
     rumahkita:
-      title: "&d&n&lRUMAHKITA"
+      title: "&d&lRUMAHKITA"
       lines:
         - "%luckperms_prefix%%player%"
-        - "&a$ &fRp%rke_balance_short%"
+        - "&a&l$ &fRp%rke_balance_short%"
+        - "&d⭐ &f%rke_points%"
         - "&e⌚ &f%statistic_hours_played%h"
 
 layout:

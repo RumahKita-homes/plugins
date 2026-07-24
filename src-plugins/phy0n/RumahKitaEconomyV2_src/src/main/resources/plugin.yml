@@ -39,6 +39,10 @@ commands:
     description: Economy Admin Dashboard
     permission: rumahkita.economy.admin
     aliases: [rkeco]
+  points:
+    description: Cek Points atau buka Points Shop
+    usage: /points [shop/add]
+    aliases: [point]
 
 permissions:
   market.use:

@@ -54,9 +54,6 @@ public class RumahKitaWarpsPlugin  {
         getCommand("editwarp").setExecutor(swCmd);
         getCommand("editwarp").setTabCompleter(swCmd);
         
-        RkwCommand rkwCmd = new RkwCommand(this);
-        getCommand("rkw").setExecutor(rkwCmd);
-        getCommand("rkw").setTabCompleter(rkwCmd);
         
         BackManager backManager = new BackManager(this.getPlugin());
         getServer().getPluginManager().registerEvents(backManager, this.getPlugin());

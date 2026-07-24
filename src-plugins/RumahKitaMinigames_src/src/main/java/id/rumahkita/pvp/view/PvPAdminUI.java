@@ -18,7 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 public class PvPAdminUI implements Listener {
     private final RumahKitaMinigamesPlugin plugin;
     private final RumahKitaPvP1v1Plugin pvp;
-    private final String UI_TITLE = ChatColor.GOLD + "" + ChatColor.BOLD + "PvP 1v1 Settings";
+    private final String UI_TITLE = ChatColor.WHITE + "PvP Settings Admin";
 
     public PvPAdminUI(RumahKitaMinigamesPlugin plugin, RumahKitaPvP1v1Plugin pvp) {
         this.plugin = plugin;
@@ -34,7 +34,6 @@ public class PvPAdminUI implements Listener {
             inv.setItem(i, glass);
         }
 
-        // Spawns & Boundaries
         inv.setItem(10, createItem(Material.DIAMOND_SWORD, "&b&lSpawn 1 (Player 1)", 
                 "&7Current: " + getPos("arena.spawn1"),
                 "&fClick &7to set at your location."));
@@ -49,7 +48,6 @@ public class PvPAdminUI implements Listener {
                 "&7Current: " + getPos("arena.pos2"),
                 "&fClick &7to set at your location."));
 
-        // Match Settings (Toggles)
         boolean healOnEnd = pvp.getConfig().getBoolean("match.heal-on-end", true);
         inv.setItem(28, createItem(healOnEnd ? Material.LIME_DYE : Material.RED_DYE, "&a&lHeal On End", 
                 "&7Status: " + (healOnEnd ? "&aENABLED" : "&cDISABLED"),
@@ -70,7 +68,6 @@ public class PvPAdminUI implements Listener {
                 "&7Status: " + (timerEnabled ? "&aENABLED" : "&cDISABLED"),
                 "&fClick &7to toggle."));
 
-        // Time Settings
         int countdown = pvp.getConfig().getInt("match.countdown-seconds", 3);
         inv.setItem(33, createItem(Material.CLOCK, "&b&lStart Countdown", 
                 "&7Current: &e" + countdown + "s",
@@ -85,7 +82,6 @@ public class PvPAdminUI implements Listener {
                 "&fLeft-Click &7to add +1s",
                 "&fRight-Click &7to subtract -1s"));
 
-        // Kit Management
         int totalKits = 0;
         ConfigurationSection kitSec = pvp.getConfig().getConfigurationSection("kits");
         if (kitSec != null) totalKits = kitSec.getKeys(false).size();

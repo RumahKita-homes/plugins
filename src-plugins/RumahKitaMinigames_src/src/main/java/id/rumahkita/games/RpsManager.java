@@ -55,7 +55,7 @@ public class RpsManager implements Listener {
     }
 
     public void openGameList(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.DARK_GRAY + "RPS Games");
+        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.WHITE + "RPS Games");
         
         for (RpsGame game : activeGames.values()) {
             if (game.targetPlayer != null) continue;
@@ -79,7 +79,7 @@ public class RpsManager implements Listener {
     }
     
     public void openChoiceGUI(Player p, Player target) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.DARK_GRAY + "Choose RPS against " + target.getName());
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.WHITE + "Choose RPS against " + target.getName());
         
         ItemStack batu = new ItemStack(Material.COBBLESTONE);
         ItemMeta mRock = batu.getItemMeta();
@@ -105,7 +105,8 @@ public class RpsManager implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getView().getTitle().equals(ChatColor.DARK_GRAY + "RPS Games")) {
+        String title = e.getView().getTitle();
+        if (title.equals(ChatColor.WHITE + "RPS Games")) {
             e.setCancelled(true);
             if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.PLAYER_HEAD) {
                 Player p = (Player) e.getWhoClicked();
@@ -121,10 +122,10 @@ public class RpsManager implements Listener {
                     }
                 }
             }
-        } else if (e.getView().getTitle().startsWith(ChatColor.DARK_GRAY + "Choose RPS against ")) {
+        } else if (title.startsWith(ChatColor.WHITE + "Choose RPS against ")) {
             e.setCancelled(true);
             Player p = (Player) e.getWhoClicked();
-            String targetName = e.getView().getTitle().replace(ChatColor.DARK_GRAY + "Choose RPS against ", "");
+            String targetName = title.replace(ChatColor.WHITE + "Choose RPS against ", "");
             Player target = Bukkit.getPlayerExact(targetName);
             
             if (target == null) {
@@ -245,11 +246,11 @@ public class RpsManager implements Listener {
                             
                         if (currentStreak >= 3) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                                "&e[RPS] &c&l🔥 WOW! &f" + target.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! 🔥"));
+                                "&e[RPS] &c&lðŸ”¥ WOW! &f" + target.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! ðŸ”¥"));
                         }
                         if (loserStreak >= 3) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                                "&e[RPS] &4&l☠ RIP! &f" + p.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + target.getName() + "&f! ☠"));
+                                "&e[RPS] &4&lâ˜  RIP! &f" + p.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + target.getName() + "&f! â˜ "));
                         }
                         
                         sendWinLoss(target, p, creatorChoice, fJoinerChoice, winAmount);
@@ -266,11 +267,11 @@ public class RpsManager implements Listener {
                             
                         if (currentStreak >= 3) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                                "&e[RPS] &c&l🔥 WOW! &f" + p.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! 🔥"));
+                                "&e[RPS] &c&lðŸ”¥ WOW! &f" + p.getName() + " &eis on a &c&l" + currentStreak + "x &eWin Streak! ðŸ”¥"));
                         }
                         if (loserStreak >= 3) {
                             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', 
-                                "&e[RPS] &4&l☠ RIP! &f" + target.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + p.getName() + "&f! ☠"));
+                                "&e[RPS] &4&lâ˜  RIP! &f" + target.getName() + "'s &c&l" + loserStreak + "x &fWin Streak was ended by &e" + p.getName() + "&f! â˜ "));
                         }
                         
                         sendWinLoss(p, target, fJoinerChoice, creatorChoice, winAmount);

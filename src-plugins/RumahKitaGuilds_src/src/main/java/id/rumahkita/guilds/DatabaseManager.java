@@ -122,7 +122,6 @@ public class DatabaseManager {
                 try {
                     stmt.execute(sql);
                 } catch (SQLException ignore) {
-                    // Column already exists
                 }
             }
         } catch (SQLException e) {

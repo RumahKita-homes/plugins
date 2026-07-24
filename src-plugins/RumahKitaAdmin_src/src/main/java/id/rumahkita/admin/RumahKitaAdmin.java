@@ -66,7 +66,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
     private final Map<UUID, org.bukkit.permissions.PermissionAttachment> vanishPerms = new HashMap<>();
     private final Map<UUID, Location> spectateLocations = new HashMap<>();
     private final Map<UUID, Boolean> adminSpectate = new HashMap<>();
-    private id.rumahkita.admin.gui.AdminGuiManager guiManager;
     private final Map<UUID, GameMode> spectateGameModes = new HashMap<>();
     
     private boolean maintenanceMode = false;
@@ -93,8 +92,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
             getCommand("sc").setExecutor(this);
         }
         getServer().getPluginManager().registerEvents(this, this);
-        guiManager = new id.rumahkita.admin.gui.AdminGuiManager(this);
-        getServer().getPluginManager().registerEvents(guiManager, this);
         createDataConfig();
         loadJailData();
         
@@ -142,13 +139,11 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
     }
 
     private void saveDataConfig() {
-        org.bukkit.Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            try {
-                dataConfig.save(dataFile);
-            } catch (Exception e) {
-                getLogger().severe("Could not save data.yml!");
-            }
-        });
+        try {
+            dataConfig.save(dataFile);
+        } catch (Exception e) {
+            getLogger().severe("Could not save data.yml!");
+        }
     }
 
     private void loadJailData() {
@@ -208,15 +203,10 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
             sender.sendMessage(ChatColor.YELLOW + "/rka sudo <player> <cmd> " + ChatColor.GRAY + "- Sudo a player");
             sender.sendMessage(ChatColor.YELLOW + "/rka spectate <player> " + ChatColor.GRAY + "- Spectate a player");
             sender.sendMessage(ChatColor.YELLOW + "/rka restart [time] " + ChatColor.GRAY + "- Restart the server");
-            sender.sendMessage(ChatColor.YELLOW + "/rka gui " + ChatColor.GRAY + "- Open Admin Dashboard");
             return true;
         }
         if (args.length == 0) {
-            if (sender instanceof org.bukkit.entity.Player) {
-                guiManager.openMainMenu((org.bukkit.entity.Player) sender);
-                return true;
-            }
-            sender.sendMessage(ChatColor.RED + "Type /rka help for help.");
+            sendHelpMenu(sender);
             return true;
         }
 
@@ -261,7 +251,7 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
                       "clearchat", "freeze", "kick", "broadcast", 
                       "mute", "unmute", "maintenance",
                       "chatlock", "setjail", "jail", "unjail", "warn", "unwarn", "inspect", "sudo", "spectate", "restart", 
-                      "reload", "gui"
+                      "reload"
                   );
                 return subs.stream().filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
             } else if (args.length == 2) {
@@ -568,9 +558,8 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
             return true;
         }
         
-        Inventory inv = Bukkit.createInventory(null, 27, "Inspect: " + target.getName());
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.WHITE + "Inspect: " + target.getName());
         
-        // Health & Food
         ItemStack healthItem = new ItemStack(Material.APPLE);
         ItemMeta hm = healthItem.getItemMeta();
         hm.setDisplayName(ChatColor.RED + "Health & Food");
@@ -582,7 +571,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         healthItem.setItemMeta(hm);
         inv.setItem(10, healthItem);
         
-        // Location
         ItemStack locItem = new ItemStack(Material.COMPASS);
         ItemMeta lm = locItem.getItemMeta();
         lm.setDisplayName(ChatColor.GREEN + "Location");
@@ -596,7 +584,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         locItem.setItemMeta(lm);
         inv.setItem(11, locItem);
         
-        // Playtime
         ItemStack timeItem = new ItemStack(Material.CLOCK);
         ItemMeta tm = timeItem.getItemMeta();
         tm.setDisplayName(ChatColor.AQUA + "Playtime");
@@ -607,7 +594,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         timeItem.setItemMeta(tm);
         inv.setItem(12, timeItem);
         
-        // Network & IP
         ItemStack infoItem = new ItemStack(Material.PAPER);
         ItemMeta im = infoItem.getItemMeta();
         im.setDisplayName(ChatColor.YELLOW + "Network Info");
@@ -618,7 +604,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         infoItem.setItemMeta(im);
         inv.setItem(13, infoItem);
         
-        // Moderation Info
         ItemStack modItem = new ItemStack(Material.IRON_BARS);
         ItemMeta modm = modItem.getItemMeta();
         modm.setDisplayName(ChatColor.DARK_RED + "Moderation Record");
@@ -632,7 +617,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         modItem.setItemMeta(modm);
         inv.setItem(14, modItem);
         
-        // Player Status
         ItemStack statusItem = new ItemStack(Material.FEATHER);
         ItemMeta sm = statusItem.getItemMeta();
         sm.setDisplayName(ChatColor.LIGHT_PURPLE + "Player Status");
@@ -645,7 +629,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         statusItem.setItemMeta(sm);
         inv.setItem(15, statusItem);
         
-        // Economy
         ItemStack econItem = new ItemStack(Material.GOLD_INGOT);
         ItemMeta em = econItem.getItemMeta();
         em.setDisplayName(ChatColor.GOLD + "Economy");
@@ -985,7 +968,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
 
     
 
-    // --- EVENT LISTENERS ---
 
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
@@ -1012,21 +994,7 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         }
         
         if (!p.hasPermission("rumahkita.admin")) {
-            long now = System.currentTimeMillis();
-            long lastTime = lastChatTimes.getOrDefault(p.getUniqueId(), 0L);
-            if (now - lastTime < 3000) {
-                event.setCancelled(true);
-                p.sendMessage(ChatColor.RED + "Please do not spam! Wait 3 seconds.");
-                return;
-            }
-            
             String msg = event.getMessage();
-            if (msg.equalsIgnoreCase(lastMessages.get(p.getUniqueId()))) {
-                event.setCancelled(true);
-                p.sendMessage(ChatColor.RED + "Please do not send the same message repeatedly!");
-                return;
-            }
-            
             if (msg.length() >= 5) {
                 int caps = 0;
                 for (char c : msg.toCharArray()) {
@@ -1048,9 +1016,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
                     p.sendMessage(ChatColor.RED + "Tolong jaga ucapanmu di server!");
                 }
             }
-            
-            lastChatTimes.put(p.getUniqueId(), now);
-            lastMessages.put(p.getUniqueId(), msg);
         }
     }
 
@@ -1236,7 +1201,6 @@ public class RumahKitaAdmin extends JavaPlugin implements CommandExecutor, TabCo
         }
     }
 
-    // --- RESTART SYSTEM IMPLEMENTATION ---
 
     private void loadRestartConfig() {
         restartTimes.clear();

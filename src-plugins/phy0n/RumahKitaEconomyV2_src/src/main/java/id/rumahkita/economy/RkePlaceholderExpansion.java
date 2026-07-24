@@ -46,6 +46,12 @@ extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("balance_short")) {
             return this.plugin.getBalanceShort(player);
         }
+        if (params.equalsIgnoreCase("points")) {
+            return this.plugin.getPointsFormatted(player);
+        }
+        if (params.equalsIgnoreCase("points_raw")) {
+            return String.valueOf(this.plugin.getPoints(player.getUniqueId()));
+        }
         if (params.equalsIgnoreCase("currency")) {
             return "Rp";
         }

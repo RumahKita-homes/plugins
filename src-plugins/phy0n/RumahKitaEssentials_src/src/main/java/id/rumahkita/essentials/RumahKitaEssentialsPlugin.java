@@ -6,7 +6,6 @@ import id.rumahkita.essentials.commands.PlayerUtilityCommands;
 import id.rumahkita.utilities.RumahKitaUtilitiesPlugin;
 import id.rumahkita.warps.RumahKitaWarpsPlugin;
 import id.rumahkita.spawn.RumahKitaSpawnPlugin;
-import id.rumahkita.essentials.EssentialsAdminGui;
 import id.rumahkita.essentials.EssentialsAdminCommand;
 
 public class RumahKitaEssentialsPlugin extends JavaPlugin {
@@ -22,11 +21,9 @@ public class RumahKitaEssentialsPlugin extends JavaPlugin {
 
         org.bukkit.Bukkit.getPluginManager().registerEvents(new AnvilColorListener(), this);
 
-        EssentialsAdminGui gui = new EssentialsAdminGui(this);
-        org.bukkit.Bukkit.getPluginManager().registerEvents(gui, this);
         org.bukkit.command.PluginCommand adminCmd = getCommand("rkessentials");
         if (adminCmd != null) {
-            EssentialsAdminCommand adminExecutor = new EssentialsAdminCommand(this, gui);
+            EssentialsAdminCommand adminExecutor = new EssentialsAdminCommand(this);
             adminCmd.setExecutor(adminExecutor);
             adminCmd.setTabCompleter(adminExecutor);
         }

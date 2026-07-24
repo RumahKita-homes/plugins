@@ -721,7 +721,6 @@ TabCompleter {
                         player.setHealth(20.0);
                     }
                     catch (Exception exception) {
-                        // empty catch block
                     }
                 }
                 player.setFoodLevel(20);
@@ -1073,7 +1072,6 @@ TabCompleter {
                         player.setHealth(20.0);
                     }
                     catch (Exception exception) {
-                        // empty catch block
                     }
                 }
                 player.setFoodLevel(20);
@@ -1664,7 +1662,6 @@ TabCompleter {
         }
         lines.add(this.color("&8&m----------"));
         
-        // Anti-flicker & Anti-lag Team based update
         for (int i = 0; i < lines.size(); i++) {
             String teamName = "rkctf_" + i;
             org.bukkit.scoreboard.Team team = board.getTeam(teamName);
@@ -1682,7 +1679,6 @@ TabCompleter {
             objective.getScore(entry).setScore(lines.size() - i);
         }
         
-        // Clean up remaining scores if any
         for (int i = lines.size(); i < 15; i++) {
             String entry = ChatColor.values()[i].toString() + ChatColor.RESET;
             board.resetScores(entry);
@@ -1813,7 +1809,6 @@ TabCompleter {
             player.setHealth(Math.max(1.0, Math.min(max, health)));
         }
         catch (Exception health) {
-            // empty catch block
         }
         player.setFoodLevel(Math.max(0, Math.min(20, yaml.getInt("food", 20))));
         player.setSaturation((float)yaml.getDouble("saturation", 5.0));
@@ -1886,7 +1881,6 @@ TabCompleter {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText((String)this.color(message)));
         }
         catch (Exception exception) {
-            // empty catch block
         }
     }
 
@@ -1898,7 +1892,6 @@ TabCompleter {
             player.playSound(player.getLocation(), sound, volume, pitch);
         }
         catch (Exception exception) {
-            // empty catch block
         }
     }
 

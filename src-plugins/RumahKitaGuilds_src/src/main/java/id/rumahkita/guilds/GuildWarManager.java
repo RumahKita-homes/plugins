@@ -466,7 +466,6 @@ implements Listener {
         if (!this.plugin.getConfig().getBoolean("guild-war.respawn-continue", true)) {
             this.activeWar.deadPlayers.add(victim.getUniqueId());
             
-            // Check if a team is completely wiped out
             boolean team1Wiped = true;
             boolean team2Wiped = true;
             

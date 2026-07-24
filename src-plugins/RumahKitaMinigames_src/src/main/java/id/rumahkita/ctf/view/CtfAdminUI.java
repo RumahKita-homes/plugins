@@ -17,7 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class CtfAdminUI implements Listener {
     private final RumahKitaMinigamesPlugin plugin;
     private final RumahKitaCaptureFlag ctf;
-    private final String UI_TITLE = ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "CTF Arena Settings";
+    private final String UI_TITLE = ChatColor.WHITE + "CTF Settings Admin";
 
     public CtfAdminUI(RumahKitaMinigamesPlugin plugin, RumahKitaCaptureFlag ctf) {
         this.plugin = plugin;
@@ -33,7 +33,6 @@ public class CtfAdminUI implements Listener {
             inv.setItem(i, glass);
         }
 
-        // Row 2: Positions
         inv.setItem(10, createItem(Material.RED_WOOL, "&c&lTeam 1 Spawn", 
                 "&7Current: " + getPos("spawns.side1"),
                 "&fClick &7to set at your location."));
@@ -50,7 +49,6 @@ public class CtfAdminUI implements Listener {
                 "&fRight-Click &7to ADD a new Capture Point.",
                 "&fShift-Right-Click &7to CLEAR extra points."));
 
-        // Row 3: Settings
         int minP = ctf.getConfig().getInt("settings.min-players", 2);
         inv.setItem(28, createItem(Material.PLAYER_HEAD, "&a&lMinimum Players", 
                 "&7Current: &e" + minP,
@@ -72,7 +70,6 @@ public class CtfAdminUI implements Listener {
                 "&fLeft-Click &7to add +30s",
                 "&fRight-Click &7to subtract -30s"));
 
-        // Row 4: Toggles
         boolean preventDrop = ctf.getConfig().getBoolean("inventory.prevent-item-drop", true);
         inv.setItem(38, createItem(preventDrop ? Material.LIME_DYE : Material.RED_DYE, "&6&lPrevent Item Drop", 
                 "&7Status: " + (preventDrop ? "&aENABLED" : "&cDISABLED"),
@@ -98,7 +95,6 @@ public class CtfAdminUI implements Listener {
                 "&7Status: " + (rewards ? "&aENABLED" : "&cDISABLED"),
                 "&fClick &7to toggle."));
 
-        // Row 6: Actions
         inv.setItem(48, createItem(Material.EMERALD_BLOCK, "&a&lSTART EVENT", "&7Start the event immediately."));
         inv.setItem(50, createItem(Material.REDSTONE_BLOCK, "&c&lSTOP EVENT", "&7Force stop the event."));
 

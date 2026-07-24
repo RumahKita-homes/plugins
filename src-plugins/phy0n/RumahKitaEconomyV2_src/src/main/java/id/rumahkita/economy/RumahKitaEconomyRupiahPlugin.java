@@ -111,6 +111,7 @@ TabExecutor {
     private File marketFile;
     private File messagesFile;
     private File balancesFile;
+    private File pointsFile;
     private File refundsFile;
     private File pricesFile;
     private File stockFile;
@@ -120,6 +121,7 @@ TabExecutor {
     private FileConfiguration marketCfg;
     private FileConfiguration messagesCfg;
     private FileConfiguration balancesCfg;
+    private FileConfiguration pointsCfg;
     private FileConfiguration refundsCfg;
     private FileConfiguration pricesCfg;
     private FileConfiguration stockCfg;
@@ -136,6 +138,7 @@ TabExecutor {
 
     private static RumahKitaEconomyRupiahPlugin instance;
     private RkePlaceholderExpansion placeholderExpansion;
+    private PointsShopManager pointsShopManager;
     
     public static RumahKitaEconomyRupiahPlugin getInstance() {
         return instance;
@@ -156,16 +159,15 @@ TabExecutor {
         this.keyVoucherPercent = new NamespacedKey((Plugin)this, "voucher_percent");
         this.keyRefundId = new NamespacedKey((Plugin)this, "refund_id");
         this.dbManager = new DatabaseManager(this);
+        this.pointsShopManager = new PointsShopManager(this);
         this.reloadAll();
         Bukkit.getPluginManager().registerEvents((Listener)this, (Plugin)this);
         
-        EconomyAdminGui adminGui = new EconomyAdminGui(this);
-        Bukkit.getPluginManager().registerEvents(adminGui, this);
         org.bukkit.command.PluginCommand adminCmd = getCommand("rkeconomy");
         if (adminCmd != null) {
-            adminCmd.setExecutor(new EconomyAdminCommand(adminGui));
+            adminCmd.setExecutor(new EconomyAdminCommand());
         }
-        for (String cmd : Arrays.asList("market", "sellhand", "sellall", "bal", "pay", "payall", "rke", "baltop", "hidebal")) {
+        for (String cmd : Arrays.asList("market", "sellhand", "sellall", "bal", "pay", "payall", "rke", "baltop", "hidebal", "points")) {
             if (this.getCommand(cmd) != null) {
                 this.getCommand(cmd).setExecutor((CommandExecutor)this);
             }
@@ -178,13 +180,6 @@ TabExecutor {
             Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.runRefundMigration((CommandSender)Bukkit.getConsoleSender(), false), 60L);
         }
         this.setupVault();
-//        this.tradeManager = new id.rumahkita.trade.TradeManager(this);
-//        id.rumahkita.trade.TradeCommand tradeCmd = new id.rumahkita.trade.TradeCommand(this.tradeManager);
-//        if (this.getCommand("trade") != null) {
-//            this.getCommand("trade").setExecutor((CommandExecutor)tradeCmd);
-//            this.getCommand("trade").setTabCompleter((TabCompleter)tradeCmd);
-//        }
-//        Bukkit.getPluginManager().registerEvents(this.tradeManager, this);
         this.getLogger().info("RumahKitaEconomyRupiah v2.1.1 BalanceMigrationFix enabled.");
     }
 
@@ -198,7 +193,6 @@ TabExecutor {
     }
 
     public void onDisable() {
-        // PlugManX Compatibility Cleanup
         try {
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 p.closeInventory();
@@ -251,6 +245,13 @@ TabExecutor {
                     }
                 });
             });
+            this.dbManager.loadPoints(e.getPlayer().getUniqueId()).thenAccept(pts -> {
+                Bukkit.getScheduler().runTask(this, () -> {
+                    if (pts >= 0L) {
+                        this.pointsCfg.set("points." + e.getPlayer().getUniqueId().toString(), pts);
+                    }
+                });
+            });
         }
     }
 
@@ -277,6 +278,7 @@ TabExecutor {
         this.messagesFile = new File(this.getDataFolder(), "messages.yml");
         
         this.saveIfMissing("data/balances.yml");
+        this.saveIfMissing("data/points.yml");
         this.saveIfMissing("data/refunds.yml");
         this.saveIfMissing("data/prices.yml");
         this.saveIfMissing("data/stock.yml");
@@ -284,6 +286,7 @@ TabExecutor {
         this.saveIfMissing("data/daily-limits.yml");
         this.saveIfMissing("data/migration.yml");
         this.balancesFile = new File(dataDir, "balances.yml");
+        this.pointsFile = new File(dataDir, "points.yml");
         this.refundsFile = new File(dataDir, "refunds.yml");
         this.pricesFile = new File(dataDir, "prices.yml");
         this.stockFile = new File(dataDir, "stock.yml");
@@ -291,6 +294,7 @@ TabExecutor {
         this.limitsFile = new File(dataDir, "daily-limits.yml");
         this.migrationFile = new File(dataDir, "migration.yml");
         this.balancesCfg = YamlConfiguration.loadConfiguration((File)this.balancesFile);
+        this.pointsCfg = YamlConfiguration.loadConfiguration((File)this.pointsFile);
         this.refundsCfg = YamlConfiguration.loadConfiguration((File)this.refundsFile);
         this.pricesCfg = YamlConfiguration.loadConfiguration((File)this.pricesFile);
         this.stockCfg = YamlConfiguration.loadConfiguration((File)this.stockFile);
@@ -334,6 +338,7 @@ TabExecutor {
         this.marketCfg = YamlConfiguration.loadConfiguration((File)this.marketFile);
         this.messagesCfg = YamlConfiguration.loadConfiguration((File)this.messagesFile);
         this.balancesCfg = YamlConfiguration.loadConfiguration((File)this.balancesFile);
+        this.pointsCfg = YamlConfiguration.loadConfiguration((File)this.pointsFile);
         this.migrateLegacyBalancesIfNeeded(false);
         this.refundsCfg = YamlConfiguration.loadConfiguration((File)this.refundsFile);
         this.pricesCfg = YamlConfiguration.loadConfiguration((File)this.pricesFile);
@@ -485,10 +490,52 @@ TabExecutor {
         new org.bukkit.scheduler.BukkitRunnable() {
             public void run() { updateDemandPrices(false); }
         }.runTaskTimer((Plugin)this, 1200L * minutes, 1200L * minutes);
+
+        if (this.getConfig().getBoolean("points.playtime.enabled", true)) {
+            long pInterval = this.getConfig().getLong("points.playtime.interval-minutes", 30L);
+            long pAmount = this.getConfig().getLong("points.playtime.amount", 10L);
+            new org.bukkit.scheduler.BukkitRunnable() {
+                public void run() {
+                    for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        addPoints(p.getUniqueId(), pAmount);
+                        p.sendMessage(color("&aYou received &e" + pAmount + " Points &afor playing!"));
+                    }
+                }
+            }.runTaskTimer((Plugin)this, pInterval * 1200L, pInterval * 1200L);
+        }
+
+        if (this.getConfig().getBoolean("points.afk.enabled", true)) {
+            long afkInterval = this.getConfig().getLong("points.afk.interval-minutes", 10L);
+            long afkAmount = this.getConfig().getLong("points.afk.amount", 5L);
+            String afkWorld = this.getConfig().getString("points.afk.world", "world");
+            double afkX = this.getConfig().getDouble("points.afk.x", 0.0);
+            double afkY = this.getConfig().getDouble("points.afk.y", 64.0);
+            double afkZ = this.getConfig().getDouble("points.afk.z", 0.0);
+            double afkRadius = this.getConfig().getDouble("points.afk.radius", 10.0);
+            new org.bukkit.scheduler.BukkitRunnable() {
+                public void run() {
+                    org.bukkit.World w = org.bukkit.Bukkit.getWorld(afkWorld);
+                    if (w == null) return;
+                    org.bukkit.Location afkLoc = new org.bukkit.Location(w, afkX, afkY, afkZ);
+                    for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        if (p.getWorld().equals(w)) {
+                            double dx = Math.abs(p.getLocation().getX() - afkX);
+                            double dz = Math.abs(p.getLocation().getZ() - afkZ);
+                            double dy = Math.abs(p.getLocation().getY() - afkY);
+                            if (dx <= afkRadius && dz <= afkRadius && dy <= 50.0) {
+                                addPoints(p.getUniqueId(), afkAmount);
+                                p.sendMessage(color("&aYou received &e" + afkAmount + " Points &afor being AFK in the AFK Zone!"));
+                            }
+                        }
+                    }
+                }
+            }.runTaskTimer((Plugin)this, afkInterval * 1200L, afkInterval * 1200L);
+        }
     }
 
     private void saveData() {
         this.trySave(this.balancesCfg, this.balancesFile);
+        this.trySave(this.pointsCfg, this.pointsFile);
         this.trySave(this.refundsCfg, this.refundsFile);
         this.trySave(this.pricesCfg, this.pricesFile);
         this.trySave(this.stockCfg, this.stockFile);
@@ -526,6 +573,9 @@ TabExecutor {
         }
         if (name.equals("sellall")) {
             return this.handleSellAll(sender);
+        }
+        if (name.equals("points") || name.equals("point")) {
+            return this.handlePoints(sender, args);
         }
 
         if (name.equals("bal")) {
@@ -705,6 +755,115 @@ TabExecutor {
         return true;
     }
 
+    private boolean handlePoints(CommandSender sender, String[] args) {
+        if (args.length == 0) {
+            if (!(sender instanceof Player)) {
+                this.msg(sender, "&cUsage: /points <player>");
+                return true;
+            }
+            this.msg(sender, "&7Your Points: &e" + this.getPointsFormatted((OfflinePlayer)sender));
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("shop")) {
+            if (!(sender instanceof Player)) {
+                this.msg(sender, "&cOnly players can open the shop.");
+                return true;
+            }
+            Player p = (Player)sender;
+            
+            if (args.length >= 3 && args[1].equalsIgnoreCase("add")) {
+                if (!this.hasAdmin(sender, "market.admin")) {
+                    return this.noPerm(sender);
+                }
+                long price = this.parseLong(args[2], -1L);
+                if (price < 0) {
+                    this.msg(sender, "&cInvalid price.");
+                    return true;
+                }
+                ItemStack hand = p.getInventory().getItemInMainHand();
+                if (hand == null || hand.getType() == org.bukkit.Material.AIR) {
+                    this.msg(sender, "&cYou must hold an item in your main hand.");
+                    return true;
+                }
+                this.pointsShopManager.addItem(hand, price, p);
+                return true;
+            }
+            if (args.length == 2 && args[1].equalsIgnoreCase("edit")) {
+                if (!(sender instanceof Player)) {
+                    this.msg(sender, "&cOnly players can use this.");
+                    return true;
+                }
+                if (!this.hasAdmin(sender, "market.admin")) {
+                    return this.noPerm(sender);
+                }
+                this.pointsShopManager.openEditor((Player)sender);
+                return true;
+            }
+            
+            this.pointsShopManager.openShop(p);
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("setafk")) {
+            if (!(sender instanceof Player)) {
+                this.msg(sender, "&cOnly players can use this.");
+                return true;
+            }
+            if (!this.hasAdmin(sender, "market.admin")) {
+                return this.noPerm(sender);
+            }
+            
+            double radius = 10.0;
+            if (args.length > 1) {
+                try {
+                    radius = Double.parseDouble(args[1]);
+                } catch (NumberFormatException e) {
+                    this.msg(sender, "&cRadius must be a number.");
+                    return true;
+                }
+            }
+            
+            Player p = (Player)sender;
+            this.getConfig().set("points.afk.world", p.getLocation().getWorld().getName());
+            this.getConfig().set("points.afk.x", p.getLocation().getX());
+            this.getConfig().set("points.afk.y", p.getLocation().getY());
+            this.getConfig().set("points.afk.z", p.getLocation().getZ());
+            this.getConfig().set("points.afk.radius", radius);
+            this.saveConfig();
+            
+            this.msg(sender, "&aAFK zone set to your location (Radius: &e" + radius + " blocks&a).");
+            this.msg(sender, "&eUse &a/rke reload &eto apply changes.");
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("give") || args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("set")) {
+            if (!this.hasAdmin(sender, "market.admin")) {
+                return this.noPerm(sender);
+            }
+            if (args.length < 3) {
+                this.msg(sender, "&cUsage: /points " + args[0] + " <player> <amount>");
+                return true;
+            }
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+            long amount = this.parseLong(args[2], -1L);
+            if (amount < 0) {
+                this.msg(sender, this.m("invalid-number"));
+                return true;
+            }
+            if (args[0].equalsIgnoreCase("give")) this.addPoints(target.getUniqueId(), amount);
+            else if (args[0].equalsIgnoreCase("take")) this.takePoints(target.getUniqueId(), amount);
+            else if (args[0].equalsIgnoreCase("set")) this.setPoints(target.getUniqueId(), amount);
+            
+            this.msg(sender, "&a" + target.getName() + "'s points updated. New balance: &e" + this.getPointsFormatted(target));
+            return true;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
+        this.msg(sender, "&7" + target.getName() + "'s Points: &e" + this.getPointsFormatted(target));
+        return true;
+    }
+
     private boolean handleHidebal(CommandSender sender) {
         if (!(sender instanceof Player)) return this.playerOnly(sender);
         Player p = (Player)sender;
@@ -861,20 +1020,14 @@ TabExecutor {
             return true;
         }
         if (args[0].equalsIgnoreCase("help")) {
-            this.msg(sender, "&8==== &b&lRumahKita Economy &8====");
-            this.msg(sender, "&e--- Admin Commands ---");
-            this.msg(sender, "&a /rke give|take|set|balance <player> <amount>");
-            this.msg(sender, "&a /rke voucher give <player> <percent> <amount>");
-            this.msg(sender, "&a /rke voucher giveall <percent> <amount>");
-            this.msg(sender, "&a /rke reload | save | placeholders | demandupdate");
-            this.msg(sender, "&a /rke migratebalances");
-            this.msg(sender, "&a /rke migratemysql &7- Migrate balances data to MySQL");
-            this.msg(sender, "&a /rke baltop &7- Lihat baltop (bypass hidebal)");
-            this.msg(sender, "&e--- Player Commands ---");
-            this.msg(sender, "&a /market atau /shop &7- Buka Menu Toko");
-            this.msg(sender, "&a /bal or /money &7- Check Balance");
-            this.msg(sender, "&a /baltop &7- Peringkat Orang Terkaya");
-            this.msg(sender, "&a /pay <player> <amount> &7- Transfer Money");
+            this.msg(sender, "&8&m--------------------------------");
+            this.msg(sender, "&bRumahKita Economy Admin");
+            this.msg(sender, "&e/rke give/take/set/balance <player> <amount> &7- Manage balances");
+            this.msg(sender, "&e/rke voucher give/giveall <player/percent> <amount> &7- Give vouchers");
+            this.msg(sender, "&e/rke reload/save/placeholders/demandupdate &7- Server tasks");
+            this.msg(sender, "&e/rke migratebalances/migratemysql &7- Migrate balances");
+            this.msg(sender, "&e/rke baltop &7- View baltop (bypass hidebal)");
+            this.msg(sender, "&8&m--------------------------------");
             return true;
         }
 
@@ -1061,12 +1214,20 @@ TabExecutor {
         }
         
         int totalItems = catItems.size();
-        int maxPages = (int) Math.ceil(totalItems / 27.0);
+        int[] slots = {10,11,12,13,14,15,16, 19,20,21,22,23,24,25, 28,29,30,31,32,33,34, 37,38,39,40,41,42,43};
+        int maxItemsPerPage = slots.length;
+        int maxPages = (int) Math.ceil((double) totalItems / maxItemsPerPage);
         
-        int startIndex = page * 27;
-        int slot = 9;
-        for (int i = startIndex; i < startIndex + 27 && i < totalItems; i++) {
-            inv.setItem(slot++, this.marketIcon(catItems.get(i)));
+        ItemStack fill = this.icon(Material.BLACK_STAINED_GLASS_PANE, " ", java.util.Collections.emptyList());
+        for (int i = 0; i < 54; i++) {
+            if (i < 9 || i >= 45 || i % 9 == 0 || i % 9 == 8) {
+                inv.setItem(i, fill);
+            }
+        }
+
+        int startIndex = page * maxItemsPerPage;
+        for (int i = startIndex; i < startIndex + maxItemsPerPage && i < totalItems; i++) {
+            inv.setItem(slots[i - startIndex], this.marketIcon(catItems.get(i)));
         }
         
         if (page > 0) {
@@ -1088,7 +1249,14 @@ TabExecutor {
     private void openQuantity(Player p, String itemKey) {
         MarketItem mi = this.items.get(itemKey);
         if (mi == null) return;
-        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("quantity", itemKey), (int)36, (String)this.color("&8Select Amount (Buy/Sell)"));
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("quantity", itemKey), (int)36, (String)this.color("&fSelect Amount (Buy/Sell)"));
+        
+        ItemStack fill = this.icon(Material.BLACK_STAINED_GLASS_PANE, " ", java.util.Collections.emptyList());
+        for (int i = 0; i < 36; i++) {
+            if (i < 9 || i >= 27 || i % 9 == 0 || i % 9 == 8) {
+                inv.setItem(i, fill);
+            }
+        }
         
         inv.setItem(13, this.marketIcon(mi));
         
@@ -1112,12 +1280,22 @@ TabExecutor {
     }
 
     private void openVouchers(Player p) {
-        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("voucher", null), (int)54, (String)this.color("&8Pilih Voucher Diskon"));
-        int slot = 0;
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("voucher", null), (int)54, (String)this.color("&fPilih Voucher Diskon"));
+        
+        ItemStack fill = this.icon(Material.BLACK_STAINED_GLASS_PANE, " ", java.util.Collections.emptyList());
+        for (int i = 0; i < 54; i++) {
+            if (i < 9 || i >= 45 || i % 9 == 0 || i % 9 == 8) {
+                inv.setItem(i, fill);
+            }
+        }
+        
+        int[] slots = {10,11,12,13,14,15,16, 19,20,21,22,23,24,25, 28,29,30,31,32,33,34, 37,38,39,40,41,42,43};
+        int slotIdx = 0;
         for (ItemStack it : p.getInventory().getContents()) {
             if (it == null || !this.isVoucher(it)) continue;
-            if (slot >= 45) break;
-            inv.setItem(slot++, it.clone());
+            if (slotIdx >= slots.length) break;
+            inv.setItem(slots[slotIdx], it.clone());
+            slotIdx++;
         }
         inv.setItem(47, this.icon(Material.REDSTONE, "&cRemove Active Voucher", Collections.singletonList("&7Click to cancel voucher.")));
         inv.setItem(49, this.icon(Material.BARRIER, "&cKembali", Collections.singletonList("&7Click to return.")));
@@ -1125,7 +1303,7 @@ TabExecutor {
     }
 
     private void openAdmin(Player p) {
-        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("admin", null), (int)27, (String)this.color("&8Market Admin"));
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("admin", null), (int)27, (String)this.color("&fMarket Admin"));
         inv.setItem(10, this.icon(Material.CHEST, "&eKelola Item", Arrays.asList("&7View active/inactive items.", "&7Edit detail lewat market.yml.")));
         inv.setItem(11, this.icon(Material.HOPPER, "&eKelola Stock", Arrays.asList("&7Stock otomatis tersimpan.", "&7Gunakan market.yml + /market reload.")));
         inv.setItem(12, this.icon(Material.GOLD_INGOT, "&eManage Prices", Arrays.asList("&7Current price is in data/prices.yml.", "&7Base price is in market.yml.")));
@@ -1137,7 +1315,7 @@ TabExecutor {
     }
 
     private void openClaim(Player p) {
-        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("claim", null), (int)54, (String)this.color("&8Market Claim"));
+        Inventory inv = Bukkit.createInventory((InventoryHolder)new MarketHolder("claim", null), (int)54, (String)this.color("&fMarket Claim"));
         int slot = 0;
         ConfigurationSection sec = this.refundsCfg.getConfigurationSection("refunds");
         if (sec != null) {
@@ -1317,6 +1495,19 @@ TabExecutor {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         Bukkit.getScheduler().runTaskLater((Plugin)this, () -> this.autoClaimOnLogin(e.getPlayer()), 40L);
+    }
+
+    @EventHandler
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent e) {
+        if (!this.getConfig().getBoolean("points.pvp.enabled", true)) return;
+        org.bukkit.entity.Player victim = e.getEntity();
+        org.bukkit.entity.Player killer = victim.getKiller();
+        if (killer != null && !killer.getUniqueId().equals(victim.getUniqueId())) {
+            if (victim.hasMetadata("in_duel") || killer.hasMetadata("in_duel")) return;
+            long pvpAmount = this.getConfig().getLong("points.pvp.amount", 15L);
+            addPoints(killer.getUniqueId(), pvpAmount);
+            killer.sendMessage(color("&aYou received &e" + pvpAmount + " Points &afor killing &c" + victim.getName() + "&a!"));
+        }
     }
 
     private ItemStack marketIcon(MarketItem mi) {
@@ -1800,6 +1991,41 @@ TabExecutor {
         return true;
     }
 
+    public long getPoints(UUID uuid) {
+        if (this.pointsCfg == null) return 0L;
+        return this.pointsCfg.getLong("points." + String.valueOf(uuid), 0L);
+    }
+
+    public void setPoints(UUID uuid, long amount) {
+        if (this.pointsCfg == null) return;
+        long oldPts = this.getPoints(uuid);
+        long newPts = Math.max(0L, amount);
+        this.pointsCfg.set("points." + String.valueOf(uuid), newPts);
+        if (this.dbManager != null && this.dbManager.isEnabled()) {
+            this.dbManager.savePointsAsync(uuid, newPts);
+        }
+        if (oldPts != newPts) {
+            this.logLine("economy_changes.log", this.nowLine() + " uuid=" + uuid + " old_points=" + oldPts + " new_points=" + newPts + " diff=" + (newPts - oldPts));
+        }
+    }
+
+    public void addPoints(UUID uuid, long amount) {
+        this.setPoints(uuid, this.getPoints(uuid) + amount);
+    }
+
+    public boolean takePoints(UUID uuid, long amount) {
+        long pts = this.getPoints(uuid);
+        if (pts < amount) {
+            return false;
+        }
+        this.setPoints(uuid, pts - amount);
+        return true;
+    }
+
+    public String getPointsFormatted(OfflinePlayer p) {
+        return this.formatNumber(this.getPoints(p.getUniqueId())) + " Points";
+    }
+
     public String getBalanceFormatted(OfflinePlayer p) {
         return this.formatRp(this.getBalance(p.getUniqueId()));
     }
@@ -1973,7 +2199,6 @@ TabExecutor {
             }
         }
         catch (IOException iOException) {
-            // empty catch block
         }
     }
 
@@ -2026,7 +2251,7 @@ TabExecutor {
         return this.getConfig().getString("currency.prefix", "Rp") + " " + this.formatNumber(amount);
     }
 
-    private String formatNumber(long amount) {
+    public String formatNumber(long amount) {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
         symbols.setGroupingSeparator(this.getConfig().getString("currency.thousands-separator", ".").charAt(0));
         DecimalFormat df = new DecimalFormat("#,###", symbols);
@@ -2042,13 +2267,41 @@ TabExecutor {
             }
             return this.filter(options, args[0]);
         }
-        if (name.equals("bal") || name.equals("pay")) {
+        if (name.equals("bal") || name.equals("pay") || name.equals("points") || name.equals("point")) {
             if (args.length == 1) {
+                if ((name.equals("points") || name.equals("point"))) {
+                    List<String> options = new ArrayList<>(Arrays.asList("shop"));
+                    if (sender.hasPermission("market.admin")) {
+                        options.addAll(Arrays.asList("give", "take", "set", "setafk"));
+                    }
+                    for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        options.add(p.getName());
+                    }
+                    return this.filter(options, args[0]);
+                }
                 List<String> players = new ArrayList<>();
                 for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                     players.add(p.getName());
                 }
                 return this.filter(players, args[0]);
+            }
+            if ((name.equals("points") || name.equals("point")) && args.length == 2 && sender.hasPermission("market.admin")) {
+                if (Arrays.asList("give", "take", "set").contains(args[0].toLowerCase())) {
+                    List<String> players = new ArrayList<>();
+                    for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                        players.add(p.getName());
+                    }
+                    return this.filter(players, args[1]);
+                }
+                if (args[0].equalsIgnoreCase("shop")) {
+                    return this.filter(Arrays.asList("add", "edit"), args[1]);
+                }
+                if (args[0].equalsIgnoreCase("setafk")) {
+                    return Collections.singletonList("<radius>");
+                }
+            }
+            if ((name.equals("points") || name.equals("point")) && args.length == 3 && args[0].equalsIgnoreCase("shop") && args[1].equalsIgnoreCase("add") && sender.hasPermission("market.admin")) {
+                return Collections.singletonList("<price>");
             }
         }
         if (name.equals("payall")) {

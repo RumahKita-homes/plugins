@@ -273,7 +273,6 @@ TabExecutor {
                     }
                 }
                 catch (Exception exception) {
-                    // empty catch block
                 }
                 return ProtectionResult.DENY;
             }

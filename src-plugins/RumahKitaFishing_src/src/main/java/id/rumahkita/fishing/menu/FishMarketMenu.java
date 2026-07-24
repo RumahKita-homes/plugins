@@ -39,7 +39,7 @@ public final class FishMarketMenu {
     }
 
     public void open(Player player) {
-        String title = Text.color(this.plugin.guiConfig().get().getString("fish-market.title", "&8RumahKita Fish Market"));
+        String title = Text.color(this.plugin.guiConfig().get().getString("fish-market.title", "&fFish Market"));
         int size = this.normalizeSize(this.plugin.guiConfig().get().getInt("fish-market.size", 27));
         Inventory inventory = Bukkit.createInventory((InventoryHolder)new FishMenuHolder(), (int)size, (String)title);
         if (this.plugin.guiConfig().get().getBoolean("fish-market.filler.enabled", true)) {

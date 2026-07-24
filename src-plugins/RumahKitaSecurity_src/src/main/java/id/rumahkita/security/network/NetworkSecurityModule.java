@@ -49,7 +49,6 @@ public class NetworkSecurityModule implements CommandExecutor, Listener {
     }
 
     private void logModeration(String message) {
-        // Simple file logger since we moved to security
         try {
             File logFile = new File(plugin.getDataFolder(), "moderation.log");
             if (!logFile.exists()) {

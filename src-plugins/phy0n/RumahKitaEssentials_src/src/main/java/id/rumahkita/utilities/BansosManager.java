@@ -125,7 +125,6 @@ implements TabExecutor {
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.8f, 1.3f);
             }
             catch (Exception exception) {
-                // empty catch block
             }
             ++count;
         }
